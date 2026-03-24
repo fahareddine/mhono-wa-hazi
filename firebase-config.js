@@ -9,12 +9,12 @@
 // ============================================================
 
 window.FIREBASE_CONFIG = {
-  apiKey:            "VOTRE_API_KEY",
-  authDomain:        "VOTRE_PROJET.firebaseapp.com",
-  projectId:         "VOTRE_PROJET_ID",
-  storageBucket:     "VOTRE_PROJET.appspot.com",
-  messagingSenderId: "VOTRE_SENDER_ID",
-  appId:             "VOTRE_APP_ID"
+  apiKey:            "AIzaSyDFzrRefcysqjJaz3ejVHMeZautLrCziao",
+  authDomain:        "mhono-wa-hazi.firebaseapp.com",
+  projectId:         "mhono-wa-hazi",
+  storageBucket:     "mhono-wa-hazi.firebasestorage.app",
+  messagingSenderId: "808378659977",
+  appId:             "1:808378659977:web:c23c4fe2ab641319360258"
 };
 
 // Mot de passe admin (à changer)
