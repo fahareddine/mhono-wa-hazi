@@ -416,7 +416,22 @@ textarea.req-input{resize:vertical;min-height:90px}
       </div>
       <div class="booking-section">
         <div class="booking-section-title">Votre adresse</div>
-        <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);padding:10px 14px"><input placeholder="Ex: Quartier Bandamaji, Moroni, Ngazidja" style="width:100%;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--g700);outline:none"></div>
+        <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);padding:10px 14px"><input id="b-adresse" placeholder="Ex: Quartier Bandamaji, Moroni, Ngazidja" style="width:100%;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--g700);outline:none"></div>
+      </div>
+      <div class="booking-section">
+        <div class="booking-section-title">Vos coordonnées</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);padding:10px 14px">
+            <input id="b-nom" placeholder="Votre nom *" style="width:100%;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--g700);outline:none">
+          </div>
+          <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);padding:10px 14px">
+            <input id="b-wa-client" type="tel" placeholder="WhatsApp * (+269 3XX XX XX)" style="width:100%;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--g700);outline:none">
+          </div>
+          <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);padding:10px 14px">
+            <input id="b-email" type="email" placeholder="Email (pour recevoir une confirmation)" style="width:100%;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--g700);outline:none">
+          </div>
+          <div style="font-size:11px;color:var(--g400);line-height:1.6">📧 Si vous renseignez votre email, vous recevrez une confirmation automatique.</div>
+        </div>
       </div>
       <div class="booking-section" style="background:#FEF3DC">
         <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px">⚠️</span><div style="font-size:12px;color:#92400E;line-height:1.7"><strong>Important :</strong> Info Experts contactera le client et le prestataire pour confirmer le rendez-vous et organiser le paiement. Aucune intervention sans notre confirmation préalable.</div></div>
@@ -494,9 +509,18 @@ textarea.req-input{resize:vertical;min-height:90px}
       <input id="req-date" type="date" class="req-input">
     </div>
     <div class="req-section">
+      <label class="req-label">Votre nom *</label>
+      <input id="req-nom" type="text" class="req-input" placeholder="Ex : Mohamed Ali">
+    </div>
+    <div class="req-section">
       <label class="req-label">Votre numéro WhatsApp *</label>
       <input id="req-wa" type="tel" class="req-input" placeholder="+269 3XX XX XX">
       <div style="font-size:11px;color:var(--g400);margin-top:6px">Info Experts vous contactera sur ce numéro dans les 2h.</div>
+    </div>
+    <div class="req-section">
+      <label class="req-label">Votre email <span style="font-weight:400;color:var(--g400)">(optionnel — pour recevoir une confirmation)</span></label>
+      <input id="req-email" type="email" class="req-input" placeholder="exemple@email.com">
+      <div style="font-size:11px;color:var(--g400);margin-top:6px">📧 Un email de confirmation vous sera envoyé automatiquement.</div>
     </div>
     <div style="padding:16px">
       <button class="btn-primary" id="req-btn" onclick="submitRequest()">Envoyer ma demande à Info Experts</button>
@@ -751,20 +775,21 @@ async function loadProvidersFromFirebase() {
 
 // ── DEMANDER UN SERVICE ──────────────────────────────
 async function submitRequest() {
-  const type = document.getElementById('req-type').value;
-  const desc = document.getElementById('req-desc').value.trim();
-  const loc  = document.getElementById('req-loc').value.trim();
-  const date = document.getElementById('req-date').value;
-  const wa   = document.getElementById('req-wa').value.trim();
-  if (!type || !desc || !loc || !wa) { alert('Veuillez remplir les champs obligatoires (*).'); return; }
+  const type  = document.getElementById('req-type').value;
+  const desc  = document.getElementById('req-desc').value.trim();
+  const loc   = document.getElementById('req-loc').value.trim();
+  const date  = document.getElementById('req-date').value;
+  const wa    = document.getElementById('req-wa').value.trim();
+  const nom   = document.getElementById('req-nom').value.trim();
+  const email = document.getElementById('req-email').value.trim();
+  if (!type || !desc || !loc || !wa || !nom) { alert('Veuillez remplir les champs obligatoires (*).'); return; }
   const btn = document.getElementById('req-btn');
   btn.textContent = 'Envoi en cours…'; btn.disabled = true;
   const ref = 'MWH-DEM-' + Date.now().toString(36).toUpperCase();
-  const msg = 'Bonjour Info Experts 👋\n\n*Nouvelle demande client — Mhono wa Hazi*\n\n🔧 Service : '+type+'\n📝 Besoin : '+desc+'\n📍 Lieu : '+loc+'\n📅 Date : '+(date||'Non précisée')+'\n📱 Client WhatsApp : '+wa+'\n📋 Réf : '+ref+'\n\nMerci de traiter cette demande.';
+  const msg = 'Bonjour Info Experts 👋\n\n*Nouvelle demande client — Mhono wa Hazi*\n\n👤 Client : '+nom+'\n🔧 Service : '+type+'\n📝 Besoin : '+desc+'\n📍 Lieu : '+loc+'\n📅 Date : '+(date||'Non précisée')+'\n📱 WhatsApp : '+wa+(email?'\n📧 Email : '+email:'')+'\n📋 Réf : '+ref+'\n\nMerci de traiter cette demande.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
-  // Firestore + email
   try {
-    const payload = { type:'service_request', serviceType:type, description:desc, localisation:loc, date, contact_wa:wa, ref };
+    const payload = { type:'service_request', serviceType:type, description:desc, localisation:loc, date, nom, email:email||null, contact_wa:wa, ref };
     if (db) await db.collection('demandes').add({ ...payload, statut:'nouveau', source:'client_direct', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
     await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
   } catch(e) {}
@@ -774,23 +799,28 @@ async function submitRequest() {
   document.getElementById('req-loc').value = '';
   document.getElementById('req-date').value = '';
   document.getElementById('req-wa').value = '';
+  document.getElementById('req-nom').value = '';
+  document.getElementById('req-email').value = '';
   btn.textContent = 'Envoyer ma demande à Info Experts'; btn.disabled = false;
   goTo('confirm');
 }
 
 async function sendBookingWA(){
-  const name=document.getElementById('b-name').textContent;
-  const service=document.getElementById('b-service').textContent;
-  const day=document.getElementById('b-day').textContent;
-  const slot=document.getElementById('b-slot').textContent;
-  const price=document.getElementById('b-price').textContent;
-  const pay=document.querySelector('.pay-option.sel .pay-label')?.textContent||'Non précisé';
+  const name   = document.getElementById('b-name').textContent;
+  const service= document.getElementById('b-service').textContent;
+  const day    = document.getElementById('b-day').textContent;
+  const slot   = document.getElementById('b-slot').textContent;
+  const price  = document.getElementById('b-price').textContent;
+  const pay    = document.querySelector('.pay-option.sel .pay-label')?.textContent||'Non précisé';
+  const nom    = document.getElementById('b-nom')?.value.trim()||'';
+  const wa     = document.getElementById('b-wa-client')?.value.trim()||'';
+  const email  = document.getElementById('b-email')?.value.trim()||'';
+  if (!wa) { alert('Veuillez renseigner votre numéro WhatsApp.'); return; }
   const ref='MWH-RDV-'+Date.now().toString(36).toUpperCase();
-  const msg='Bonjour Info Experts 👋\n\nNouvelle demande via *Mhono wa Hazi* :\n\n👷 Prestataire : '+name+'\n🔧 Service : '+service+'\n📅 Jour : '+day+'\n⏰ Créneau : '+slot+'\n💰 Tarif : '+price+'\n💳 Paiement souhaité : '+pay+'\n📋 Réf : '+ref+'\n\nMerci de confirmer cette réservation.';
+  const msg='Bonjour Info Experts 👋\n\nNouvelle demande via *Mhono wa Hazi* :\n\n'+(nom?'👤 Client : '+nom+'\n':'')+'👷 Prestataire : '+name+'\n🔧 Service : '+service+'\n📅 Jour : '+day+'\n⏰ Créneau : '+slot+'\n💰 Tarif : '+price+'\n💳 Paiement souhaité : '+pay+'\n📱 WhatsApp : '+wa+(email?'\n📧 Email : '+email:'')+'\n📋 Réf : '+ref+'\n\nMerci de confirmer cette réservation.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
-  // Email
   try {
-    await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'reservation', prestataire:name, service, creneau:day+' '+slot, tarif:price, paiement:pay, contact_wa: cur?.wa||'', ref }) });
+    await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'reservation', prestataire:name, service, creneau:day+' '+slot, tarif:price, paiement:pay, nom:nom||null, email:email||null, contact_wa:wa, localisation:document.getElementById('b-adresse')?.value||null, ref }) });
   } catch(e) {}
   document.getElementById('c-ref').textContent = ref;
   goTo('confirm');
