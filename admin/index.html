@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Mhono wa Hazi</title>
+<style>
+:root{--green:#1A9E6F;--gl:#E6F7F1;--gd:#0D6B4A;--orange:#F5A623;--ol:#FEF3DC;--red:#E53E3E;--rl:#FFF5F5;--blue:#3B82F6;--bl:#EFF6FF;--g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;--g900:#111827;--w:#FFFFFF;--font:'Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:100vh}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-card{background:var(--w);border-radius:16px;padding:40px 32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
+.login-logo{font-size:28px;font-weight:800;color:var(--green);margin-bottom:4px}
+.login-sub{font-size:14px;color:var(--g500);margin-bottom:32px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--g600);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:14px;font-family:var(--font);color:var(--g800);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--green)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--green);color:#fff;width:100%}
+.btn-primary:hover{background:var(--gd)}
+.btn-danger{background:var(--rl);color:var(--red)}
+.btn-danger:hover{background:#FED7D7}
+.btn-outline{background:var(--w);color:var(--g700);border:1.5px solid var(--g200)}
+.btn-outline:hover{background:var(--g50)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.error-msg{font-size:13px;color:var(--red);margin-top:8px}
+
+/* LAYOUT ADMIN */
+.admin-layout{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--g900);flex-shrink:0;display:flex;flex-direction:column;padding:24px 0}
+.sidebar-logo{padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sidebar-logo-title{font-size:18px;font-weight:800;color:var(--green)}
+.sidebar-logo-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px}
+.sidebar-nav{padding:16px 0;flex:1}
+.nav-link{display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.nav-link.active{color:#fff;background:rgba(26,158,111,0.2);border-left-color:var(--green)}
+.nav-link svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1)}
+.main-content{flex:1;overflow-y:auto;padding:32px}
+@media(max-width:768px){.admin-layout{flex-direction:column}.sidebar{width:100%;padding:12px 0;flex-direction:row;align-items:center}.sidebar-logo{padding:0 16px;border-bottom:none}.sidebar-nav{display:flex;padding:0 8px;overflow-x:auto}.nav-link{padding:8px 12px;border-left:none;border-bottom:3px solid transparent;flex-shrink:0}.nav-link.active{border-bottom-color:var(--green)}.main-content{padding:16px}.sidebar-footer{display:none}}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px}
+.page-title{font-size:24px;font-weight:800;color:var(--g900)}
+.page-sub{font-size:14px;color:var(--g500);margin-top:4px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--w);border-radius:12px;padding:20px;border:1px solid var(--g200)}
+.stat-num{font-size:32px;font-weight:800;color:var(--g900)}
+.stat-lbl{font-size:13px;color:var(--g500);margin-top:4px}
+.stat-card.green .stat-num{color:var(--green)}
+.stat-card.orange .stat-num{color:var(--orange)}
+.stat-card.blue .stat-num{color:var(--blue)}
+.stat-card.red .stat-num{color:var(--red)}
+
+/* TABLE */
+.table-wrap{background:var(--w);border-radius:12px;border:1px solid var(--g200);overflow:hidden}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--g200)}
+.table-title{font-size:15px;font-weight:700}
+.table{width:100%;border-collapse:collapse}
+.table th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:0.5px;background:var(--g50);border-bottom:1px solid var(--g200)}
+.table td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:var(--g50)}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.badge-ok{background:var(--gl);color:var(--gd)}
+.badge-tm{background:var(--ol);color:#9A6400}
+.badge-no{background:var(--rl);color:var(--red)}
+.badge-vrf{background:#EDE9FE;color:#5B21B6}
+.actions{display:flex;gap:6px}
+.empty-state{padding:48px;text-align:center;color:var(--g400);font-size:14px}
+@media(max-width:768px){.table-wrap{overflow-x:auto}}
+
+/* FORM */
+.form-card{background:var(--w);border-radius:12px;border:1px solid var(--g200);padding:24px;max-width:720px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-row{display:flex;gap:16px}
+.form-group-full{grid-column:1/-1}
+.form-help{font-size:11px;color:var(--g400);margin-top:4px}
+select.form-input{appearance:none;cursor:pointer}
+textarea.form-input{resize:vertical;min-height:80px}
+.form-actions{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--g200)}
+
+/* DEMANDES */
+.demande-card{background:var(--w);border-radius:12px;border:1px solid var(--g200);padding:16px;margin-bottom:12px}
+.demande-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.demande-ref{font-size:12px;font-weight:700;color:var(--g500);font-family:monospace}
+.demande-body{font-size:13px;color:var(--g700);line-height:1.7;margin-bottom:12px}
+.demande-actions{display:flex;gap:8px;flex-wrap:wrap}
+.badge-nouveau{background:var(--bl);color:var(--blue)}
+.badge-en_cours{background:var(--ol);color:#9A6400}
+.badge-termine{background:var(--gl);color:var(--gd)}
+.badge-annule{background:var(--rl);color:var(--red)}
+.statut-select{padding:4px 10px;border:1.5px solid var(--g200);border-radius:8px;font-size:12px;font-family:var(--font);color:var(--g700);cursor:pointer}
+
+/* LOADING */
+.loading{text-align:center;padding:48px;color:var(--g400)}
+.spinner{width:32px;height:32px;border:3px solid var(--g200);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g900);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;display:none;animation:slideUp .2s ease}
+.toast.show{display:block}
+.toast.success{background:var(--gd)}
+.toast.error{background:var(--red)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN ====== -->
+<div id="login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">Mhono wa Hazi</div>
+      <div class="login-sub">Panel d'administration — Info Experts</div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe admin</label>
+        <input id="pwd-input" type="password" class="form-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkLogin()">
+        <div id="login-error" class="error-msg"></div>
+      </div>
+      <button class="btn btn-primary" onclick="checkLogin()">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ADMIN LAYOUT ====== -->
+<div id="admin" class="screen">
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-title">Mhono wa Hazi</div>
+        <div class="sidebar-logo-sub">Administration</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-link active" onclick="showTab('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Tableau de bord
+        </div>
+        <div class="nav-link" onclick="showTab('providers')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Prestataires
+        </div>
+        <div class="nav-link" onclick="showTab('demandes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Demandes clients
+          <span id="badge-demandes" style="margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none"></span>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%">Déconnexion</button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard" class="tab active">
+        <div class="page-header">
+          <div class="page-title">Tableau de bord</div>
+          <div class="page-sub">Vue d'ensemble de Mhono wa Hazi</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card green"><div class="stat-num" id="stat-total">—</div><div class="stat-lbl">Prestataires actifs</div></div>
+          <div class="stat-card orange"><div class="stat-num" id="stat-demandes">—</div><div class="stat-lbl">Nouvelles demandes</div></div>
+          <div class="stat-card blue"><div class="stat-num" id="stat-all-providers">—</div><div class="stat-lbl">Total prestataires</div></div>
+          <div class="stat-card red"><div class="stat-num" id="stat-inactif">—</div><div class="stat-lbl">Prestataires inactifs</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><div class="table-title">Dernières demandes clients</div><button class="btn btn-outline btn-sm" onclick="showTab('demandes')">Tout voir</button></div>
+          <div id="recent-demandes"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
+        </div>
+      </div>
+
+      <!-- PROVIDERS LIST -->
+      <div id="tab-providers" class="tab" style="display:none">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="page-title">Prestataires</div>
+            <div class="page-sub">Gérez les prestataires affichés dans l'application</div>
+          </div>
+          <button class="btn btn-primary" onclick="showForm()">+ Ajouter un prestataire</button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title" id="providers-count">Chargement…</div>
+            <input id="search-providers" type="text" class="form-input" placeholder="Rechercher…" style="width:200px;padding:6px 12px;font-size:13px" oninput="filterProviders()">
+          </div>
+          <div style="overflow-x:auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Prestataire</th>
+                  <th>Métier</th>
+                  <th>Localisation</th>
+                  <th>Tarif</th>
+                  <th>Statut</th>
+                  <th>Vérifié</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="providers-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Chargement…</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROVIDER FORM -->
+      <div id="tab-form" class="tab" style="display:none">
+        <div class="page-header" style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-outline btn-sm" onclick="showTab('providers')">← Retour</button>
+          <div>
+            <div class="page-title" id="form-title">Ajouter un prestataire</div>
+            <div class="page-sub">Remplissez les informations du prestataire</div>
+          </div>
+        </div>
+        <div class="form-card">
+          <input type="hidden" id="f-docid">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nom complet *</label>
+              <input id="f-name" type="text" class="form-input" placeholder="Said Omar">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Métier / Poste *</label>
+              <input id="f-job" type="text" class="form-input" placeholder="Plombier">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Catégorie *</label>
+              <select id="f-cat" class="form-input">
+                <option value="">Choisir…</option>
+                <option>Ménage</option><option>Plomberie</option><option>Électricité</option>
+                <option>Bâtiment</option><option>Cours</option><option>Jardinage</option>
+                <option>Informatique</option><option>Déménagement</option><option>Cuisine</option><option>Garde</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Localisation *</label>
+              <input id="f-loc" type="text" class="form-input" placeholder="Moroni Centre">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Zone d'intervention</label>
+              <input id="f-zone" type="text" class="form-input" placeholder="Moroni et environs">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Délai d'intervention</label>
+              <input id="f-delay" type="text" class="form-input" placeholder="Moins de 2h">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarif *</label>
+              <input id="f-price" type="text" class="form-input" placeholder="3 500">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unité</label>
+              <select id="f-unit" class="form-input">
+                <option>KMF/h</option><option>KMF/j</option><option>KMF/event</option><option>KMF/camion</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Note (sur 5)</label>
+              <input id="f-rat" type="number" class="form-input" min="0" max="5" step="0.1" placeholder="4.8">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nombre d'avis</label>
+              <input id="f-rev" type="number" class="form-input" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Missions réalisées</label>
+              <input id="f-done" type="text" class="form-input" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Taux de satisfaction</label>
+              <input id="f-rate" type="text" class="form-input" placeholder="100%">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Temps de réponse</label>
+              <input id="f-reply" type="text" class="form-input" placeholder="&lt; 1h">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Langues</label>
+              <input id="f-langs" type="text" class="form-input" placeholder="Shikomori · Français">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Disponibilité</label>
+              <select id="f-avail" class="form-input">
+                <option value="ok">Disponible</option>
+                <option value="tm">Disponible demain</option>
+                <option value="no">Occupé</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Couleur avatar</label>
+              <select id="f-av" class="form-input">
+                <option value="av-g">Vert</option><option value="av-o">Orange</option>
+                <option value="av-b">Bleu</option><option value="av-r">Rouge</option>
+                <option value="av-p">Violet</option><option value="av-t">Turquoise</option>
+                <option value="av-pk">Rose</option>
+              </select>
+            </div>
+            <div class="form-group form-group-full">
+              <label class="form-label">Spécialités (séparées par virgule)</label>
+              <input id="f-tags" type="text" class="form-input" placeholder="Fuite, Installation, Urgence 24h">
+            </div>
+            <div class="form-group form-group-full">
+              <label class="form-label">Jours disponibles (séparés par virgule)</label>
+              <input id="f-days" type="text" class="form-input" placeholder="Lun, Mar, Mer, Jeu, Ven">
+            </div>
+            <div class="form-group form-group-full">
+              <label class="form-label">Créneaux horaires (séparés par virgule)</label>
+              <input id="f-slots" type="text" class="form-input" placeholder="08h–10h, 10h–12h, 14h–16h">
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:10px">
+              <input id="f-vrf" type="checkbox" style="width:18px;height:18px;cursor:pointer">
+              <label for="f-vrf" class="form-label" style="margin:0;cursor:pointer">Prestataire vérifié par Info Experts</label>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:10px">
+              <input id="f-active" type="checkbox" checked style="width:18px;height:18px;cursor:pointer">
+              <label for="f-active" class="form-label" style="margin:0;cursor:pointer">Actif (visible dans l'app)</label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="saveProvider()" id="save-btn">Enregistrer</button>
+            <button class="btn btn-outline" onclick="showTab('providers')">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMANDES -->
+      <div id="tab-demandes" class="tab" style="display:none">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="page-title">Demandes clients</div>
+            <div class="page-sub">Demandes de service reçues via l'application</div>
+          </div>
+          <select id="filter-statut" class="form-input" style="width:160px;padding:6px 12px;font-size:13px" onchange="loadDemandes()">
+            <option value="">Toutes</option>
+            <option value="nouveau">Nouvelles</option>
+            <option value="en_cours">En cours</option>
+            <option value="termine">Terminées</option>
+            <option value="annule">Annulées</option>
+          </select>
+        </div>
+        <div id="demandes-list"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /admin-layout -->
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script>
+let db = null;
+let allProviders = [];
+let editingDocId = null;
+
+// ── INIT ──────────────────────────────────────────────
+function initFirebase() {
+  try {
+    const cfg = window.FIREBASE_CONFIG;
+    if (!cfg || cfg.apiKey === 'VOTRE_API_KEY') return false;
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    return true;
+  } catch(e) { return false; }
+}
+
+// ── AUTH ──────────────────────────────────────────────
+function checkLogin() {
+  const input = document.getElementById('pwd-input').value;
+  if (input === (window.ADMIN_PWD || 'InfoExperts2026!')) {
+    sessionStorage.setItem('mwh_admin', '1');
+    document.getElementById('login').classList.remove('active');
+    document.getElementById('admin').classList.add('active');
+    const ok = initFirebase();
+    if (!ok) showToast('Firebase non configuré — mode démo', 'error');
+    loadDashboard();
+  } else {
+    document.getElementById('login-error').textContent = 'Mot de passe incorrect.';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('mwh_admin');
+  document.getElementById('admin').classList.remove('active');
+  document.getElementById('login').classList.add('active');
+  document.getElementById('pwd-input').value = '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('mwh_admin') === '1') {
+    document.getElementById('login').classList.remove('active');
+    document.getElementById('admin').classList.add('active');
+    const ok = initFirebase();
+    if (!ok) showToast('Firebase non configuré — mode démo', 'error');
+    loadDashboard();
+  }
+});
+
+// ── NAVIGATION ────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+name).style.display = 'block';
+  document.querySelector('.nav-link[onclick*="'+name+'"]')?.classList.add('active');
+  if (name === 'providers') loadProviders();
+  if (name === 'demandes') loadDemandes();
+  if (name === 'dashboard') loadDashboard();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard() {
+  if (!db) {
+    document.getElementById('stat-total').textContent = '14';
+    document.getElementById('stat-all-providers').textContent = '14';
+    document.getElementById('stat-inactif').textContent = '0';
+    document.getElementById('stat-demandes').textContent = '0';
+    document.getElementById('recent-demandes').innerHTML = '<div class="empty-state">Firebase non configuré. <a href="#" onclick="showToast(\'Configurez firebase-config.js\',\'error\')">Voir instructions</a></div>';
+    return;
+  }
+  try {
+    const [pSnap, dSnap] = await Promise.all([
+      db.collection('providers').get(),
+      db.collection('demandes').where('statut','==','nouveau').get()
+    ]);
+    const actifs = pSnap.docs.filter(d => d.data().active !== false).length;
+    const inactifs = pSnap.size - actifs;
+    document.getElementById('stat-total').textContent = actifs;
+    document.getElementById('stat-all-providers').textContent = pSnap.size;
+    document.getElementById('stat-inactif').textContent = inactifs;
+    document.getElementById('stat-demandes').textContent = dSnap.size;
+    const badge = document.getElementById('badge-demandes');
+    if (dSnap.size > 0) { badge.style.display = 'flex'; badge.textContent = dSnap.size; }
+
+    // Dernières demandes
+    const lastDemandes = await db.collection('demandes').orderBy('createdAt','desc').limit(5).get();
+    if (lastDemandes.empty) {
+      document.getElementById('recent-demandes').innerHTML = '<div class="empty-state">Aucune demande pour le moment.</div>';
+    } else {
+      document.getElementById('recent-demandes').innerHTML = '<table class="table"><thead><tr><th>Réf.</th><th>Service</th><th>Localisation</th><th>Contact</th><th>Statut</th></tr></thead><tbody>'+
+        lastDemandes.docs.map(d => {
+          const x = d.data();
+          return `<tr><td style="font-family:monospace">${x.ref||'—'}</td><td>${x.serviceType||'—'}</td><td>${x.localisation||'—'}</td><td>${x.contact_wa||'—'}</td><td><span class="badge badge-${x.statut||'nouveau'}">${x.statut||'nouveau'}</span></td></tr>`;
+        }).join('')+'</tbody></table>';
+    }
+  } catch(e) { showToast('Erreur chargement dashboard', 'error'); }
+}
+
+// ── PROVIDERS ─────────────────────────────────────────
+async function loadProviders() {
+  if (!db) {
+    document.getElementById('providers-count').textContent = 'Firebase non configuré';
+    document.getElementById('providers-tbody').innerHTML = '<tr><td colspan="7"><div class="empty-state">Configurez firebase-config.js pour gérer les prestataires.</div></td></tr>';
+    return;
+  }
+  try {
+    const snap = await db.collection('providers').orderBy('name').get();
+    allProviders = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    renderProvidersTable(allProviders);
+  } catch(e) { showToast('Erreur chargement prestataires', 'error'); }
+}
+
+function renderProvidersTable(list) {
+  document.getElementById('providers-count').textContent = list.length + ' prestataire' + (list.length>1?'s':'');
+  if (!list.length) {
+    document.getElementById('providers-tbody').innerHTML = '<tr><td colspan="7"><div class="empty-state">Aucun prestataire. Cliquez sur "+ Ajouter".</div></td></tr>';
+    return;
+  }
+  document.getElementById('providers-tbody').innerHTML = list.map(p => `
+    <tr>
+      <td><strong>${p.name||'—'}</strong></td>
+      <td>${p.job||'—'}</td>
+      <td>${p.loc||'—'}</td>
+      <td>${p.price||'—'} ${p.unit||''}</td>
+      <td><span class="badge badge-${p.avail==='ok'?'ok':p.avail==='tm'?'tm':'no'}">${p.avail==='ok'?'Disponible':p.avail==='tm'?'Demain':'Occupé'}</span>
+          ${p.active===false?'<span class="badge" style="background:var(--g200);color:var(--g500);margin-left:4px">Masqué</span>':''}</td>
+      <td>${p.vrf?'<span class="badge badge-vrf">✓ Vérifié</span>':'<span style="color:var(--g400);font-size:12px">Non</span>'}</td>
+      <td><div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="editProvider('${p._docId}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProvider('${p._docId}','${p.name}')">Supprimer</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function filterProviders() {
+  const q = document.getElementById('search-providers').value.toLowerCase();
+  renderProvidersTable(allProviders.filter(p =>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.job||'').toLowerCase().includes(q) ||
+    (p.loc||'').toLowerCase().includes(q)
+  ));
+}
+
+// ── FORM ──────────────────────────────────────────────
+function showForm(docId = null) {
+  editingDocId = docId;
+  document.getElementById('form-title').textContent = docId ? 'Modifier le prestataire' : 'Ajouter un prestataire';
+  document.getElementById('f-docid').value = docId || '';
+  if (!docId) {
+    ['f-name','f-job','f-loc','f-zone','f-delay','f-price','f-tags','f-days','f-slots','f-langs','f-done','f-rate','f-reply'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-rat').value = '';
+    document.getElementById('f-rev').value = '';
+    document.getElementById('f-cat').value = '';
+    document.getElementById('f-unit').value = 'KMF/h';
+    document.getElementById('f-av').value = 'av-g';
+    document.getElementById('f-avail').value = 'ok';
+    document.getElementById('f-vrf').checked = false;
+    document.getElementById('f-active').checked = true;
+  }
+  showTab('form');
+}
+
+function editProvider(docId) {
+  const p = allProviders.find(x => x._docId === docId);
+  if (!p) return;
+  editingDocId = docId;
+  document.getElementById('form-title').textContent = 'Modifier — ' + p.name;
+  document.getElementById('f-docid').value = docId;
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-job').value = p.job || '';
+  document.getElementById('f-cat').value = p.cat || '';
+  document.getElementById('f-loc').value = p.loc || '';
+  document.getElementById('f-zone').value = p.zone || '';
+  document.getElementById('f-delay').value = p.delay || '';
+  document.getElementById('f-price').value = p.price || '';
+  document.getElementById('f-unit').value = p.unit || 'KMF/h';
+  document.getElementById('f-rat').value = p.rat || '';
+  document.getElementById('f-rev').value = p.rev || '';
+  document.getElementById('f-done').value = p.done || '';
+  document.getElementById('f-rate').value = p.rate || '';
+  document.getElementById('f-reply').value = p.reply || '';
+  document.getElementById('f-langs').value = p.langs || '';
+  document.getElementById('f-avail').value = p.avail || 'ok';
+  document.getElementById('f-av').value = p.av || 'av-g';
+  document.getElementById('f-tags').value = (p.tags||[]).join(', ');
+  document.getElementById('f-days').value = (p.days||[]).join(', ');
+  document.getElementById('f-slots').value = (p.slots||[]).join(', ');
+  document.getElementById('f-vrf').checked = !!p.vrf;
+  document.getElementById('f-active').checked = p.active !== false;
+  document.getElementById('tab-form').style.display = 'block';
+  document.querySelectorAll('.tab:not(#tab-form)').forEach(t => t.style.display = 'none');
+}
+
+async function saveProvider() {
+  const name = document.getElementById('f-name').value.trim();
+  const cat  = document.getElementById('f-cat').value;
+  if (!name || !cat) { showToast('Nom et catégorie obligatoires', 'error'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Enregistrement…'; btn.disabled = true;
+
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const data = {
+    name,
+    job:   document.getElementById('f-job').value.trim(),
+    cat,
+    loc:   document.getElementById('f-loc').value.trim(),
+    zone:  document.getElementById('f-zone').value.trim(),
+    delay: document.getElementById('f-delay').value.trim(),
+    price: document.getElementById('f-price').value.trim(),
+    unit:  document.getElementById('f-unit').value,
+    rat:   parseFloat(document.getElementById('f-rat').value) || 5.0,
+    rev:   parseInt(document.getElementById('f-rev').value) || 0,
+    done:  document.getElementById('f-done').value.trim() || '0',
+    rate:  document.getElementById('f-rate').value.trim() || '100%',
+    reply: document.getElementById('f-reply').value.trim() || '< 2h',
+    langs: document.getElementById('f-langs').value.trim() || 'Shikomori',
+    avail: document.getElementById('f-avail').value,
+    av:    document.getElementById('f-av').value,
+    tags:  document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    days:  document.getElementById('f-days').value.split(',').map(d => d.trim()).filter(Boolean),
+    slots: document.getElementById('f-slots').value.split(',').map(s => s.trim()).filter(Boolean),
+    vrf:   document.getElementById('f-vrf').checked,
+    active: document.getElementById('f-active').checked,
+    i: initials,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    const docId = document.getElementById('f-docid').value;
+    if (docId) {
+      await db.collection('providers').doc(docId).update(data);
+      showToast('Prestataire mis à jour ✓', 'success');
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      data.id = Date.now();
+      data.rvl = [];
+      await db.collection('providers').add(data);
+      showToast('Prestataire ajouté ✓', 'success');
+    }
+    showTab('providers');
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.textContent = 'Enregistrer'; btn.disabled = false;
+  }
+}
+
+async function deleteProvider(docId, name) {
+  if (!confirm(`Supprimer "${name}" ? Cette action est irréversible.`)) return;
+  try {
+    await db.collection('providers').doc(docId).delete();
+    showToast('Prestataire supprimé', 'success');
+    loadProviders();
+  } catch(e) { showToast('Erreur suppression', 'error'); }
+}
+
+// ── DEMANDES ──────────────────────────────────────────
+async function loadDemandes() {
+  if (!db) {
+    document.getElementById('demandes-list').innerHTML = '<div class="empty-state">Firebase non configuré.</div>';
+    return;
+  }
+  document.getElementById('demandes-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement…</div>';
+  try {
+    const statut = document.getElementById('filter-statut').value;
+    let query = db.collection('demandes').orderBy('createdAt','desc');
+    if (statut) query = db.collection('demandes').where('statut','==',statut).orderBy('createdAt','desc');
+    const snap = await query.get();
+    if (snap.empty) {
+      document.getElementById('demandes-list').innerHTML = '<div class="empty-state">Aucune demande pour le moment.</div>';
+      return;
+    }
+    document.getElementById('demandes-list').innerHTML = snap.docs.map(d => {
+      const x = d.data();
+      const date = x.createdAt?.toDate ? x.createdAt.toDate().toLocaleDateString('fr-FR') : '—';
+      return `<div class="demande-card">
+        <div class="demande-header">
+          <span class="demande-ref">${x.ref||d.id}</span>
+          <span class="badge badge-${x.serviceType?.toLowerCase().includes('plomb')?'ok':'tm'}">${x.serviceType||'—'}</span>
+          <select class="statut-select" onchange="updateStatut('${d.id}',this.value)">
+            <option value="nouveau" ${x.statut==='nouveau'?'selected':''}>Nouveau</option>
+            <option value="en_cours" ${x.statut==='en_cours'?'selected':''}>En cours</option>
+            <option value="termine" ${x.statut==='termine'?'selected':''}>Terminé</option>
+            <option value="annule" ${x.statut==='annule'?'selected':''}>Annulé</option>
+          </select>
+          <span style="margin-left:auto;font-size:11px;color:var(--g400)">${date}</span>
+        </div>
+        <div class="demande-body">
+          <strong>📍 ${x.localisation||'—'}</strong><br>
+          ${x.description||'—'}<br>
+          <span style="color:var(--g500)">📅 ${x.date||'Date non précisée'}</span>
+        </div>
+        <div class="demande-actions">
+          <button class="btn btn-primary btn-sm" onclick="window.open('https://wa.me/${encodeURIComponent('+')}'+(x.contact_wa||'').replace(/\\D/g,'')+'?text='+encodeURIComponent('Bonjour 👋 Info Experts vous contacte concernant votre demande Mhono wa Hazi (${x.ref||''}).'))">💬 WhatsApp ${x.contact_wa||''}</button>
+          <button class="btn btn-outline btn-sm" onclick="updateStatut('${d.id}','termine')">✓ Marquer terminé</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { showToast('Erreur chargement demandes', 'error'); console.error(e); }
+}
+
+async function updateStatut(docId, statut) {
+  try {
+    await db.collection('demandes').doc(docId).update({ statut });
+    showToast('Statut mis à jour ✓', 'success');
+  } catch(e) { showToast('Erreur mise à jour', 'error'); }
+}
+
+// ── TOAST ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

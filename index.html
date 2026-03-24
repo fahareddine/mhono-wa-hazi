@@ -209,6 +209,14 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
 .ie-footer-logo{font-family:var(--disp);font-size:14px;color:var(--green);margin-bottom:4px}
 .ie-footer-text{font-size:11px;color:var(--g400);line-height:1.6}
 .ie-footer-contact{font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px}
+/* Demander un service */
+.req-input{width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:var(--r2);font-size:14px;font-family:var(--font);color:var(--g800);outline:none;background:var(--w);transition:border-color .15s}
+.req-input:focus{border-color:var(--green)}
+select.req-input{appearance:none;cursor:pointer}
+textarea.req-input{resize:vertical;min-height:90px}
+.req-section{padding:16px;border-bottom:1px solid var(--g100)}
+.req-label{font-size:12px;font-weight:700;color:var(--g600);margin-bottom:8px;display:block}
+.fab{position:fixed;bottom:80px;right:16px;z-index:50;background:var(--green);color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,158,111,0.4);display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -256,10 +264,11 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
       <div class="building-icon">🏗️</div>
       <div><div style="font-family:var(--disp);font-size:16px;color:white">Travaux & Bâtiment</div><div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px">Maçonnerie, carrelage, peinture, charpente, toiture, ferraillage…</div></div>
     </div>
-    <div class="promo-banner">
+    <div class="promo-banner" onclick="goTo('request')" style="cursor:pointer">
       <div class="promo-tag">Nouveau</div>
-      <div class="promo-text">Vérification gratuite de tous nos prestataires</div>
-      <div class="promo-sub">Identité, compétences et avis contrôlés par Info Experts</div>
+      <div class="promo-text">Vous avez besoin d'un service ?</div>
+      <div class="promo-sub">Décrivez votre besoin → Info Experts trouve le bon prestataire</div>
+      <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.4)">Faire une demande →</div>
     </div>
     <div class="section-header" style="margin-top:8px"><div class="section-title">Prestataires populaires</div><div class="section-link" onclick="goTo('explore')">Tout voir</div></div>
     <div class="cards-list" id="home-cards"></div>
@@ -448,6 +457,54 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
   </div>
 </div>
 
+<!-- DEMANDER UN SERVICE -->
+<div id="request" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Demander un service</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div style="background:linear-gradient(135deg,var(--gd),var(--green));padding:16px 20px;margin-bottom:8px">
+      <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:4px">Info Experts vous met en relation</div>
+      <div style="font-size:16px;font-weight:700;color:#fff">Décrivez votre besoin, nous trouvons le bon prestataire</div>
+    </div>
+    <div class="req-section">
+      <label class="req-label">Type de service *</label>
+      <select id="req-type" class="req-input">
+        <option value="">Choisir une catégorie…</option>
+        <option>Ménage</option><option>Plomberie</option><option>Électricité</option>
+        <option>Bâtiment / Maçonnerie</option><option>Cours particuliers</option>
+        <option>Jardinage</option><option>Informatique / Réseau</option>
+        <option>Déménagement</option><option>Cuisine / Traiteur</option>
+        <option>Garde d'enfants</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="req-section">
+      <label class="req-label">Décrivez votre besoin *</label>
+      <textarea id="req-desc" class="req-input" rows="4" placeholder="Ex : J'ai une fuite sous l'évier de ma cuisine depuis 2 jours…"></textarea>
+    </div>
+    <div class="req-section">
+      <label class="req-label">Votre localisation *</label>
+      <input id="req-loc" type="text" class="req-input" placeholder="Ex : Quartier Bandamaji, Moroni">
+    </div>
+    <div class="req-section">
+      <label class="req-label">Date souhaitée</label>
+      <input id="req-date" type="date" class="req-input">
+    </div>
+    <div class="req-section">
+      <label class="req-label">Votre numéro WhatsApp *</label>
+      <input id="req-wa" type="tel" class="req-input" placeholder="+269 3XX XX XX">
+      <div style="font-size:11px;color:var(--g400);margin-top:6px">Info Experts vous contactera sur ce numéro dans les 2h.</div>
+    </div>
+    <div style="padding:16px">
+      <button class="btn-primary" id="req-btn" onclick="submitRequest()">Envoyer ma demande à Info Experts</button>
+      <div style="font-size:11px;color:var(--g500);text-align:center;margin-top:10px">Votre demande sera envoyée par WhatsApp à Info Experts</div>
+    </div>
+  </div>
+</div>
+
 <!-- BOOKINGS -->
 <div id="bookings" class="screen">
   <div class="topbar"><div class="topbar-inner"><div class="topbar-logo">Mes <span>Réservations</span></div></div></div>
@@ -556,6 +613,9 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="/firebase-config.js"></script>
 <script>
 const P=[
   {id:1,i:'SO',av:'av-g',name:'Said Omar',job:'Plombier',cat:'Plomberie',loc:'Moroni Centre',rat:4.9,rev:47,price:'3 500',unit:'KMF/h',avail:'ok',zone:'Moroni et environs',delay:'Moins de 2h',done:'98',rate:'99%',reply:'< 1h',langs:'Shikomori · Français',tags:['Fuite','Installation','Urgence 24h'],vrf:true,days:['Lun','Mar','Mer','Jeu','Ven','Sam'],slots:['08h–10h','10h–12h','14h–16h','16h–18h'],rvl:[{n:'Mariam D.',s:'★★★★★',d:'il y a 3 jours',t:'Très professionnel et ponctuel. Fuite réparée en moins d\'une heure. Je recommande !'},{n:'Ousseni K.',s:'★★★★★',d:'la semaine dernière',t:'Excellent travail, prix correct. Il a vérifié toute la plomberie sans supplément.'}]},
@@ -666,6 +726,57 @@ function selSlot(el,type){
     else{document.getElementById('b-slot').textContent=el.textContent;}
   }
 }
+// ── FIREBASE ────────────────────────────────────────
+let db = null;
+function initFirebase() {
+  try {
+    const cfg = window.FIREBASE_CONFIG;
+    if (!cfg || cfg.apiKey === 'VOTRE_API_KEY') return false;
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    return true;
+  } catch(e) { return false; }
+}
+
+async function loadProvidersFromFirebase() {
+  if (!db) { initHome(); renderExplore(P); return; }
+  try {
+    const snap = await db.collection('providers').where('active','==',true).get();
+    if (!snap.empty) {
+      P = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+    }
+  } catch(e) { /* fallback statique */ }
+  initHome(); renderExplore(P);
+}
+
+// ── DEMANDER UN SERVICE ──────────────────────────────
+async function submitRequest() {
+  const type = document.getElementById('req-type').value;
+  const desc = document.getElementById('req-desc').value.trim();
+  const loc  = document.getElementById('req-loc').value.trim();
+  const date = document.getElementById('req-date').value;
+  const wa   = document.getElementById('req-wa').value.trim();
+  if (!type || !desc || !loc || !wa) { alert('Veuillez remplir les champs obligatoires (*).'); return; }
+  const btn = document.getElementById('req-btn');
+  btn.textContent = 'Envoi en cours…'; btn.disabled = true;
+  const ref = '#MWH-' + new Date().getFullYear() + '-' + (Math.floor(Math.random()*9000)+1000);
+  const msg = 'Bonjour Info Experts 👋\n\n*Nouvelle demande client — Mhono wa Hazi*\n\n🔧 Service : '+type+'\n📝 Besoin : '+desc+'\n📍 Lieu : '+loc+'\n📅 Date : '+(date||'Non précisée')+'\n📱 Client WhatsApp : '+wa+'\n📋 Réf : '+ref+'\n\nMerci de traiter cette demande.';
+  window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
+  if (db) {
+    try {
+      await db.collection('demandes').add({ type:'service_request', serviceType:type, description:desc, localisation:loc, date:date, contact_wa:wa, statut:'nouveau', ref:ref, source:'client_direct', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+    } catch(e) {}
+  }
+  document.getElementById('c-ref').textContent = ref;
+  document.getElementById('req-type').value = '';
+  document.getElementById('req-desc').value = '';
+  document.getElementById('req-loc').value = '';
+  document.getElementById('req-date').value = '';
+  document.getElementById('req-wa').value = '';
+  btn.textContent = 'Envoyer ma demande à Info Experts'; btn.disabled = false;
+  goTo('confirm');
+}
+
 function sendBookingWA(){
   const name=document.getElementById('b-name').textContent;
   const service=document.getElementById('b-service').textContent;
@@ -690,7 +801,7 @@ function sendProviderWA(){
 function selPay(el){document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
-window.addEventListener('DOMContentLoaded',function(){initHome();renderExplore(P);});
+window.addEventListener('DOMContentLoaded',function(){ initFirebase(); loadProvidersFromFirebase(); });
 </script>
 </body>
 </html>
