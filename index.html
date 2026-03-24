@@ -666,4 +666,10 @@ function selSlot(el,type){
     else{document.getElementById('b-slot').textContent=el.textContent;}
   }
 }
-function selPay(el){document.que
+function selPay(el){document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
+window.addEventListener('DOMContentLoaded',function(){initHome();renderExplore(P);});
+</script>
+</body>
+</html>
