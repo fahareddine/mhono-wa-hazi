@@ -759,14 +759,15 @@ async function submitRequest() {
   if (!type || !desc || !loc || !wa) { alert('Veuillez remplir les champs obligatoires (*).'); return; }
   const btn = document.getElementById('req-btn');
   btn.textContent = 'Envoi en cours…'; btn.disabled = true;
-  const ref = '#MWH-' + new Date().getFullYear() + '-' + (Math.floor(Math.random()*9000)+1000);
+  const ref = 'MWH-DEM-' + Date.now().toString(36).toUpperCase();
   const msg = 'Bonjour Info Experts 👋\n\n*Nouvelle demande client — Mhono wa Hazi*\n\n🔧 Service : '+type+'\n📝 Besoin : '+desc+'\n📍 Lieu : '+loc+'\n📅 Date : '+(date||'Non précisée')+'\n📱 Client WhatsApp : '+wa+'\n📋 Réf : '+ref+'\n\nMerci de traiter cette demande.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
-  if (db) {
-    try {
-      await db.collection('demandes').add({ type:'service_request', serviceType:type, description:desc, localisation:loc, date:date, contact_wa:wa, statut:'nouveau', ref:ref, source:'client_direct', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-    } catch(e) {}
-  }
+  // Firestore + email
+  try {
+    const payload = { type:'service_request', serviceType:type, description:desc, localisation:loc, date, contact_wa:wa, ref };
+    if (db) await db.collection('demandes').add({ ...payload, statut:'nouveau', source:'client_direct', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+    await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  } catch(e) {}
   document.getElementById('c-ref').textContent = ref;
   document.getElementById('req-type').value = '';
   document.getElementById('req-desc').value = '';
@@ -777,15 +778,21 @@ async function submitRequest() {
   goTo('confirm');
 }
 
-function sendBookingWA(){
+async function sendBookingWA(){
   const name=document.getElementById('b-name').textContent;
   const service=document.getElementById('b-service').textContent;
   const day=document.getElementById('b-day').textContent;
   const slot=document.getElementById('b-slot').textContent;
   const price=document.getElementById('b-price').textContent;
   const pay=document.querySelector('.pay-option.sel .pay-label')?.textContent||'Non précisé';
-  const msg='Bonjour Info Experts 👋\n\nNouvelle demande via *Mhono wa Hazi* :\n\n👷 Prestataire : '+name+'\n🔧 Service : '+service+'\n📅 Jour : '+day+'\n⏰ Créneau : '+slot+'\n💰 Tarif : '+price+'\n💳 Paiement souhaité : '+pay+'\n\nMerci de confirmer cette réservation.';
+  const ref='MWH-RDV-'+Date.now().toString(36).toUpperCase();
+  const msg='Bonjour Info Experts 👋\n\nNouvelle demande via *Mhono wa Hazi* :\n\n👷 Prestataire : '+name+'\n🔧 Service : '+service+'\n📅 Jour : '+day+'\n⏰ Créneau : '+slot+'\n💰 Tarif : '+price+'\n💳 Paiement souhaité : '+pay+'\n📋 Réf : '+ref+'\n\nMerci de confirmer cette réservation.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
+  // Email
+  try {
+    await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'reservation', prestataire:name, service, creneau:day+' '+slot, tarif:price, paiement:pay, contact_wa: cur?.wa||'', ref }) });
+  } catch(e) {}
+  document.getElementById('c-ref').textContent = ref;
   goTo('confirm');
 }
 function sendProviderWA(){
