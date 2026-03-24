@@ -266,7 +266,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
     <div class="ie-footer">
       <div class="ie-footer-logo">Info Experts — Opérateur officiel</div>
       <div class="ie-footer-text">Toutes les réservations et paiements sont gérés par Info Experts.<br>Vos transactions sont sécurisées.</div>
-      <div class="ie-footer-contact">📞 +269 331 27 22 &nbsp;|&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d39383b342e29243138271d3a303c3431733e3230">[email&#160;protected]</a></div>
+      <div class="ie-footer-contact">📞 +269 331 27 22 &nbsp;|&nbsp; <a href="mailto:contact@info-experts.fr" style="color:inherit">contact@info-experts.fr</a></div>
     </div>
   </div>
   <div class="bottom-nav">
@@ -364,7 +364,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
     </div>
     <div class="cta-box">
       <button class="btn-primary" onclick="goTo('booking')">Demander ce service</button>
-      <button class="btn-wa"><span style="font-size:18px">💬</span> Contacter via WhatsApp</button>
+      <button class="btn-wa" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJe souhaite réserver un prestataire via Mhono wa Hazi.\nPouvez-vous m\'aider ?'),'_blank')"><span style="font-size:18px">💬</span> Contacter via WhatsApp</button>
       <button class="btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Sauvegarder ce profil</button>
     </div>
   </div>
@@ -414,7 +414,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
       </div>
     </div>
     <div style="padding:16px">
-      <button class="btn-primary" onclick="goTo('confirm')">Envoyer ma demande à Info Experts</button>
+      <button class="btn-primary" onclick="sendBookingWA()">Envoyer ma demande à Info Experts</button>
       <button class="btn-outline" onclick="goTo('detail')">Modifier ma sélection</button>
     </div>
   </div>
@@ -440,7 +440,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
         <div style="font-size:12px;color:#1E40AF;line-height:1.7">Info Experts vous contactera dans les <strong>2 heures</strong> sur WhatsApp pour confirmer la réservation et le mode de paiement.<br><br><strong>+269 331 27 22</strong></div>
       </div>
       <div class="confirm-actions">
-        <button class="btn-wa"><span style="font-size:18px">💬</span>Suivre sur WhatsApp</button>
+        <button class="btn-wa" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJe souhaite suivre ma réservation Mhono wa Hazi.\nRéférence : '+document.getElementById('c-ref').textContent),'_blank')"><span style="font-size:18px">💬</span>Suivre sur WhatsApp</button>
         <button class="btn-primary" onclick="goTo('bookings')">Voir mes réservations</button>
         <button class="btn-outline" onclick="goTo('home')">Retour à l'accueil</button>
       </div>
@@ -510,7 +510,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
       </div>
       <div class="menu-section">
         <div class="menu-section-title">Assistance Info Experts</div>
-        <div class="menu-item"><div class="menu-item-icon" style="background:#D1FAE5">💬</div><div class="menu-item-text"><div class="menu-item-label">Contacter Info Experts</div><div class="menu-item-sub">+269 331 27 22 — WhatsApp</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJ\'ai besoin d\'aide avec Mhono wa Hazi.'),'_blank')"><div class="menu-item-icon" style="background:#D1FAE5">💬</div><div class="menu-item-text"><div class="menu-item-label">Contacter Info Experts</div><div class="menu-item-sub">+269 331 27 22 — WhatsApp</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
         <div class="menu-item"><div class="menu-item-icon" style="background:var(--g100)">📖</div><div class="menu-item-text"><div class="menu-item-label">Comment ça marche</div><div class="menu-item-sub">Guide d'utilisation Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
         <div class="menu-item"><div class="menu-item-icon" style="background:var(--g100)">🔒</div><div class="menu-item-text"><div class="menu-item-label">Confidentialité & CGU</div><div class="menu-item-sub">Politique Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       </div>
@@ -518,7 +518,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
     <div class="ie-footer">
       <div class="ie-footer-logo">Info Experts — Opérateur officiel</div>
       <div class="ie-footer-text">Mhono wa Hazi est opéré par Info Experts<br>Moroni, Ngazidja — Union des Comores</div>
-      <div class="ie-footer-contact">📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0d4d5d6d9c3c4c9dcd5caf0d7ddd1d9dc9ed3dfdd">[email&#160;protected]</a> &nbsp;|&nbsp; 📞 +269 331 27 22</div>
+      <div class="ie-footer-contact">📧 <a href="mailto:contact@info-experts.fr" style="color:inherit">contact@info-experts.fr</a> &nbsp;|&nbsp; 📞 +269 331 27 22</div>
     </div>
   </div>
   <div class="bottom-nav">
@@ -550,13 +550,13 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre WhatsApp (+269…)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre métier / service (ex: Maçon)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre tarif proposé (ex: 5 000 KMF/j)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
-      <button class="btn-primary" style="margin-top:4px" onclick="document.getElementById('provider-modal').classList.remove('open')">Envoyer ma candidature à Info Experts</button>
+      <button class="btn-primary" style="margin-top:4px" onclick="sendProviderWA()">Envoyer ma candidature à Info Experts</button>
       <div style="font-size:11px;color:var(--g400);text-align:center">Info Experts vous recontactera sous 24h</div>
     </div>
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const P=[
   {id:1,i:'SO',av:'av-g',name:'Said Omar',job:'Plombier',cat:'Plomberie',loc:'Moroni Centre',rat:4.9,rev:47,price:'3 500',unit:'KMF/h',avail:'ok',zone:'Moroni et environs',delay:'Moins de 2h',done:'98',rate:'99%',reply:'< 1h',langs:'Shikomori · Français',tags:['Fuite','Installation','Urgence 24h'],vrf:true,days:['Lun','Mar','Mer','Jeu','Ven','Sam'],slots:['08h–10h','10h–12h','14h–16h','16h–18h'],rvl:[{n:'Mariam D.',s:'★★★★★',d:'il y a 3 jours',t:'Très professionnel et ponctuel. Fuite réparée en moins d\'une heure. Je recommande !'},{n:'Ousseni K.',s:'★★★★★',d:'la semaine dernière',t:'Excellent travail, prix correct. Il a vérifié toute la plomberie sans supplément.'}]},
   {id:2,i:'FA',av:'av-o',name:'Fatima Abdallah',job:'Femme de ménage',cat:'Ménage',loc:'Mitsamiouli',rat:4.8,rev:32,price:'2 000',unit:'KMF/h',avail:'ok',zone:'Grande Comore Nord',delay:'Moins de 4h',done:'215',rate:'98%',reply:'< 2h',langs:'Shikomori · Français · Arabe',tags:['Ménage complet','Repassage','Cuisine'],vrf:true,days:['Lun','Mar','Jeu','Ven','Sam'],slots:['07h–09h','09h–11h','14h–16h'],rvl:[{n:'Zahara M.',s:'★★★★★',d:'il y a 5 jours',t:'Travail soigné, maison impeccable. Très discrète et sérieuse.'},{n:'Ahmed S.',s:'★★★★☆',d:'il y a 2 semaines',t:'Ponctuelle et efficace. Je la recommande pour le ménage régulier.'}]},
@@ -665,6 +665,27 @@ function selSlot(el,type){
     if(type==='day'){document.getElementById('b-day').textContent=el.textContent+' (à confirmer)';}
     else{document.getElementById('b-slot').textContent=el.textContent;}
   }
+}
+function sendBookingWA(){
+  const name=document.getElementById('b-name').textContent;
+  const service=document.getElementById('b-service').textContent;
+  const day=document.getElementById('b-day').textContent;
+  const slot=document.getElementById('b-slot').textContent;
+  const price=document.getElementById('b-price').textContent;
+  const pay=document.querySelector('.pay-option.sel .pay-label')?.textContent||'Non précisé';
+  const msg='Bonjour Info Experts 👋\n\nNouvelle demande via *Mhono wa Hazi* :\n\n👷 Prestataire : '+name+'\n🔧 Service : '+service+'\n📅 Jour : '+day+'\n⏰ Créneau : '+slot+'\n💰 Tarif : '+price+'\n💳 Paiement souhaité : '+pay+'\n\nMerci de confirmer cette réservation.';
+  window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
+  goTo('confirm');
+}
+function sendProviderWA(){
+  const inputs=document.querySelectorAll('#provider-modal input');
+  const nom=inputs[0]?.value||'Non renseigné';
+  const wa=inputs[1]?.value||'Non renseigné';
+  const metier=inputs[2]?.value||'Non renseigné';
+  const tarif=inputs[3]?.value||'Non renseigné';
+  const msg='Bonjour Info Experts 👋\n\nCandidature prestataire *Mhono wa Hazi* :\n\n👤 Nom : '+nom+'\n📱 WhatsApp : '+wa+'\n🔧 Métier : '+metier+'\n💰 Tarif : '+tarif+'\n\nMerci de traiter cette candidature.';
+  window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
+  document.getElementById('provider-modal').classList.remove('open');
 }
 function selPay(el){document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function openModal(id){document.getElementById(id).classList.add('open');}
