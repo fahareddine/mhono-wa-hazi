@@ -243,6 +243,8 @@ textarea.req-input{resize:vertical;min-height:90px}
 .article-cgu-title{font-size:15px;font-weight:700;color:var(--g800);margin-bottom:6px}
 .article-cgu-text{font-size:13px;color:var(--g500);line-height:1.75;margin-bottom:6px}
 .article-date{font-size:11px;color:var(--g400);padding:16px 20px 0;font-style:italic}
+.location-opt{padding:13px 14px;font-size:14px;color:var(--g700);cursor:pointer;border-radius:var(--r1);border:1.5px solid var(--g200);transition:all .15s;font-weight:500}
+.location-opt:hover{background:var(--gl);border-color:var(--green);color:var(--gd);font-weight:600}
 .ac-item-f{padding:10px 14px;font-size:14px;color:var(--g700);cursor:pointer;transition:background .1s}
 .ac-item-f:hover,.ac-item-f.focused{background:var(--gl);color:var(--gd);font-weight:600}
 .ac-item-f mark{background:none;color:var(--green);font-weight:800}
@@ -278,7 +280,7 @@ textarea.req-input{resize:vertical;min-height:90px}
   </div>
   <div class="screen-body pb20">
     <div class="home-top">
-      <div class="hero-location"><div class="hero-location-dot"></div><span>Moroni, Ngazidja</span><span class="hero-location-change">📍 Changer</span></div>
+      <div class="hero-location"><div class="hero-location-dot"></div><span id="location-label">Moroni, Ngazidja</span><span class="hero-location-change" onclick="openModal('modal-location')">📍 Changer</span></div>
       <div class="hero-greeting">De quel service<br>avez-vous besoin ?</div>
       <div class="home-search-bar" onclick="goTo('explore')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -419,7 +421,7 @@ textarea.req-input{resize:vertical;min-height:90px}
     <div class="cta-box">
       <button class="btn-primary" onclick="goTo('booking')">Demander ce service</button>
       <button class="btn-wa" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJe souhaite réserver un prestataire via Mhono wa Hazi.\nPouvez-vous m\'aider ?'),'_blank')"><span style="font-size:18px">💬</span> Contacter via WhatsApp</button>
-      <button class="btn-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Sauvegarder ce profil</button>
+      <button class="btn-outline" id="btn-save-profile" onclick="toggleSaveProvider()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span id="save-btn-label">Sauvegarder ce profil</span></button>
     </div>
   </div>
 </div>
@@ -630,8 +632,8 @@ textarea.req-input{resize:vertical;min-height:90px}
         <div class="menu-section-title">Mon espace</div>
         <div class="menu-item" onclick="goTo('bookings')"><div class="menu-item-icon" style="background:var(--gl)">📋</div><div class="menu-item-text"><div class="menu-item-label">Mes réservations</div><div class="menu-item-sub">2 réservations en cours</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
         <div class="menu-item" id="menu-mes-demandes" onclick="goTo('mes-demandes')" style="display:none"><div class="menu-item-icon" style="background:var(--bl)">📨</div><div class="menu-item-text"><div class="menu-item-label">Mes demandes</div><div class="menu-item-sub">Historique de vos demandes de service</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-        <div class="menu-item"><div class="menu-item-icon" style="background:var(--ol)">❤️</div><div class="menu-item-text"><div class="menu-item-label">Prestataires sauvegardés</div><div class="menu-item-sub">3 profils enregistrés</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-        <div class="menu-item"><div class="menu-item-icon" style="background:var(--bl)">⭐</div><div class="menu-item-text"><div class="menu-item-label">Mes avis</div><div class="menu-item-sub">Notez vos prestataires</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" onclick="goTo('favoris')"><div class="menu-item-icon" style="background:var(--ol)">❤️</div><div class="menu-item-text"><div class="menu-item-label">Prestataires sauvegardés</div><div class="menu-item-sub" id="favoris-count-label">Aucun profil enregistré</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" onclick="goTo('mes-avis')"><div class="menu-item-icon" style="background:var(--bl)">⭐</div><div class="menu-item-text"><div class="menu-item-label">Mes avis</div><div class="menu-item-sub">Notez vos prestataires</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       </div>
       <div class="menu-section">
         <div class="menu-section-title">Devenir prestataire</div>
@@ -655,6 +657,75 @@ textarea.req-input{resize:vertical;min-height:90px}
     <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
     <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
     <div class="nav-item" onclick="goTo('bookings')" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
+    <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
+  </div>
+</div>
+
+<!-- FAVORIS -->
+<div id="favoris" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Prestataires sauvegardés</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div id="favoris-list" style="padding:16px"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+    <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="nav-item" onclick="goTo('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
+    <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
+  </div>
+</div>
+
+<!-- MES AVIS -->
+<div id="mes-avis" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Mes avis</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div style="padding:24px 20px">
+      <div style="background:var(--gl);border-radius:var(--r3);padding:20px;text-align:center;margin-bottom:20px">
+        <div style="font-size:40px;margin-bottom:10px">⭐</div>
+        <div style="font-size:17px;font-weight:800;color:var(--gd);margin-bottom:6px">Notez vos prestataires</div>
+        <div style="font-size:13px;color:var(--g500);line-height:1.6">Partagez votre expérience pour aider la communauté Mhono wa Hazi et améliorer la qualité des services.</div>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:var(--g800);margin-bottom:12px">Comment laisser un avis ?</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--g800);margin-bottom:2px">Après votre réservation</div><div style="font-size:13px;color:var(--g500);line-height:1.6">Une fois le service réalisé, vous pouvez noter le prestataire sur 5 étoiles.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--g800);margin-bottom:2px">Envoyez votre avis</div><div style="font-size:13px;color:var(--g500);line-height:1.6">Contactez Info Experts sur WhatsApp avec la référence de votre réservation et votre note.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--g800);margin-bottom:2px">Publication</div><div style="font-size:13px;color:var(--g500);line-height:1.6">Votre avis est vérifié et publié sur le profil du prestataire sous 24h.</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJe souhaite laisser un avis sur un prestataire Mhono wa Hazi.'),'_blank')">💬 Laisser un avis via WhatsApp</button>
+      <div style="margin-top:16px;padding:14px;background:var(--g50);border-radius:var(--r2);border:1px solid var(--g200)">
+        <div style="font-size:12px;font-weight:700;color:var(--g600);margin-bottom:4px">📊 Note globale de la plateforme</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:28px;font-weight:900;color:var(--green)">4.8</div>
+          <div><div style="font-size:16px;color:var(--orange)">★★★★★</div><div style="font-size:11px;color:var(--g400)">Basé sur 1 200+ avis vérifiés</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+    <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="nav-item" onclick="goTo('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
     <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
   </div>
 </div>
@@ -901,6 +972,29 @@ textarea.req-input{resize:vertical;min-height:90px}
   </div>
 </div>
 
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--g800);color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:50px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap"></div>
+
+<!-- MODAL LOCALISATION -->
+<div id="modal-location" class="modal-overlay" onclick="closeModal(event,'modal-location')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Choisir votre ville</div>
+    <div class="modal-sub">Sélectionnez votre zone pour trouver les prestataires près de chez vous.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div onclick="setLocation('Moroni, Ngazidja')" class="location-opt">📍 Moroni — Centre ville</div>
+      <div onclick="setLocation('Itsandra, Ngazidja')" class="location-opt">📍 Itsandra</div>
+      <div onclick="setLocation('Mitsamiouli, Ngazidja')" class="location-opt">📍 Mitsamiouli — Nord Grande Comore</div>
+      <div onclick="setLocation('Bangoi-Kouni, Ngazidja')" class="location-opt">📍 Bangoi-Kouni</div>
+      <div onclick="setLocation('Foumbouni, Ngazidja')" class="location-opt">📍 Foumbouni — Sud Grande Comore</div>
+      <div onclick="setLocation('Ikoni, Ngazidja')" class="location-opt">📍 Ikoni</div>
+      <div onclick="setLocation('Mutsamudu, Anjouan')" class="location-opt">📍 Mutsamudu — Anjouan</div>
+      <div onclick="setLocation('Domoni, Anjouan')" class="location-opt">📍 Domoni</div>
+      <div onclick="setLocation('Fomboni, Mohéli')" class="location-opt">📍 Fomboni — Mohéli</div>
+    </div>
+  </div>
+</div>
+
 <!-- MODALS -->
 <div id="notif-modal" class="modal-overlay" onclick="closeModal(event,'notif-modal')">
   <div class="modal-sheet">
@@ -982,7 +1076,7 @@ let P=[
 
 let cur=null, prev='home', activeCat='Tous';
 
-function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='profile')updateAuthSection();if(s==='mes-demandes')loadMesDemandes();window.scrollTo(0,0);}
+function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='profile'){updateAuthSection();updateSaveBtn();}if(s==='detail')updateSaveBtn();if(s==='mes-demandes')loadMesDemandes();if(s==='favoris')loadFavoris();window.scrollTo(0,0);}
 function goBack(){goTo(prev);}
 
 function renderCard(p){
@@ -1372,6 +1466,100 @@ function setupAutocompleteF(inputId, ddEl, list) {
   });
 }
 
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, 2500);
+}
+
+// ── LOCALISATION ──────────────────────────────────────────────────────────────
+function setLocation(ville) {
+  localStorage.setItem('mwh_location', ville);
+  const short = ville.split(',')[0];
+  document.getElementById('location-label').textContent = short + ', Ngazidja'.replace(', Ngazidja','');
+  document.getElementById('location-label').textContent = ville.split(',')[0];
+  document.getElementById('modal-location').classList.remove('open');
+  showToast('📍 Localisation : ' + short);
+}
+(function initLocation() {
+  const saved = localStorage.getItem('mwh_location');
+  if (saved) {
+    const el = document.getElementById('location-label');
+    if (el) el.textContent = saved.split(',')[0];
+  }
+})();
+
+// ── FAVORIS ───────────────────────────────────────────────────────────────────
+function getSaved() { try { return JSON.parse(localStorage.getItem('mwh_saved')||'[]'); } catch { return []; } }
+function setSaved(arr) { localStorage.setItem('mwh_saved', JSON.stringify(arr)); }
+
+function updateSaveBtn() {
+  if (!cur) return;
+  const saved = getSaved();
+  const isSaved = saved.includes(cur.id);
+  const btn   = document.getElementById('btn-save-profile');
+  const label = document.getElementById('save-btn-label');
+  if (!btn || !label) return;
+  label.textContent = isSaved ? 'Profil sauvegardé ✓' : 'Sauvegarder ce profil';
+  btn.style.borderColor = isSaved ? 'var(--red)' : '';
+  btn.style.color = isSaved ? 'var(--red)' : '';
+  const countEl = document.getElementById('favoris-count-label');
+  if (countEl) {
+    const n = saved.length;
+    countEl.textContent = n === 0 ? 'Aucun profil enregistré' : n + ' profil' + (n>1?'s':'') + ' enregistré'+(n>1?'s':'');
+  }
+}
+
+function toggleSaveProvider() {
+  if (!cur) return;
+  const saved = getSaved();
+  const idx = saved.indexOf(cur.id);
+  if (idx === -1) { saved.push(cur.id); showToast('❤️ Profil sauvegardé'); }
+  else { saved.splice(idx, 1); showToast('Profil retiré des favoris'); }
+  setSaved(saved);
+  updateSaveBtn();
+}
+
+function loadFavoris() {
+  const saved  = getSaved();
+  const listEl = document.getElementById('favoris-list');
+  if (!listEl) return;
+  if (saved.length === 0) {
+    listEl.innerHTML = `<div class="demande-empty"><div class="demande-empty-icon">❤️</div><div class="demande-empty-title">Aucun favori</div><div class="demande-empty-sub">Sauvegardez des prestataires depuis leur profil pour les retrouver ici rapidement.</div><button class="btn-primary" style="margin-top:16px" onclick="goTo('explore')">Explorer les prestataires</button></div>`;
+    return;
+  }
+  const providers = P.filter(p => saved.includes(p.id));
+  listEl.innerHTML = providers.map(p => `
+    <div class="provider-card" onclick="openDetail(${p.id})">
+      <div class="provider-card-top">
+        <div class="provider-avatar ${p.av}">${p.i}</div>
+        <div class="provider-info">
+          <div class="provider-name">${p.name}</div>
+          <div class="provider-job">${p.job} · ${p.loc}</div>
+          <div class="provider-meta">
+            <span class="stars">★★★★★</span><span class="review-count">${p.rat} (${p.rev} avis)</span>
+            <span class="badge badge-${p.avail==='ok'?'ok':p.avail==='tm'?'tm':'no'}">${p.avail==='ok'?'Disponible':p.avail==='tm'?'Bientôt':'Indisponible'}</span>
+          </div>
+        </div>
+        <div class="provider-price-col">
+          <div class="provider-price">${p.price}</div>
+          <div class="provider-price-unit">KMF/${p.unit.split('/')[1]||'h'}</div>
+          <button onclick="event.stopPropagation();toggleFavori(${p.id})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:18px;margin-top:4px">❤️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleFavori(id) {
+  const saved = getSaved();
+  const idx = saved.indexOf(id);
+  if (idx !== -1) { saved.splice(idx, 1); setSaved(saved); loadFavoris(); showToast('Profil retiré des favoris'); }
+}
+
 // ── MES DEMANDES ──────────────────────────────────────────────────────────────
 
 async function loadMesDemandes() {
@@ -1448,6 +1636,7 @@ window.addEventListener('DOMContentLoaded', function() {
   loadProvidersFromFirebase();
   updateAuthSection();
   setupAutocompleteF('prov-metier', document.getElementById('prov-metier-dd'), METIERS);
+  updateSaveBtn();
   // Si le token stocké exige un changement de mot de passe, bloquer l'accès
   const u = getAuthUser();
   if (u?.mustChangePassword) {
