@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Mhono wa Hazi – Un travail à portée de main</title>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1A9E6F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mhono wa Hazi">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{--green:#1A9E6F;--gl:#E6F7F1;--gd:#0D6B4A;--orange:#F5A623;--ol:#FEF3DC;--red:#E53E3E;--rl:#FFF5F5;--blue:#3B82F6;--bl:#EFF6FF;--g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;--g900:#111827;--w:#FFFFFF;--sh1:0 1px 3px rgba(0,0,0,0.08);--sh2:0 4px 16px rgba(0,0,0,0.10);--sh3:0 8px 32px rgba(0,0,0,0.13);--r1:8px;--r2:12px;--r3:16px;--r4:24px;--font:'Plus Jakarta Sans',sans-serif;--disp:'Syne',sans-serif}
@@ -1629,6 +1639,15 @@ async function loadMesDemandes() {
     console.error('[MES DEMANDES]', e);
     listEl.innerHTML = `<div class="demande-empty" style="color:var(--red)"><div class="demande-empty-icon">⚠️</div><div class="demande-empty-title">Erreur de chargement</div><div class="demande-empty-sub">${e.message||'Réessayez.'}</div></div>`;
   }
+}
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('[SW] Enregistré:', r.scope))
+      .catch(e => console.warn('[SW] Erreur:', e));
+  });
 }
 
 window.addEventListener('DOMContentLoaded', function() {
