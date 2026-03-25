@@ -40,20 +40,15 @@ function wrap(inner) {
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif">
   <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
-    <div style="background:linear-gradient(135deg,#0D6B4A 0%,#1A9E6F 60%,#22C48A 100%);padding:32px 28px 28px;position:relative;overflow:hidden">
-      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07)"></div>
-      <div style="position:absolute;bottom:-50px;right:40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
-      <div style="position:relative">
-        <div style="display:inline-block;background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 14px;margin-bottom:14px">
-          <span style="font-size:22px;vertical-align:middle">🏝️</span>
-          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);margin-left:6px;vertical-align:middle">Info Experts — Moroni, Comores</span>
-        </div>
-        <div style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.1">Mhono <span style="color:#7EFFC5">wa Hazi</span></div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px">Plateforme de services aux particuliers · Union des Comores</div>
+    <div style="background:linear-gradient(135deg,#0D6B4A 0%,#1A9E6F 100%);padding:14px 20px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🏝️</span>
+      <div>
+        <div style="font-size:17px;font-weight:900;color:#fff;line-height:1.2">Mhono <span style="color:#7EFFC5">wa Hazi</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65)">Plateforme de services · Comores · Info Experts</div>
       </div>
     </div>
     ${inner}
-    <div style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center">
+    <div style="padding:10px 20px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center">
       Info Experts · Moroni, Comores ·
       <a href="https://info-experts.fr" style="color:#0D6B4A">info-experts.fr</a> ·
       <a href="tel:+269331272" style="color:#0D6B4A">+269 331 27 22</a>
