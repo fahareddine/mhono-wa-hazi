@@ -221,6 +221,28 @@ textarea.req-input{resize:vertical;min-height:90px}
 .req-section{padding:16px;border-bottom:1px solid var(--g100)}
 .req-label{font-size:12px;font-weight:700;color:var(--g600);margin-bottom:8px;display:block}
 .fab{position:fixed;bottom:80px;right:16px;z-index:50;background:var(--green);color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,158,111,0.4);display:flex;align-items:center;gap:8px}
+/* Articles */
+.article-hero{background:linear-gradient(135deg,var(--gd),var(--green));padding:24px 20px 20px}
+.article-hero-title{font-family:var(--disp);font-size:22px;color:#fff;margin-bottom:4px}
+.article-hero-sub{font-size:13px;color:rgba(255,255,255,0.75)}
+.article-body{padding:0 0 24px}
+.article-section{padding:20px 20px 0}
+.article-section-title{font-size:13px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+.article-h2{font-size:17px;font-weight:800;color:var(--g900);margin-bottom:8px;line-height:1.3}
+.article-p{font-size:14px;color:var(--g600);line-height:1.7;margin-bottom:10px}
+.article-step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+.article-step-num{width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.article-step-body{}
+.article-step-title{font-size:14px;font-weight:700;color:var(--g800);margin-bottom:3px}
+.article-step-desc{font-size:13px;color:var(--g500);line-height:1.6}
+.article-card{background:var(--gl);border-radius:var(--r2);padding:14px 16px;margin-bottom:12px;border-left:3px solid var(--green)}
+.article-card-title{font-size:14px;font-weight:700;color:var(--gd);margin-bottom:4px}
+.article-card-desc{font-size:13px;color:var(--g600);line-height:1.6}
+.article-divider{height:1px;background:var(--g100);margin:20px 20px 0}
+.article-cgu-block{padding:16px 20px 0}
+.article-cgu-title{font-size:15px;font-weight:700;color:var(--g800);margin-bottom:6px}
+.article-cgu-text{font-size:13px;color:var(--g500);line-height:1.75;margin-bottom:6px}
+.article-date{font-size:11px;color:var(--g400);padding:16px 20px 0;font-style:italic}
 .ac-item-f{padding:10px 14px;font-size:14px;color:var(--g700);cursor:pointer;transition:background .1s}
 .ac-item-f:hover,.ac-item-f.focused{background:var(--gl);color:var(--gd);font-weight:600}
 .ac-item-f mark{background:none;color:var(--green);font-weight:800}
@@ -618,8 +640,8 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div class="menu-section">
         <div class="menu-section-title">Assistance Info Experts</div>
         <div class="menu-item" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJ\'ai besoin d\'aide avec Mhono wa Hazi.'),'_blank')"><div class="menu-item-icon" style="background:#D1FAE5">💬</div><div class="menu-item-text"><div class="menu-item-label">Contacter Info Experts</div><div class="menu-item-sub">+269 331 27 22 — WhatsApp</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-        <div class="menu-item"><div class="menu-item-icon" style="background:var(--g100)">📖</div><div class="menu-item-text"><div class="menu-item-label">Comment ça marche</div><div class="menu-item-sub">Guide d'utilisation Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-        <div class="menu-item"><div class="menu-item-icon" style="background:var(--g100)">🔒</div><div class="menu-item-text"><div class="menu-item-label">Confidentialité & CGU</div><div class="menu-item-sub">Politique Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" onclick="goTo('comment-ca-marche')"><div class="menu-item-icon" style="background:var(--g100)">📖</div><div class="menu-item-text"><div class="menu-item-label">Comment ça marche</div><div class="menu-item-sub">Guide d'utilisation Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" onclick="goTo('confidentialite')"><div class="menu-item-icon" style="background:var(--g100)">🔒</div><div class="menu-item-text"><div class="menu-item-label">Confidentialité & CGU</div><div class="menu-item-sub">Politique Mhono wa Hazi</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       </div>
     </div>
     <div class="ie-footer">
@@ -633,6 +655,223 @@ textarea.req-input{resize:vertical;min-height:90px}
     <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
     <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
     <div class="nav-item" onclick="goTo('bookings')" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
+    <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
+  </div>
+</div>
+
+<!-- COMMENT ÇA MARCHE -->
+<div id="comment-ca-marche" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Comment ça marche</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div class="article-hero">
+      <div class="article-hero-title">Mhono wa Hazi</div>
+      <div class="article-hero-sub">Votre guide complet pour trouver le bon prestataire aux Comores</div>
+    </div>
+    <div class="article-body">
+
+      <div class="article-section">
+        <div class="article-section-title">Pour les clients</div>
+        <div class="article-h2">Réservez un service en quelques minutes</div>
+        <div class="article-step">
+          <div class="article-step-num">1</div>
+          <div class="article-step-body"><div class="article-step-title">Cherchez votre prestataire</div><div class="article-step-desc">Parcourez les catégories ou utilisez la barre de recherche. Filtrez par métier, zone d'intervention ou disponibilité.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">2</div>
+          <div class="article-step-body"><div class="article-step-title">Consultez le profil</div><div class="article-step-desc">Vérifiez le tarif, les avis clients, les créneaux disponibles et la zone couverte avant de faire votre choix.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">3</div>
+          <div class="article-step-body"><div class="article-step-title">Réservez ou faites une demande</div><div class="article-step-desc">Choisissez un créneau et envoyez votre demande. Ou décrivez librement votre besoin — Info Experts trouve le bon prestataire pour vous.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">4</div>
+          <div class="article-step-body"><div class="article-step-title">Info Experts confirme</div><div class="article-step-desc">Notre équipe contacte le prestataire et vous confirme le rendez-vous par WhatsApp sous 2 heures. Aucun paiement avant confirmation.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">5</div>
+          <div class="article-step-body"><div class="article-step-title">Le prestataire intervient</div><div class="article-step-desc">Le professionnel se déplace à l'adresse convenue. En cas de problème, contactez-nous immédiatement sur WhatsApp.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">6</div>
+          <div class="article-step-body"><div class="article-step-title">Payez après le service</div><div class="article-step-desc">Le paiement se fait uniquement après réalisation du travail, selon les modes acceptés : espèces, virement, mobile money (M-Pesa, Huri).</div></div>
+        </div>
+      </div>
+
+      <div class="article-divider"></div>
+      <div class="article-section" style="margin-top:20px">
+        <div class="article-section-title">Pour les prestataires</div>
+        <div class="article-h2">Développez votre activité gratuitement</div>
+        <div class="article-step">
+          <div class="article-step-num">1</div>
+          <div class="article-step-body"><div class="article-step-title">Inscrivez-vous</div><div class="article-step-desc">Remplissez le formulaire "Proposer mes services" dans l'onglet Compte. C'est gratuit et sans engagement.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">2</div>
+          <div class="article-step-body"><div class="article-step-title">Vérification de votre profil</div><div class="article-step-desc">Info Experts examine votre candidature sous 24h. Nous pouvons vous contacter pour vérifier votre identité et vos compétences.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">3</div>
+          <div class="article-step-body"><div class="article-step-title">Recevez des demandes</div><div class="article-step-desc">Une fois validé, votre profil est visible par des milliers d'utilisateurs. Info Experts vous transmet les demandes par WhatsApp.</div></div>
+        </div>
+        <div class="article-step">
+          <div class="article-step-num">4</div>
+          <div class="article-step-body"><div class="article-step-title">Gérez vos rendez-vous</div><div class="article-step-desc">Info Experts s'occupe de la coordination, de la confirmation et du suivi. Vous vous concentrez sur votre métier.</div></div>
+        </div>
+      </div>
+
+      <div class="article-divider"></div>
+      <div class="article-section" style="margin-top:20px">
+        <div class="article-section-title">Nos garanties</div>
+        <div class="article-h2">Pourquoi choisir Mhono wa Hazi ?</div>
+        <div class="article-card">
+          <div class="article-card-title">✅ Prestataires vérifiés</div>
+          <div class="article-card-desc">Chaque professionnel est contrôlé par Info Experts avant d'apparaître sur la plateforme. Identité, compétences et références vérifiées.</div>
+        </div>
+        <div class="article-card">
+          <div class="article-card-title">💰 Aucun paiement à l'avance</div>
+          <div class="article-card-desc">Vous ne payez qu'après la réalisation du service. Aucune avance demandée, aucun risque financier.</div>
+        </div>
+        <div class="article-card">
+          <div class="article-card-title">⚡ Réponse sous 2 heures</div>
+          <div class="article-card-desc">Notre équipe est disponible tous les jours pour confirmer vos réservations et répondre à vos questions rapidement.</div>
+        </div>
+        <div class="article-card">
+          <div class="article-card-title">🌍 Service local aux Comores</div>
+          <div class="article-card-desc">Mhono wa Hazi est opéré par Info Experts depuis Moroni. Nous connaissons les réalités locales et parlons votre langue.</div>
+        </div>
+      </div>
+
+      <div class="article-section" style="margin-top:20px;padding-bottom:8px">
+        <div style="background:var(--g100);border-radius:var(--r2);padding:16px;text-align:center">
+          <div style="font-size:15px;font-weight:700;color:var(--g800);margin-bottom:6px">Une question ?</div>
+          <div style="font-size:13px;color:var(--g500);margin-bottom:14px">Notre équipe est disponible sur WhatsApp</div>
+          <button class="btn-primary" onclick="window.open('https://wa.me/33667491345?text='+encodeURIComponent('Bonjour Info Experts 👋\nJ\'ai une question sur Mhono wa Hazi.'),'_blank')" style="max-width:280px;margin:0 auto">💬 Contacter Info Experts</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+    <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="nav-item" onclick="goTo('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
+    <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
+  </div>
+</div>
+
+<!-- CONFIDENTIALITÉ & CGU -->
+<div id="confidentialite" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Confidentialité & CGU</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div class="article-hero">
+      <div class="article-hero-title">Politique de confidentialité</div>
+      <div class="article-hero-sub">et Conditions Générales d'Utilisation — Mhono wa Hazi</div>
+    </div>
+    <div class="article-body">
+
+      <div class="article-date">Dernière mise à jour : mars 2026</div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">1. Éditeur de la plateforme</div>
+        <div class="article-cgu-text">Mhono wa Hazi est une plateforme de mise en relation entre particuliers et prestataires de services, opérée par <strong>Info Experts</strong>, société basée à Moroni, Ngazidja, Union des Comores. Contact : <strong>contact@info-experts.fr</strong> — Tél : <strong>+269 331 27 22</strong>.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">2. Données personnelles collectées</div>
+        <div class="article-cgu-text">Lors de l'utilisation de Mhono wa Hazi, nous pouvons collecter les données suivantes :</div>
+        <div class="article-cgu-text">• <strong>Nom et prénom</strong> — pour identifier l'utilisateur lors des échanges avec les prestataires.</div>
+        <div class="article-cgu-text">• <strong>Numéro WhatsApp / téléphone</strong> — pour confirmer les réservations et assurer le suivi.</div>
+        <div class="article-cgu-text">• <strong>Adresse email</strong> — pour l'envoi de confirmations et notifications (si renseignée).</div>
+        <div class="article-cgu-text">• <strong>Localisation (ville / quartier)</strong> — pour orienter les prestataires disponibles près de chez vous.</div>
+        <div class="article-cgu-text">• <strong>Historique des demandes</strong> — pour améliorer le service et résoudre d'éventuels litiges.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">3. Utilisation des données</div>
+        <div class="article-cgu-text">Vos données sont utilisées exclusivement pour :</div>
+        <div class="article-cgu-text">• La mise en relation avec les prestataires et la confirmation des rendez-vous.</div>
+        <div class="article-cgu-text">• L'envoi de notifications relatives à vos demandes et réservations.</div>
+        <div class="article-cgu-text">• L'amélioration de la qualité du service et la résolution des réclamations.</div>
+        <div class="article-cgu-text">• Le respect des obligations légales en vigueur aux Comores.</div>
+        <div class="article-cgu-text">Vos données ne sont <strong>jamais vendues</strong> à des tiers et ne sont pas utilisées à des fins publicitaires.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">4. Conservation et sécurité</div>
+        <div class="article-cgu-text">Les données sont stockées de manière sécurisée sur des serveurs protégés (Google Firebase / Cloud). Elles sont conservées pour la durée nécessaire à la fourniture du service, puis supprimées ou anonymisées.</div>
+        <div class="article-cgu-text">Info Experts met en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données contre tout accès non autorisé, perte ou altération.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">5. Vos droits</div>
+        <div class="article-cgu-text">Conformément aux principes de protection des données, vous disposez des droits suivants :</div>
+        <div class="article-cgu-text">• <strong>Droit d'accès</strong> : vous pouvez demander une copie de vos données personnelles.</div>
+        <div class="article-cgu-text">• <strong>Droit de rectification</strong> : vous pouvez corriger des informations inexactes.</div>
+        <div class="article-cgu-text">• <strong>Droit à la suppression</strong> : vous pouvez demander la suppression de votre compte et de vos données.</div>
+        <div class="article-cgu-text">Pour exercer ces droits, contactez-nous à <strong>contact@info-experts.fr</strong> ou par WhatsApp au <strong>+269 331 27 22</strong>.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">6. Conditions d'utilisation</div>
+        <div class="article-cgu-text"><strong>Accès à la plateforme.</strong> L'accès à Mhono wa Hazi est gratuit pour les utilisateurs. Info Experts se réserve le droit de suspendre ou supprimer tout compte en cas d'utilisation frauduleuse, abusive ou contraire aux présentes conditions.</div>
+        <div class="article-cgu-text"><strong>Rôle d'intermédiaire.</strong> Mhono wa Hazi est une plateforme de mise en relation. Info Experts coordonne les échanges entre clients et prestataires mais n'est pas partie au contrat de prestation. La responsabilité de la qualité du service incombe au prestataire.</div>
+        <div class="article-cgu-text"><strong>Paiements.</strong> Aucun paiement ne doit être effectué avant la confirmation par Info Experts. Les paiements se font directement entre le client et le prestataire, selon les modalités convenues. Info Experts ne perçoit pas de commission sur les transactions.</div>
+        <div class="article-cgu-text"><strong>Avis et notations.</strong> Les avis déposés sur la plateforme doivent être honnêtes et factuels. Tout avis diffamatoire ou frauduleux peut être supprimé par Info Experts.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">7. Responsabilités</div>
+        <div class="article-cgu-text">Info Experts s'efforce de vérifier les prestataires référencés mais ne peut garantir la qualité de toutes les prestations. En cas de litige, notre équipe peut jouer un rôle de médiation, sans obligation légale de résultat.</div>
+        <div class="article-cgu-text">Info Experts ne saurait être tenu responsable des dommages indirects résultant de l'utilisation de la plateforme, d'une interruption de service ou d'un dysfonctionnement technique indépendant de sa volonté.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">8. Propriété intellectuelle</div>
+        <div class="article-cgu-text">La marque <strong>Mhono wa Hazi</strong>, le logo, le design et le contenu de la plateforme sont la propriété exclusive d'Info Experts. Toute reproduction, modification ou exploitation sans autorisation écrite préalable est interdite.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block">
+        <div class="article-cgu-title">9. Modifications</div>
+        <div class="article-cgu-text">Info Experts se réserve le droit de modifier les présentes conditions à tout moment. Les utilisateurs seront informés des changements importants via l'application. L'utilisation continue de la plateforme vaut acceptation des nouvelles conditions.</div>
+      </div>
+      <div class="article-divider"></div>
+
+      <div class="article-cgu-block" style="padding-bottom:8px">
+        <div class="article-cgu-title">10. Contact & réclamations</div>
+        <div class="article-cgu-text">Pour toute question, réclamation ou demande relative à votre vie privée ou aux présentes conditions :</div>
+        <div style="background:var(--g50);border-radius:var(--r2);padding:14px;margin-top:8px;border:1px solid var(--g200)">
+          <div style="font-size:13px;font-weight:700;color:var(--g800);margin-bottom:6px">Info Experts</div>
+          <div style="font-size:13px;color:var(--g500);line-height:1.8">📍 Moroni, Ngazidja — Union des Comores<br>📧 contact@info-experts.fr<br>📞 +269 331 27 22<br>💬 WhatsApp disponible 7j/7</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+    <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="nav-item" onclick="goTo('bookings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
     <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
   </div>
 </div>
