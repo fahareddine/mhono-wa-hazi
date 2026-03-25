@@ -18,6 +18,7 @@
 
 import { hashPassword, generateTempPassword } from './_crypto.js';
 import { fsCreate, fsUpdate, fsDelete, fsQuery } from './_firestore.js';
+import { sendWelcomeEmail } from './_email.js';
 
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
@@ -101,6 +102,9 @@ export default async function handler(req, res) {
 
     try {
       const user = await fsCreate('users', data);
+      // Envoi email de bienvenue (fire & forget)
+      sendWelcomeEmail({ nom: data.nom, email: data.email, tempPassword: pwd, role: data.role })
+        .catch(err => console.error('[USERS CREATE EMAIL]', err.message));
       return res.status(201).json({
         success:     true,
         user:        strip(user),

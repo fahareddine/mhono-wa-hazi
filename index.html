@@ -217,6 +217,21 @@ textarea.req-input{resize:vertical;min-height:90px}
 .req-section{padding:16px;border-bottom:1px solid var(--g100)}
 .req-label{font-size:12px;font-weight:700;color:var(--g600);margin-bottom:8px;display:block}
 .fab{position:fixed;bottom:80px;right:16px;z-index:50;background:var(--green);color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,158,111,0.4);display:flex;align-items:center;gap:8px}
+/* Mes demandes */
+.demande-card{background:var(--w);border-radius:var(--r3);border:1px solid var(--g200);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh1)}
+.demande-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.demande-ref{font-size:11px;font-family:monospace;background:var(--g100);color:var(--g600);padding:3px 8px;border-radius:6px}
+.demande-statut{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.demande-statut.en-attente{background:var(--ol);color:#9A6400}
+.demande-statut.confirme{background:var(--gl);color:var(--gd)}
+.demande-statut.annule{background:var(--rl);color:var(--red)}
+.demande-service{font-size:15px;font-weight:700;color:var(--g800);margin-bottom:4px}
+.demande-meta{font-size:12px;color:var(--g500);display:flex;gap:10px;flex-wrap:wrap}
+.demande-meta span{display:flex;align-items:center;gap:3px}
+.demande-empty{text-align:center;padding:48px 24px;color:var(--g400)}
+.demande-empty-icon{font-size:48px;margin-bottom:12px}
+.demande-empty-title{font-size:16px;font-weight:700;color:var(--g600);margin-bottom:6px}
+.demande-empty-sub{font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -583,6 +598,7 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div class="menu-section">
         <div class="menu-section-title">Mon espace</div>
         <div class="menu-item" onclick="goTo('bookings')"><div class="menu-item-icon" style="background:var(--gl)">📋</div><div class="menu-item-text"><div class="menu-item-label">Mes réservations</div><div class="menu-item-sub">2 réservations en cours</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="menu-item" id="menu-mes-demandes" onclick="goTo('mes-demandes')" style="display:none"><div class="menu-item-icon" style="background:var(--bl)">📨</div><div class="menu-item-text"><div class="menu-item-label">Mes demandes</div><div class="menu-item-sub">Historique de vos demandes de service</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
         <div class="menu-item"><div class="menu-item-icon" style="background:var(--ol)">❤️</div><div class="menu-item-text"><div class="menu-item-label">Prestataires sauvegardés</div><div class="menu-item-sub">3 profils enregistrés</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
         <div class="menu-item"><div class="menu-item-icon" style="background:var(--bl)">⭐</div><div class="menu-item-text"><div class="menu-item-label">Mes avis</div><div class="menu-item-sub">Notez vos prestataires</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       </div>
@@ -607,6 +623,30 @@ textarea.req-input{resize:vertical;min-height:90px}
     <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
     <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
     <div class="nav-item" onclick="goTo('bookings')" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div class="nav-badge">2</div>Réservations</div>
+    <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profil</div>
+  </div>
+</div>
+
+<!-- MES DEMANDES -->
+<div id="mes-demandes" class="screen">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Mes demandes</div>
+    </div>
+  </div>
+  <div class="screen-body pb20" style="overflow-y:auto">
+    <div id="mes-demandes-list" style="padding:16px">
+      <div class="demande-empty">
+        <div class="demande-empty-icon">📋</div>
+        <div class="demande-empty-title">Chargement…</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+    <div class="nav-item" onclick="goTo('bookings')" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations</div>
     <div class="nav-item active" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profil</div>
   </div>
 </div>
@@ -689,7 +729,7 @@ let P=[
 
 let cur=null, prev='home', activeCat='Tous';
 
-function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='profile')updateAuthSection();window.scrollTo(0,0);}
+function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='profile')updateAuthSection();if(s==='mes-demandes')loadMesDemandes();window.scrollTo(0,0);}
 function goBack(){goTo(prev);}
 
 function renderCard(p){
@@ -881,7 +921,9 @@ function updateAuthSection() {
   const authSec   = document.getElementById('auth-menu-section');
   if (!heroAv) return;
 
+  const mesDemEl = document.getElementById('menu-mes-demandes');
   if (user) {
+    if (mesDemEl) mesDemEl.style.display = '';
     const initials = (user.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     heroAv.textContent = initials;
     heroAv.style.background = 'rgba(255,255,255,0.25)';
@@ -903,6 +945,7 @@ function updateAuthSection() {
         <div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
       </div>`;
   } else {
+    if (mesDemEl) mesDemEl.style.display = 'none';
     heroAv.textContent = '👤';
     heroAv.style.background = '';
     heroAv.style.fontSize   = '';
@@ -1018,6 +1061,77 @@ async function changePassword() {
     errEl.textContent = 'Erreur réseau. Réessayez.';
   } finally {
     btn.disabled = false; btn.textContent = 'Changer mon mot de passe';
+  }
+}
+
+// ── MES DEMANDES ──────────────────────────────────────────────────────────────
+
+async function loadMesDemandes() {
+  const user    = getAuthUser();
+  const listEl  = document.getElementById('mes-demandes-list');
+  if (!listEl) return;
+
+  if (!user) {
+    listEl.innerHTML = `
+      <div class="demande-empty">
+        <div class="demande-empty-icon">🔐</div>
+        <div class="demande-empty-title">Connexion requise</div>
+        <div class="demande-empty-sub">Connectez-vous pour voir vos demandes.</div>
+        <button class="btn-primary" style="margin-top:16px" onclick="goTo('profile')">Se connecter</button>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = `<div class="demande-empty"><div class="demande-empty-icon">⏳</div><div class="demande-empty-title">Chargement…</div></div>`;
+
+  try {
+    const db       = firebase.firestore();
+    const snap     = await db.collection('demandes')
+      .where('email', '==', user.email)
+      .orderBy('createdAt', 'desc')
+      .limit(50)
+      .get();
+
+    if (snap.empty) {
+      listEl.innerHTML = `
+        <div class="demande-empty">
+          <div class="demande-empty-icon">📭</div>
+          <div class="demande-empty-title">Aucune demande</div>
+          <div class="demande-empty-sub">Vous n'avez pas encore soumis de demande de service.</div>
+          <button class="btn-primary" style="margin-top:16px" onclick="goTo('request')">Faire une demande</button>
+        </div>`;
+      return;
+    }
+
+    const statutClass = s => s === 'confirmé' ? 'confirme' : s === 'annulé' ? 'annule' : 'en-attente';
+    const statutLabel = s => s === 'confirmé' ? 'Confirmé' : s === 'annulé' ? 'Annulé' : 'En attente';
+    const fmtD = iso => { try { return new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); } catch{return '';} };
+
+    let html = '';
+    snap.forEach(doc => {
+      const d      = doc.data();
+      const statut = d.statut || 'en-attente';
+      const svc    = d.prestataire ? `${d.service || d.serviceType || 'Service'} — ${d.prestataire}` : (d.service || d.serviceType || 'Demande de service');
+      const typeLabel = d.type === 'reservation' ? '📅 Réservation' : '🔍 Demande';
+      html += `
+        <div class="demande-card">
+          <div class="demande-card-top">
+            <span class="demande-ref">${d.ref || doc.id.slice(0,8).toUpperCase()}</span>
+            <span class="demande-statut ${statutClass(statut)}">${statutLabel(statut)}</span>
+          </div>
+          <div class="demande-service">${svc}</div>
+          <div class="demande-meta">
+            <span>${typeLabel}</span>
+            ${d.tarif   ? `<span>💰 ${d.tarif}</span>` : ''}
+            ${d.localisation ? `<span>📍 ${d.localisation}</span>` : ''}
+            <span>🗓 ${fmtD(d.createdAt)}</span>
+          </div>
+        </div>`;
+    });
+    listEl.innerHTML = html;
+  } catch(e) {
+    console.error('[MES DEMANDES]', e);
+    listEl.innerHTML = `<div class="demande-empty" style="color:var(--red)"><div class="demande-empty-icon">⚠️</div><div class="demande-empty-title">Erreur de chargement</div><div class="demande-empty-sub">${e.message||'Réessayez.'}</div></div>`;
   }
 }
 
