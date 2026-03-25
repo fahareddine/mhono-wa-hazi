@@ -119,6 +119,13 @@ textarea.form-input{resize:vertical;min-height:80px}
 .modal-hdr-title{font-size:18px;font-weight:800;color:var(--g900)}
 .modal-close-btn{width:32px;height:32px;border-radius:50%;background:var(--g100);border:none;cursor:pointer;font-size:16px;color:var(--g500);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .modal-close-btn:hover{background:var(--g200)}
+/* Autocomplete */
+.ac-wrap{position:relative}
+.ac-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--w);border:1.5px solid var(--green);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:500;max-height:220px;overflow-y:auto;display:none}
+.ac-dropdown.open{display:block}
+.ac-item{padding:10px 14px;font-size:14px;color:var(--g700);cursor:pointer;transition:background .1s}
+.ac-item:hover,.ac-item.focused{background:var(--gl);color:var(--gd);font-weight:600}
+.ac-item mark{background:none;color:var(--green);font-weight:800}
 </style>
 </head>
 <body>
@@ -1009,7 +1016,10 @@ async function deleteUser(uid, nom) {
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Spécialité / Service</label>
-            <input id="u-specialite" type="text" class="form-input" placeholder="Ex : Plomberie, Électricité…">
+            <div class="ac-wrap">
+              <input id="u-specialite" type="text" class="form-input" placeholder="Ex : Plombier, Électricien…" autocomplete="off">
+              <div id="u-specialite-dd" class="ac-dropdown"></div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Ville / Zone d'intervention</label>
@@ -1028,5 +1038,70 @@ async function deleteUser(uid, nom) {
   </div>
 </div>
 
+<script>
+// ── LISTE DES MÉTIERS ──────────────────────────────────────────────────────────
+const METIERS = [
+  'Maçon','Carreleur','Plâtrier / Enduiseur','Peintre en bâtiment','Couvreur',
+  'Ferrailleur / Soudeur','Charpentier','Menuisier','Plombier','Fontainier',
+  'Électricien','Climatiseur / Froid','Technicien solaire','Paysagiste / Jardinier',
+  'Femme de ménage','Cuisinière / Traiteur','Garde d\'enfants / Nounou',
+  'Aide à domicile','Chauffeur / Livreur','Déménageur',
+  'Professeur de maths','Professeur de français','Professeur d\'arabe',
+  'Professeur d\'anglais','Tuteur scolaire','Formateur informatique',
+  'Technicien informatique','Technicien réseau','Réparateur téléphone / PC',
+  'Développeur web','Graphiste / Designer',
+  'Coiffeur','Coiffeuse','Esthéticienne / Beauté','Masseur / Kiné',
+  'Photographe / Vidéaste','Agent de sécurité','Comptable / Gestionnaire',
+  'Mécanicien auto','Mécanicien moto','Tôlier / Carrossier',
+  'Agriculteur / Maraîcher','Pêcheur','Éleveur',
+];
+
+// ── MOTEUR AUTOCOMPLETE ────────────────────────────────────────────────────────
+function setupAutocomplete(inputId, dropdownId, list) {
+  const inp  = document.getElementById(inputId);
+  const dd   = document.getElementById(dropdownId);
+  if (!inp || !dd) return;
+
+  let focusIdx = -1;
+
+  function render(q) {
+    const qLow = q.toLowerCase().trim();
+    const hits  = qLow ? list.filter(m => m.toLowerCase().includes(qLow)) : list;
+    if (!hits.length) { dd.classList.remove('open'); return; }
+    dd.innerHTML = hits.map((m, i) => {
+      const safe = m.replace(/</g,'&lt;');
+      const hi   = qLow ? safe.replace(new RegExp(`(${qLow.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>') : safe;
+      return `<div class="ac-item" data-val="${m}" data-i="${i}">${hi}</div>`;
+    }).join('');
+    focusIdx = -1;
+    dd.classList.add('open');
+  }
+
+  inp.addEventListener('input', () => render(inp.value));
+  inp.addEventListener('focus', () => { if (!inp.value) render(''); });
+
+  inp.addEventListener('keydown', e => {
+    const items = dd.querySelectorAll('.ac-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIdx = Math.min(focusIdx+1, items.length-1); items.forEach((x,i)=>x.classList.toggle('focused',i===focusIdx)); items[focusIdx]?.scrollIntoView({block:'nearest'}); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); focusIdx = Math.max(focusIdx-1, 0); items.forEach((x,i)=>x.classList.toggle('focused',i===focusIdx)); items[focusIdx]?.scrollIntoView({block:'nearest'}); }
+    else if (e.key === 'Enter' && focusIdx >= 0) { e.preventDefault(); inp.value = items[focusIdx].dataset.val; dd.classList.remove('open'); }
+    else if (e.key === 'Escape') dd.classList.remove('open');
+  });
+
+  dd.addEventListener('mousedown', e => {
+    const item = e.target.closest('.ac-item');
+    if (item) { inp.value = item.dataset.val; dd.classList.remove('open'); }
+  });
+
+  document.addEventListener('click', e => {
+    if (!inp.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupAutocomplete('u-specialite', 'u-specialite-dd', METIERS);
+});
+</script>
 </body>
 </html>

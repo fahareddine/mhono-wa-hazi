@@ -217,6 +217,9 @@ textarea.req-input{resize:vertical;min-height:90px}
 .req-section{padding:16px;border-bottom:1px solid var(--g100)}
 .req-label{font-size:12px;font-weight:700;color:var(--g600);margin-bottom:8px;display:block}
 .fab{position:fixed;bottom:80px;right:16px;z-index:50;background:var(--green);color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,158,111,0.4);display:flex;align-items:center;gap:8px}
+.ac-item-f{padding:10px 14px;font-size:14px;color:var(--g700);cursor:pointer;transition:background .1s}
+.ac-item-f:hover,.ac-item-f.focused{background:var(--gl);color:var(--gd);font-weight:600}
+.ac-item-f mark{background:none;color:var(--green);font-weight:800}
 /* Mes demandes */
 .demande-card{background:var(--w);border-radius:var(--r3);border:1px solid var(--g200);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh1)}
 .demande-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
@@ -670,7 +673,10 @@ textarea.req-input{resize:vertical;min-height:90px}
     <div style="display:flex;flex-direction:column;gap:10px">
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre nom complet" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre WhatsApp (+269…)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
-      <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre métier / service (ex: Maçon)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
+      <div style="position:relative">
+        <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input id="prov-metier" placeholder="Votre métier / service (ex: Maçon)" autocomplete="off" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
+        <div id="prov-metier-dd" style="position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--w);border:1.5px solid var(--green);border-radius:var(--r2);box-shadow:var(--sh2);z-index:500;max-height:200px;overflow-y:auto;display:none"></div>
+      </div>
       <div style="background:var(--g50);border-radius:var(--r2);padding:12px;border:1px solid var(--g200)"><input placeholder="Votre tarif proposé (ex: 5 000 KMF/j)" style="width:100%;border:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--g800);outline:none"></div>
       <button class="btn-primary" style="margin-top:4px" onclick="sendProviderWA()">Envoyer ma candidature à Info Experts</button>
       <div style="font-size:11px;color:var(--g400);text-align:center">Info Experts vous recontactera sous 24h</div>
@@ -898,7 +904,7 @@ function sendProviderWA(){
   const inputs=document.querySelectorAll('#provider-modal input');
   const nom=inputs[0]?.value||'Non renseigné';
   const wa=inputs[1]?.value||'Non renseigné';
-  const metier=inputs[2]?.value||'Non renseigné';
+  const metier=document.getElementById('prov-metier')?.value||inputs[2]?.value||'Non renseigné';
   const tarif=inputs[3]?.value||'Non renseigné';
   const msg='Bonjour Info Experts 👋\n\nCandidature prestataire *Mhono wa Hazi* :\n\n👤 Nom : '+nom+'\n📱 WhatsApp : '+wa+'\n🔧 Métier : '+metier+'\n💰 Tarif : '+tarif+'\n\nMerci de traiter cette candidature.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
@@ -1064,6 +1070,60 @@ async function changePassword() {
   }
 }
 
+// ── LISTE DES MÉTIERS ─────────────────────────────────────────────────────────
+const METIERS = [
+  'Maçon','Carreleur','Plâtrier / Enduiseur','Peintre en bâtiment','Couvreur',
+  'Ferrailleur / Soudeur','Charpentier','Menuisier','Plombier','Fontainier',
+  'Électricien','Climatiseur / Froid','Technicien solaire','Paysagiste / Jardinier',
+  'Femme de ménage','Cuisinière / Traiteur','Garde d\'enfants / Nounou',
+  'Aide à domicile','Chauffeur / Livreur','Déménageur',
+  'Professeur de maths','Professeur de français','Professeur d\'arabe',
+  'Professeur d\'anglais','Tuteur scolaire','Formateur informatique',
+  'Technicien informatique','Technicien réseau','Réparateur téléphone / PC',
+  'Développeur web','Graphiste / Designer',
+  'Coiffeur','Coiffeuse','Esthéticienne / Beauté','Masseur / Kiné',
+  'Photographe / Vidéaste','Agent de sécurité','Comptable / Gestionnaire',
+  'Mécanicien auto','Mécanicien moto','Tôlier / Carrossier',
+  'Agriculteur / Maraîcher','Pêcheur','Éleveur',
+];
+
+function setupAutocompleteF(inputId, ddEl, list) {
+  const inp = document.getElementById(inputId);
+  if (!inp || !ddEl) return;
+  let focusIdx = -1;
+
+  function render(q) {
+    const qLow = q.toLowerCase().trim();
+    const hits  = qLow ? list.filter(m => m.toLowerCase().includes(qLow)) : list;
+    if (!hits.length) { ddEl.style.display='none'; return; }
+    ddEl.innerHTML = hits.map((m,i) => {
+      const safe = m.replace(/</g,'&lt;');
+      const hi   = qLow ? safe.replace(new RegExp(`(${qLow.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark>$1</mark>') : safe;
+      return `<div class="ac-item-f" data-val="${m}" data-i="${i}">${hi}</div>`;
+    }).join('');
+    focusIdx = -1;
+    ddEl.style.display = 'block';
+  }
+
+  inp.addEventListener('input', () => render(inp.value));
+  inp.addEventListener('focus', () => { if (!inp.value) render(''); });
+  inp.addEventListener('keydown', e => {
+    const items = ddEl.querySelectorAll('.ac-item-f');
+    if (!items.length) return;
+    if (e.key==='ArrowDown'){e.preventDefault();focusIdx=Math.min(focusIdx+1,items.length-1);items.forEach((x,i)=>x.classList.toggle('focused',i===focusIdx));items[focusIdx]?.scrollIntoView({block:'nearest'});}
+    else if(e.key==='ArrowUp'){e.preventDefault();focusIdx=Math.max(focusIdx-1,0);items.forEach((x,i)=>x.classList.toggle('focused',i===focusIdx));items[focusIdx]?.scrollIntoView({block:'nearest'});}
+    else if(e.key==='Enter'&&focusIdx>=0){e.preventDefault();inp.value=items[focusIdx].dataset.val;ddEl.style.display='none';}
+    else if(e.key==='Escape')ddEl.style.display='none';
+  });
+  ddEl.addEventListener('mousedown', e => {
+    const item = e.target.closest('.ac-item-f');
+    if (item) { inp.value=item.dataset.val; ddEl.style.display='none'; }
+  });
+  document.addEventListener('click', e => {
+    if (!inp.contains(e.target) && !ddEl.contains(e.target)) ddEl.style.display='none';
+  });
+}
+
 // ── MES DEMANDES ──────────────────────────────────────────────────────────────
 
 async function loadMesDemandes() {
@@ -1139,6 +1199,7 @@ window.addEventListener('DOMContentLoaded', function() {
   initFirebase();
   loadProvidersFromFirebase();
   updateAuthSection();
+  setupAutocompleteF('prov-metier', document.getElementById('prov-metier-dd'), METIERS);
   // Si le token stocké exige un changement de mot de passe, bloquer l'accès
   const u = getAuthUser();
   if (u?.mustChangePassword) {
