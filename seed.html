@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Seed — Mhono wa Hazi</title>
+<style>
+body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:20px}
+h2{color:#0D6B4A}
+h3{color:#374151;margin-top:32px}
+.btn{background:#1A9E6F;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:15px;cursor:pointer;margin-right:10px;margin-bottom:10px}
+.btn:disabled{background:#9CA3AF;cursor:not-allowed}
+.btn-danger{background:#E53E3E}
+#log-p,#log-d{margin-top:16px;background:#F3F4F6;border-radius:8px;padding:16px;font-size:13px;line-height:2;max-height:300px;overflow-y:auto}
+.ok{color:#1A9E6F} .err{color:#E53E3E} .info{color:#6B7280}
+</style>
+</head>
+<body>
+<h2>🌱 Seed — Mhono wa Hazi</h2>
+
+<!-- ── PRESTATAIRES ─────────────────────────────────── -->
+<h3>👷 Prestataires (12)</h3>
+<p>Ajoute 12 prestataires fictifs dans la collection <code>providers</code>.</p>
+<button class="btn" onclick="seedProviders()" id="btn-p">Ajouter les prestataires</button>
+<div id="log-p"></div>
+
+<!-- ── CLIENTS / DEMANDES ────────────────────────────── -->
+<h3>👤 Clients & Demandes (30 — 3 par catégorie)</h3>
+<p>Ajoute 30 demandes fictives dans la collection <code>demandes</code> (3 par catégorie de service).</p>
+<button class="btn" onclick="seedDemandes()" id="btn-d">Ajouter les demandes clients</button>
+<div id="log-d"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>
+
+/* ── helpers ─────────────────────────────────────────── */
+function initDB() {
+  const cfg = window.FIREBASE_CONFIG;
+  if (!cfg || cfg.apiKey === 'VOTRE_API_KEY') return null;
+  if (!firebase.apps.length) firebase.initializeApp(cfg);
+  return firebase.firestore();
+}
+
+function ref() {
+  return 'MWH-' + Date.now().toString(36).toUpperCase().slice(-5)
+       + Math.random().toString(36).slice(2,5).toUpperCase();
+}
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString();
+}
+
+/* ── PRESTATAIRES ───────────────────────────────────── */
+const providers = [
+  { name:"Salim Abdallah",  job:"Électricien",           cat:"Électricité",  loc:"Moroni",       zone:"Moroni centre",        price:"5000", unit:"KMF/h",     rat:4.8,rev:34,done:"128",rate:"97%",reply:"< 1h", langs:"Shikomori, Français",        avail:"ok",av:"g",  tags:["Installation électrique","Dépannage","Tableau électrique"],     days:["lun","mar","mer","jeu","ven","sam"],slots:["08h-12h","14h-18h"],vrf:true, active:true,i:"SA"},
+  { name:"Fatouma Mzé",     job:"Femme de ménage",        cat:"Ménage",       loc:"Moroni",       zone:"Moroni & Environs",    price:"3000", unit:"KMF/h",     rat:4.9,rev:52,done:"210",rate:"99%",reply:"< 2h", langs:"Shikomori, Français",        avail:"ok",av:"pk", tags:["Ménage complet","Repassage","Cuisine"],                          days:["lun","mar","mer","jeu","ven"],slots:["07h-13h","14h-19h"],vrf:true, active:true,i:"FM"},
+  { name:"Youssouf Ibrahim", job:"Plombier",              cat:"Plomberie",    loc:"Moroni",       zone:"Moroni & Mitsamiouli", price:"6000", unit:"KMF/h",     rat:4.7,rev:28,done:"95", rate:"96%",reply:"< 1h", langs:"Shikomori, Français",        avail:"ok",av:"b",  tags:["Fuites","Installation sanitaire","Chauffe-eau"],                days:["lun","mar","mer","jeu","ven","sam"],slots:["08h-18h"],vrf:true, active:true,i:"YI"},
+  { name:"Ali Mchangama",   job:"Technicien informatique",cat:"Informatique", loc:"Moroni",       zone:"Moroni",               price:"7000", unit:"KMF/h",     rat:4.9,rev:41,done:"156",rate:"98%",reply:"< 1h", langs:"Shikomori, Français, Anglais",avail:"ok",av:"o",  tags:["Réparation PC","Installation réseau","Récupération données"],   days:["lun","mar","mer","jeu","ven","sam"],slots:["09h-18h"],vrf:true, active:true,i:"AM"},
+  { name:"Sitti Nassur",    job:"Cuisinière / Traiteur",  cat:"Cuisine",      loc:"Moroni",       zone:"Moroni & Domoni",      price:"4000", unit:"KMF/event", rat:5.0,rev:19,done:"67", rate:"100%",reply:"< 3h",langs:"Shikomori, Français",        avail:"tm",av:"r",  tags:["Cuisine comorienne","Mariages","Événements"],                   days:["lun","mer","ven","sam","dim"],slots:["06h-14h"],vrf:true, active:true,i:"SN"},
+  { name:"Hamidou Bacar",   job:"Maçon",                  cat:"Bâtiment",     loc:"Moroni",       zone:"Grande Comore",        price:"5500", unit:"KMF/j",     rat:4.6,rev:22,done:"83", rate:"95%",reply:"< 2h", langs:"Shikomori",                  avail:"ok",av:"g",  tags:["Construction","Rénovation","Carrelage"],                        days:["lun","mar","mer","jeu","ven","sam"],slots:["07h-17h"],vrf:false,active:true,i:"HB"},
+  { name:"Naïma Said",      job:"Professeure particulière",cat:"Cours",       loc:"Moroni",       zone:"Moroni",               price:"4000", unit:"KMF/h",     rat:4.8,rev:36,done:"142",rate:"98%",reply:"< 2h", langs:"Français, Arabe, Shikomori", avail:"ok",av:"p",  tags:["Maths","Français","Physique-Chimie","Bac"],                     days:["lun","mar","mer","jeu","ven","sam"],slots:["15h-19h","08h-12h"],vrf:true, active:true,i:"NS"},
+  { name:"Ousseni Combo",   job:"Jardinier",              cat:"Jardinage",    loc:"Mitsamiouli",  zone:"Nord Ngazidja",        price:"3500", unit:"KMF/h",     rat:4.7,rev:15,done:"58", rate:"96%",reply:"< 3h", langs:"Shikomori",                  avail:"ok",av:"g",  tags:["Taille","Entretien jardin","Plantation"],                       days:["lun","mar","mer","jeu","ven","sam"],slots:["07h-13h"],vrf:false,active:true,i:"OC"},
+  { name:"Rafion Abdou",    job:"Déménageur",             cat:"Déménagement", loc:"Moroni",       zone:"Grande Comore",        price:"8000", unit:"KMF/camion",rat:4.5,rev:11,done:"44", rate:"93%",reply:"< 2h", langs:"Shikomori, Français",        avail:"no",av:"o",  tags:["Déménagement local","Transport meubles","Emballage"],           days:["lun","mar","mer","jeu","ven","sam","dim"],slots:["07h-18h"],vrf:false,active:true,i:"RA"},
+  { name:"Moina Houmadi",   job:"Garde d'enfants",        cat:"Garde",        loc:"Moroni",       zone:"Moroni",               price:"2500", unit:"KMF/h",     rat:4.9,rev:27,done:"98", rate:"99%",reply:"< 1h", langs:"Shikomori, Français",        avail:"ok",av:"pk", tags:["Bébé","Enfants 3-12 ans","Aide devoirs"],                       days:["lun","mar","mer","jeu","ven","sam"],slots:["07h-19h"],vrf:true, active:true,i:"MH"},
+  { name:"Anrifa Toihir",   job:"Électricienne",          cat:"Électricité",  loc:"Mutsamudu",    zone:"Anjouan",              price:"4500", unit:"KMF/h",     rat:4.6,rev:18,done:"71", rate:"95%",reply:"< 2h", langs:"Shikomori, Français",        avail:"tm",av:"r",  tags:["Dépannage","Installation","Groupe électrogène"],               days:["lun","mar","mer","jeu","ven"],slots:["08h-17h"],vrf:true, active:true,i:"AT"},
+  { name:"Kassim Ahmed",    job:"Technicien réseau",      cat:"Informatique", loc:"Fomboni",      zone:"Mohéli",               price:"6000", unit:"KMF/h",     rat:4.7,rev:12,done:"47", rate:"97%",reply:"< 2h", langs:"Shikomori, Français",        avail:"ok",av:"b",  tags:["WiFi","Fibre optique","Dépannage réseau"],                      days:["lun","mar","mer","jeu","ven","sam"],slots:["09h-17h"],vrf:false,active:true,i:"KA"},
+];
+
+async function seedProviders() {
+  const btn = document.getElementById('btn-p');
+  const log = document.getElementById('log-p');
+  btn.disabled = true; btn.textContent = 'Ajout en cours…'; log.innerHTML = '';
+  const db = initDB();
+  if (!db) { log.innerHTML = '<span class="err">❌ Firebase non configuré.</span>'; btn.disabled=false; return; }
+  let ok=0, err=0;
+  for (const p of providers) {
+    try {
+      await db.collection('providers').add({ ...p, rvl:[], createdAt:firebase.firestore.FieldValue.serverTimestamp(), updatedAt:firebase.firestore.FieldValue.serverTimestamp() });
+      log.innerHTML += `<span class="ok">✓ ${p.name} (${p.cat})</span><br>`; ok++;
+    } catch(e) { log.innerHTML += `<span class="err">❌ ${p.name} — ${e.message}</span><br>`; err++; }
+  }
+  log.innerHTML += `<br><strong>${ok} prestataires ajoutés${err?', '+err+' erreurs':''}.</strong>`;
+  btn.textContent = 'Terminé ✓';
+}
+
+/* ── DEMANDES CLIENTS ───────────────────────────────── */
+const demandes = [
+
+  /* ── Ménage (3) ─────────── */
+  { nom:'Zahra Madi',       contact_wa:'+269 321 44 78', email:'zahra.madi@gmail.com',    serviceType:'Ménage',       description:'Ménage complet 4 pièces + cuisine et salle de bain. Appartement à Moroni Centre.', localisation:'Moroni Centre',    date:'2026-04-02', statut:'nouveau',     ago:1  },
+  { nom:'Toihirou Salim',   contact_wa:'+269 344 12 90', email:null,                      serviceType:'Ménage',       description:'Nettoyage approfondi de la maison avant un mariage. Besoin de 2 personnes.',        localisation:'Bangoi-Kouni',     date:'2026-04-05', statut:'en_cours',    ago:3  },
+  { nom:'Oumou Bacar',      contact_wa:'+269 332 67 11', email:'oumou.bacar@yahoo.fr',    serviceType:'Ménage',       description:'Entretien régulier hebdomadaire, tous les samedis matin.',                          localisation:'Mitsamiouli',      date:'2026-04-07', statut:'confirme',    ago:5  },
+
+  /* ── Plomberie (3) ──────── */
+  { nom:'Said Hamidou',     contact_wa:'+269 363 88 42', email:null,                      serviceType:'Plomberie',    description:'Fuite importante sous l\'évier de la cuisine. Intervention urgente souhaitée.',      localisation:'Moroni',           date:'2026-03-28', statut:'termine',     ago:7  },
+  { nom:'Mariama Youssouf', contact_wa:'+269 321 55 03', email:'mariama.y@hotmail.com',   serviceType:'Plomberie',    description:'Installation d\'un nouveau chauffe-eau électrique 100L dans la salle de bain.',      localisation:'Itsandra',         date:'2026-04-01', statut:'nouveau',     ago:2  },
+  { nom:'Ibrahim Madi',     contact_wa:'+269 344 70 29', email:null,                      serviceType:'Plomberie',    description:'Remplacement de la robinetterie de 2 salles de bain. Matériaux à fournir.',         localisation:'Foumbouni',        date:'2026-04-10', statut:'nouveau',     ago:1  },
+
+  /* ── Électricité (3) ────── */
+  { nom:'Nassuf Combo',     contact_wa:'+269 332 14 56', email:'nassuf.combo@gmail.com',  serviceType:'Électricité',  description:'Tableau électrique à refaire entièrement. Ancienne installation dangereuse.',        localisation:'Moroni',           date:'2026-03-30', statut:'en_cours',    ago:4  },
+  { nom:'Hafidhat Said',    contact_wa:'+269 363 29 74', email:null,                      serviceType:'Électricité',  description:'Installation de 6 prises supplémentaires dans le salon et les chambres.',           localisation:'Ikoni',            date:'2026-04-03', statut:'nouveau',     ago:2  },
+  { nom:'Madi Attoumani',   contact_wa:'+269 321 93 18', email:'madi.att@gmail.com',      serviceType:'Électricité',  description:'Panne générale depuis hier soir. Pas d\'électricité dans tout l\'appartement.',     localisation:'Bangoi-Kouni',     date:'2026-03-26', statut:'termine',     ago:9  },
+
+  /* ── Bâtiment (3) ──────── */
+  { nom:'Houmadi Mlamali',  contact_wa:'+269 344 48 62', email:null,                      serviceType:'Bâtiment',     description:'Construction d\'une dalle de 40m² pour extension de maison.',                       localisation:'Bangoi-Kouni',     date:'2026-04-15', statut:'nouveau',     ago:1  },
+  { nom:'Aicha Toihir',     contact_wa:'+269 332 81 35', email:'aicha.toihir@gmail.com',  serviceType:'Bâtiment',     description:'Rénovation complète de 3 pièces : peinture, carrelage et faux plafond.',            localisation:'Moroni',           date:'2026-04-08', statut:'en_cours',    ago:6  },
+  { nom:'Soilihi Bacar',    contact_wa:'+269 363 55 07', email:null,                      serviceType:'Bâtiment',     description:'Pose de carrelage dans cuisine et 2 salles de bain, environ 45m² au total.',       localisation:'Itsandra',         date:'2026-03-29', statut:'confirme',    ago:8  },
+
+  /* ── Cours (3) ─────────── */
+  { nom:'Fatima Abdou',     contact_wa:'+269 321 38 91', email:'fatima.abdou@gmail.com',  serviceType:'Cours',        description:'Cours de maths et physique pour mon fils en terminale. 3 fois par semaine.',       localisation:'Moroni',           date:'2026-04-01', statut:'confirme',    ago:3  },
+  { nom:'Youssouf Houmadi', contact_wa:'+269 344 62 14', email:null,                      serviceType:'Cours',        description:'Cours d\'arabe pour deux enfants, niveau débutant. Idéalement le weekend.',        localisation:'Mitsamiouli',      date:'2026-04-06', statut:'nouveau',     ago:1  },
+  { nom:'Halima Chamssidine',contact_wa:'+269 332 97 50',email:'halima.c@hotmail.fr',    serviceType:'Cours',        description:'Soutien scolaire en français pour collégienne 4e. 2h par semaine.',                 localisation:'Moroni',           date:'2026-03-31', statut:'en_cours',    ago:5  },
+
+  /* ── Jardinage (3) ──────── */
+  { nom:'Ali Mhoumadi',     contact_wa:'+269 363 17 83', email:null,                      serviceType:'Jardinage',    description:'Entretien mensuel de jardin 200m² : taille haies, tonte, désherbage.',              localisation:'Moroni',           date:'2026-04-04', statut:'nouveau',     ago:2  },
+  { nom:'Naïma Kamaroudine',contact_wa:'+269 321 44 26', email:'naima.k@gmail.com',       serviceType:'Jardinage',    description:'Création d\'un nouveau jardin : plantation, allées et gazon naturel.',             localisation:'Bangoi-Kouni',     date:'2026-04-12', statut:'nouveau',     ago:1  },
+  { nom:'Dhoihirou Said',   contact_wa:'+269 344 88 69', email:null,                      serviceType:'Jardinage',    description:'Nettoyage terrain après construction. Évacuation déchets verts.',                  localisation:'Foumbouni',        date:'2026-03-27', statut:'termine',     ago:10 },
+
+  /* ── Informatique (3) ───── */
+  { nom:'Kamil Bacar',      contact_wa:'+269 332 53 41', email:'kamil.bacar@gmail.com',   serviceType:'Informatique', description:'PC ne démarre plus depuis ce matin. Probablement virus ou disque dur.',             localisation:'Moroni',           date:'2026-03-28', statut:'termine',     ago:7  },
+  { nom:'Roukia Mchangama', contact_wa:'+269 363 71 05', email:null,                      serviceType:'Informatique', description:'Installation réseau WiFi pour commerce avec 2 bornes supplémentaires.',            localisation:'Moroni Centre',    date:'2026-04-02', statut:'en_cours',    ago:4  },
+  { nom:'Saidali Ibrahim',  contact_wa:'+269 321 29 88', email:'saidali.i@gmail.com',     serviceType:'Informatique', description:'Création site web vitrine pour mon cabinet médical. Besoin devis.',                localisation:'Moroni',           date:'2026-04-09', statut:'nouveau',     ago:1  },
+
+  /* ── Cuisine (3) ────────── */
+  { nom:'Fatimou Abdallah', contact_wa:'+269 344 36 52', email:'fatimou.a@gmail.com',     serviceType:'Cuisine',      description:'Traiteur pour mariage 120 personnes le 19 avril. Menu comorien complet.',          localisation:'Moroni',           date:'2026-04-19', statut:'confirme',    ago:6  },
+  { nom:'Zakariyou Madi',   contact_wa:'+269 332 14 77', email:null,                      serviceType:'Cuisine',      description:'Cuisinière pour préparer repas de baptême 60 invités. Vendredi prochain.',         localisation:'Mitsamiouli',      date:'2026-04-11', statut:'nouveau',     ago:2  },
+  { nom:'Mariam Toihir',    contact_wa:'+269 363 49 31', email:'mariam.toihir@gmail.com', serviceType:'Cuisine',      description:'Gâteaux et pâtisseries pour anniversaire 40 personnes. Livraison souhaitée.',      localisation:'Bangoi-Kouni',     date:'2026-04-14', statut:'nouveau',     ago:1  },
+
+  /* ── Déménagement (3) ───── */
+  { nom:'Bacar Mhoumadi',   contact_wa:'+269 321 62 09', email:null,                      serviceType:'Déménagement', description:'Déménagement appartement T3 vers nouvelle maison, même quartier.',                localisation:'Moroni Centre',    date:'2026-04-06', statut:'confirme',    ago:3  },
+  { nom:'Anrifa Youssouf',  contact_wa:'+269 344 95 43', email:'anrifa.y@gmail.com',      serviceType:'Déménagement', description:'Transport de gros meubles (salon, armoires) entre deux maisons à Moroni.',        localisation:'Moroni',           date:'2026-04-03', statut:'nouveau',     ago:2  },
+  { nom:'Toihirou Combo',   contact_wa:'+269 332 38 16', email:null,                      serviceType:'Déménagement', description:'Déménagement inter-îles Ngazidja vers Anjouan. Conteneur nécessaire.',           localisation:'Moroni',           date:'2026-04-20', statut:'nouveau',     ago:1  },
+
+  /* ── Garde enfants (3) ──── */
+  { nom:'Nafissa Hamidou',  contact_wa:'+269 363 83 27', email:'nafissa.h@gmail.com',     serviceType:'Garde',        description:'Garde de 2 enfants (3 et 6 ans) tous les jours de 7h à 16h. Poste fixe.',        localisation:'Moroni',           date:'2026-04-01', statut:'confirme',    ago:5  },
+  { nom:'Oumou Mlamali',    contact_wa:'+269 321 17 64', email:null,                      serviceType:'Garde',        description:'Baby-sitter ponctuelle pour nourrisson 8 mois. Soirées et weekends.',              localisation:'Mitsamiouli',      date:'2026-04-07', statut:'nouveau',     ago:2  },
+  { nom:'Hachim Said',      contact_wa:'+269 344 51 88', email:'hachim.said@gmail.com',   serviceType:'Garde',        description:'Aide aux devoirs + récupération école pour 3 enfants primaire, 16h-19h.',         localisation:'Bangoi-Kouni',     date:'2026-04-04', statut:'en_cours',    ago:4  },
+];
+
+async function seedDemandes() {
+  const btn = document.getElementById('btn-d');
+  const log = document.getElementById('log-d');
+  btn.disabled = true; btn.textContent = 'Ajout en cours…'; log.innerHTML = '';
+  const db = initDB();
+  if (!db) { log.innerHTML = '<span class="err">❌ Firebase non configuré.</span>'; btn.disabled=false; return; }
+
+  let ok=0, err=0;
+  for (const d of demandes) {
+    const { ago, ...data } = d;
+    const payload = {
+      ...data,
+      type: 'service_request',
+      ref: ref(),
+      source: 'seed',
+      createdAt: firebase.firestore.Timestamp.fromDate(new Date(daysAgo(ago))),
+    };
+    try {
+      await db.collection('demandes').add(payload);
+      log.innerHTML += `<span class="ok">✓ ${d.nom} — ${d.serviceType}</span><br>`; ok++;
+    } catch(e) { log.innerHTML += `<span class="err">❌ ${d.nom} — ${e.message}</span><br>`; err++; }
+  }
+  log.innerHTML += `<br><strong>${ok} demandes ajoutées${err?', '+err+' erreurs':''}.</strong>`;
+  btn.textContent = 'Terminé ✓';
+}
+</script>
+</body>
+</html>
