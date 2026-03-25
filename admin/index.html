@@ -110,6 +110,15 @@ textarea.form-input{resize:vertical;min-height:80px}
 .toast.success{background:var(--gd)}
 .toast.error{background:var(--red)}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* MODAL UTILISATEUR */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:400;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--w);border-radius:16px;width:100%;max-width:600px;margin:24px auto;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--g200)}
+.modal-hdr-title{font-size:18px;font-weight:800;color:var(--g900)}
+.modal-close-btn{width:32px;height:32px;border-radius:50%;background:var(--g100);border:none;cursor:pointer;font-size:16px;color:var(--g500);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close-btn:hover{background:var(--g200)}
 </style>
 </head>
 <body>
@@ -152,6 +161,10 @@ textarea.form-input{resize:vertical;min-height:80px}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Demandes clients
           <span id="badge-demandes" style="margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none"></span>
+        </div>
+        <div class="nav-link" onclick="showTab('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Utilisateurs
         </div>
       </div>
       <div class="sidebar-footer">
@@ -351,6 +364,48 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div id="demandes-list"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
       </div>
 
+      <!-- UTILISATEURS -->
+      <div id="tab-users" class="tab" style="display:none">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="page-title">Utilisateurs</div>
+            <div class="page-sub">Gérez les comptes clients et prestataires</div>
+          </div>
+          <button class="btn btn-primary" onclick="showUserModal()">+ Créer un compte</button>
+        </div>
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card blue"><div class="stat-num" id="ustat-total">—</div><div class="stat-lbl">Total utilisateurs</div></div>
+          <div class="stat-card green"><div class="stat-num" id="ustat-clients">—</div><div class="stat-lbl">Clients</div></div>
+          <div class="stat-card orange"><div class="stat-num" id="ustat-presta">—</div><div class="stat-lbl">Prestataires</div></div>
+          <div class="stat-card red"><div class="stat-num" id="ustat-inactif">—</div><div class="stat-lbl">Comptes inactifs</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title" id="users-count">Chargement…</div>
+            <input id="search-users" type="text" class="form-input" placeholder="Rechercher…" style="width:200px;padding:6px 12px;font-size:13px" oninput="filterUsers()">
+          </div>
+          <div style="overflow-x:auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Utilisateur</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>Mot de passe</th>
+                  <th>Créé le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="8"><div class="loading"><div class="spinner"></div>Chargement…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /main-content -->
   </div><!-- /admin-layout -->
 </div>
@@ -418,6 +473,7 @@ function showTab(name) {
   if (name === 'providers') loadProviders();
   if (name === 'demandes') loadDemandes();
   if (name === 'dashboard') loadDashboard();
+  if (name === 'users') loadUsers();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────
@@ -677,6 +733,289 @@ function showToast(msg, type = 'success') {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.className = 'toast', 3000);
 }
+
+// ── USERS ──────────────────────────────────────────────
+let allUsers = [];
+let editingUid = null;
+
+function adminApiKey() {
+  return window.ADMIN_PWD || 'InfoExperts2026!';
+}
+
+async function loadUsers() {
+  document.getElementById('users-tbody').innerHTML =
+    '<tr><td colspan="8"><div class="loading"><div class="spinner"></div>Chargement…</div></td></tr>';
+  try {
+    const r = await fetch('/api/users', { headers: { 'X-Admin-Key': adminApiKey() } });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+    allUsers = data.users;
+    const total   = allUsers.length;
+    const clients = allUsers.filter(u => u.role === 'client').length;
+    const presta  = allUsers.filter(u => u.role === 'prestataire').length;
+    const inactif = allUsers.filter(u => u.statut === 'inactif').length;
+    document.getElementById('ustat-total').textContent   = total;
+    document.getElementById('ustat-clients').textContent = clients;
+    document.getElementById('ustat-presta').textContent  = presta;
+    document.getElementById('ustat-inactif').textContent = inactif;
+    renderUsersTable(allUsers);
+  } catch(e) {
+    showToast('Erreur chargement utilisateurs : ' + e.message, 'error');
+    document.getElementById('users-tbody').innerHTML =
+      '<tr><td colspan="8"><div class="empty-state">Erreur de chargement. Vérifiez les variables d\'environnement.</div></td></tr>';
+  }
+}
+
+function renderUsersTable(list) {
+  document.getElementById('users-count').textContent =
+    list.length + ' utilisateur' + (list.length > 1 ? 's' : '');
+
+  if (!list.length) {
+    document.getElementById('users-tbody').innerHTML =
+      '<tr><td colspan="8"><div class="empty-state">Aucun utilisateur. Cliquez sur "+ Créer un compte".</div></td></tr>';
+    return;
+  }
+
+  document.getElementById('users-tbody').innerHTML = list.map(u => {
+    const initials    = (u.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const roleBadge   = u.role === 'prestataire'
+      ? `<span class="badge badge-vrf">Prestataire</span>${u.specialite?`<div style="font-size:11px;color:var(--g400);margin-top:2px">${u.specialite}</div>`:''}`
+      : '<span class="badge" style="background:var(--bl);color:var(--blue)">Client</span>';
+    const statutBadge = u.statut === 'actif'
+      ? '<span class="badge badge-ok">Actif</span>'
+      : '<span class="badge badge-no">Inactif</span>';
+    const pwdBadge    = u.mustChangePassword
+      ? '<span class="badge badge-tm">À changer</span>'
+      : '<span class="badge badge-ok">OK</span>';
+    const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : '—';
+    const safeNom = (u.nom||'').replace(/'/g,"\\'");
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--gl);color:var(--gd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${initials}</div>
+          <strong>${u.nom||'—'}</strong>
+        </div>
+      </td>
+      <td style="font-size:12px;color:var(--g600)">${u.email||'—'}</td>
+      <td style="font-size:12px">${u.telephone||'—'}</td>
+      <td>${roleBadge}</td>
+      <td>${statutBadge}</td>
+      <td>${pwdBadge}</td>
+      <td style="font-size:12px;color:var(--g400)">${date}</td>
+      <td>
+        <div class="actions" style="flex-wrap:wrap;gap:4px">
+          <button class="btn btn-outline btn-sm" onclick="showUserModal('${u.id}')">Modifier</button>
+          <button class="btn btn-outline btn-sm" onclick="resetUserPwd('${u.id}','${safeNom}')">Reset MdP</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.id}','${u.statut}')">${u.statut==='actif'?'Désactiver':'Réactiver'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}','${safeNom}')">Supprimer</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('search-users').value.toLowerCase();
+  renderUsersTable(allUsers.filter(u =>
+    (u.nom||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.telephone||'').toLowerCase().includes(q) ||
+    (u.role||'').toLowerCase().includes(q) ||
+    (u.specialite||'').toLowerCase().includes(q)
+  ));
+}
+
+function showUserModal(uid = null) {
+  editingUid = uid;
+  const u = uid ? allUsers.find(x => x.id === uid) : null;
+  document.getElementById('modal-user-title').textContent  = uid ? 'Modifier le compte' : 'Créer un compte';
+  document.getElementById('user-save-btn').textContent     = uid ? 'Enregistrer' : 'Créer le compte';
+  document.getElementById('u-uid').value        = uid || '';
+  document.getElementById('u-nom').value        = u?.nom        || '';
+  document.getElementById('u-email').value      = u?.email      || '';
+  document.getElementById('u-tel').value        = u?.telephone  || '';
+  document.getElementById('u-role').value       = u?.role       || 'client';
+  document.getElementById('u-statut').value     = u?.statut     || 'actif';
+  document.getElementById('u-pwd').value        = '';
+  document.getElementById('u-specialite').value = u?.specialite || '';
+  document.getElementById('u-ville').value      = u?.ville      || '';
+  document.getElementById('modal-user-error').textContent = '';
+  // Cacher le champ MdP en mode édition (reset séparé)
+  document.getElementById('u-pwd-group').style.display = uid ? 'none' : 'block';
+  toggleUserPrestaFields();
+  document.getElementById('modal-user').classList.add('open');
+}
+
+function closeUserModal() {
+  document.getElementById('modal-user').classList.remove('open');
+}
+
+function toggleUserPrestaFields() {
+  document.getElementById('u-presta-fields').style.display =
+    document.getElementById('u-role').value === 'prestataire' ? 'block' : 'none';
+}
+
+async function saveUser() {
+  const uid        = document.getElementById('u-uid').value;
+  const nom        = document.getElementById('u-nom').value.trim();
+  const email      = document.getElementById('u-email').value.trim();
+  const telephone  = document.getElementById('u-tel').value.trim();
+  const role       = document.getElementById('u-role').value;
+  const statut     = document.getElementById('u-statut').value;
+  const pwd        = document.getElementById('u-pwd').value.trim();
+  const specialite = document.getElementById('u-specialite').value.trim();
+  const ville      = document.getElementById('u-ville').value.trim();
+  const errEl      = document.getElementById('modal-user-error');
+
+  errEl.textContent = '';
+  if (!nom || !email) { errEl.textContent = 'Nom et email sont obligatoires.'; return; }
+
+  const btn = document.getElementById('user-save-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  const body = uid
+    ? { action: 'update', uid, nom, email, telephone, statut, specialite, ville }
+    : { action: 'create', nom, email, telephone, role, statut, specialite, ville,
+        ...(pwd ? { tempPassword: pwd } : {}) };
+
+  try {
+    const r = await fetch('/api/users', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminApiKey() },
+      body:    JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+
+    closeUserModal();
+    showToast(uid ? 'Compte mis à jour ✓' : 'Compte créé ✓', 'success');
+
+    if (!uid && data.tempPassword) {
+      setTimeout(() => alert(
+        `✅ Compte créé avec succès !\n\nMot de passe temporaire pour ${nom} :\n\n    ${data.tempPassword}\n\nCommuniquez ce mot de passe à l'utilisateur.\nIl devra le changer à sa première connexion.`
+      ), 400);
+    }
+    loadUsers();
+  } catch(e) {
+    errEl.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = uid ? 'Enregistrer' : 'Créer le compte';
+  }
+}
+
+async function resetUserPwd(uid, nom) {
+  if (!confirm(`Réinitialiser le mot de passe de "${nom}" ?\n\nUn nouveau mot de passe temporaire sera généré et l'utilisateur devra le changer à sa prochaine connexion.`)) return;
+  try {
+    const r = await fetch('/api/users', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminApiKey() },
+      body:    JSON.stringify({ action: 'reset-pwd', uid }),
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+    showToast('Mot de passe réinitialisé ✓', 'success');
+    alert(`🔑 Nouveau mot de passe temporaire pour ${nom} :\n\n    ${data.tempPassword}\n\nCommuniquez ce mot de passe à l'utilisateur.`);
+    loadUsers();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function toggleUserStatus(uid, currentStatut) {
+  const newStatut = currentStatut === 'actif' ? 'inactif' : 'actif';
+  const label     = newStatut === 'actif' ? 'réactiver' : 'désactiver';
+  if (!confirm(`Voulez-vous ${label} ce compte ?`)) return;
+  try {
+    const r = await fetch('/api/users', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminApiKey() },
+      body:    JSON.stringify({ action: 'toggle', uid, newStatut }),
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+    showToast(data.message, 'success');
+    loadUsers();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function deleteUser(uid, nom) {
+  if (!confirm(`Supprimer définitivement le compte de "${nom}" ?\n\nCette action est irréversible.`)) return;
+  try {
+    const r = await fetch('/api/users', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminApiKey() },
+      body:    JSON.stringify({ action: 'delete', uid }),
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+    showToast('Compte supprimé ✓', 'success');
+    loadUsers();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
 </script>
+
+<!-- ====== MODAL CRÉATION / MODIFICATION UTILISATEUR ====== -->
+<div id="modal-user" class="modal-overlay" onclick="if(event.target===this)closeUserModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title" id="modal-user-title">Créer un compte</div>
+      <button class="modal-close-btn" onclick="closeUserModal()">✕</button>
+    </div>
+
+    <input type="hidden" id="u-uid">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nom complet *</label>
+        <input id="u-nom" type="text" class="form-input" placeholder="Ex : Mohamed Ali">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input id="u-email" type="email" class="form-input" placeholder="email@exemple.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Téléphone</label>
+        <input id="u-tel" type="tel" class="form-input" placeholder="+269 3XX XX XX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rôle *</label>
+        <select id="u-role" class="form-input" onchange="toggleUserPrestaFields()">
+          <option value="client">Client</option>
+          <option value="prestataire">Prestataire</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Statut du compte</label>
+        <select id="u-statut" class="form-input">
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+      </div>
+      <div class="form-group" id="u-pwd-group">
+        <label class="form-label">Mot de passe temporaire</label>
+        <input id="u-pwd" type="text" class="form-input" placeholder="Généré automatiquement si vide">
+        <div class="form-help">Laissez vide pour générer automatiquement (ex : Kxyz-1234)</div>
+      </div>
+      <div class="form-group form-group-full" id="u-presta-fields" style="display:none">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Spécialité / Service</label>
+            <input id="u-specialite" type="text" class="form-input" placeholder="Ex : Plomberie, Électricité…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ville / Zone d'intervention</label>
+            <input id="u-ville" type="text" class="form-input" placeholder="Ex : Moroni, Grande Comore">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-user-error" class="error-msg" style="margin:8px 0 4px;min-height:18px"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveUser()" id="user-save-btn">Créer le compte</button>
+      <button class="btn btn-outline" onclick="closeUserModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

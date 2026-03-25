@@ -573,12 +573,13 @@ textarea.req-input{resize:vertical;min-height:90px}
 <!-- PROFILE -->
 <div id="profile" class="screen">
   <div class="profile-hero">
-    <div class="profile-avatar">👤</div>
-    <div class="profile-name">Mon Compte</div>
-    <div class="profile-phone">+269 331 27 22</div>
+    <div class="profile-avatar" id="profile-hero-avatar" style="cursor:pointer">👤</div>
+    <div class="profile-name" id="profile-hero-name">Mon Compte</div>
+    <div class="profile-phone" id="profile-hero-sub">Connectez-vous pour accéder à votre espace</div>
   </div>
   <div class="screen-body pb20" style="overflow-y:auto">
     <div>
+      <div id="auth-menu-section" class="menu-section"></div>
       <div class="menu-section">
         <div class="menu-section-title">Mon espace</div>
         <div class="menu-item" onclick="goTo('bookings')"><div class="menu-item-icon" style="background:var(--gl)">📋</div><div class="menu-item-text"><div class="menu-item-label">Mes réservations</div><div class="menu-item-sub">2 réservations en cours</div></div><div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>
@@ -637,6 +638,34 @@ textarea.req-input{resize:vertical;min-height:90px}
   </div>
 </div>
 
+<!-- MODAL CONNEXION -->
+<div id="modal-login" class="modal-overlay" onclick="closeModal(event,'modal-login')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Se connecter</div>
+    <div class="modal-sub">Accédez à votre espace personnel Mhono wa Hazi.</div>
+    <input id="login-email" type="email" class="req-input" placeholder="Adresse email" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')loginUser()">
+    <input id="login-pwd" type="password" class="req-input" placeholder="Mot de passe" style="margin-bottom:4px" onkeydown="if(event.key==='Enter')loginUser()">
+    <div id="login-error" style="font-size:13px;color:var(--red);min-height:18px;margin-bottom:12px"></div>
+    <button class="btn-primary" id="login-btn" onclick="loginUser()">Se connecter</button>
+    <button class="btn-outline" onclick="document.getElementById('modal-login').classList.remove('open')" style="margin-top:10px">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL CHANGEMENT MOT DE PASSE (bloquant si firstLogin) -->
+<div id="modal-changepwd" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="cpwd-title">Changer mon mot de passe</div>
+    <div class="modal-sub" id="cpwd-sub">Pour votre sécurité, vous devez définir un nouveau mot de passe avant de continuer.</div>
+    <input id="cpwd-new" type="password" class="req-input" placeholder="Nouveau mot de passe (min. 6 caractères)" style="margin-bottom:10px">
+    <input id="cpwd-confirm" type="password" class="req-input" placeholder="Confirmer le mot de passe" style="margin-bottom:4px" onkeydown="if(event.key==='Enter')changePassword()">
+    <div id="cpwd-error" style="font-size:13px;color:var(--red);min-height:18px;margin-bottom:12px"></div>
+    <button class="btn-primary" id="cpwd-submit-btn" onclick="changePassword()">Changer mon mot de passe</button>
+    <button class="btn-outline" id="cpwd-cancel-btn" onclick="document.getElementById('modal-changepwd').classList.remove('open')" style="margin-top:10px;display:none">Annuler</button>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 <script src="/firebase-config.js"></script>
@@ -660,7 +689,7 @@ let P=[
 
 let cur=null, prev='home', activeCat='Tous';
 
-function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');window.scrollTo(0,0);}
+function goTo(s){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='profile')updateAuthSection();window.scrollTo(0,0);}
 function goBack(){goTo(prev);}
 
 function renderCard(p){
@@ -838,7 +867,171 @@ function sendProviderWA(){
 function selPay(el){document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
-window.addEventListener('DOMContentLoaded',function(){ initFirebase(); loadProvidersFromFirebase(); });
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+
+function getAuthUser()  { try { const u=localStorage.getItem('mwh_user'); return u?JSON.parse(u):null; } catch{return null;} }
+function getAuthToken() { return localStorage.getItem('mwh_token'); }
+
+function updateAuthSection() {
+  const user      = getAuthUser();
+  const heroAv    = document.getElementById('profile-hero-avatar');
+  const heroName  = document.getElementById('profile-hero-name');
+  const heroSub   = document.getElementById('profile-hero-sub');
+  const authSec   = document.getElementById('auth-menu-section');
+  if (!heroAv) return;
+
+  if (user) {
+    const initials = (user.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    heroAv.textContent = initials;
+    heroAv.style.background = 'rgba(255,255,255,0.25)';
+    heroAv.style.fontSize   = '22px';
+    heroAv.style.cursor     = 'default';
+    heroAv.onclick = null;
+    heroName.textContent = user.nom || 'Mon Compte';
+    heroSub.textContent  = `${user.email} · ${user.role === 'prestataire' ? 'Prestataire' : 'Client'}`;
+    authSec.innerHTML = `
+      <div class="menu-section-title">Mon compte</div>
+      <div class="menu-item" onclick="openChangePwdModal(false)">
+        <div class="menu-item-icon" style="background:var(--ol)">🔑</div>
+        <div class="menu-item-text"><div class="menu-item-label">Changer mon mot de passe</div><div class="menu-item-sub">Modifier votre mot de passe de connexion</div></div>
+        <div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-item" onclick="logoutUser()">
+        <div class="menu-item-icon" style="background:var(--rl)">🚪</div>
+        <div class="menu-item-text"><div class="menu-item-label">Déconnexion</div><div class="menu-item-sub">Se déconnecter de l'application</div></div>
+        <div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>`;
+  } else {
+    heroAv.textContent = '👤';
+    heroAv.style.background = '';
+    heroAv.style.fontSize   = '';
+    heroAv.style.cursor     = 'pointer';
+    heroAv.onclick = openLoginModal;
+    heroName.textContent = 'Mon Compte';
+    heroSub.textContent  = 'Connectez-vous pour accéder à votre espace';
+    authSec.innerHTML = `
+      <div class="menu-section-title">Accès</div>
+      <div class="menu-item" onclick="openLoginModal()">
+        <div class="menu-item-icon" style="background:var(--gl)">🔐</div>
+        <div class="menu-item-text"><div class="menu-item-label">Se connecter</div><div class="menu-item-sub">Accédez à votre espace personnel</div></div>
+        <div class="menu-item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>`;
+  }
+}
+
+function openLoginModal() {
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pwd').value   = '';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('modal-login').classList.add('open');
+}
+
+async function loginUser() {
+  const email  = document.getElementById('login-email').value.trim();
+  const pwd    = document.getElementById('login-pwd').value;
+  const errEl  = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!email || !pwd) { errEl.textContent = 'Email et mot de passe requis.'; return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Connexion…';
+  try {
+    const r = await fetch('/api/auth', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'login', email, password: pwd }),
+    });
+    const data = await r.json();
+    if (!data.success) { errEl.textContent = data.error; return; }
+
+    localStorage.setItem('mwh_token', data.token);
+    localStorage.setItem('mwh_user',  JSON.stringify(data.user));
+    document.getElementById('modal-login').classList.remove('open');
+    updateAuthSection();
+
+    if (data.user.mustChangePassword) {
+      setTimeout(() => openChangePwdModal(true), 300);
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur réseau. Réessayez.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Se connecter';
+  }
+}
+
+function logoutUser() {
+  localStorage.removeItem('mwh_token');
+  localStorage.removeItem('mwh_user');
+  updateAuthSection();
+  goTo('home');
+}
+
+function openChangePwdModal(forced) {
+  document.getElementById('cpwd-new').value     = '';
+  document.getElementById('cpwd-confirm').value = '';
+  document.getElementById('cpwd-error').textContent = '';
+  const modal = document.getElementById('modal-changepwd');
+  modal.dataset.forced = forced ? '1' : '0';
+  // Titre différent selon contexte
+  document.getElementById('cpwd-title').textContent = forced
+    ? 'Définir votre mot de passe'
+    : 'Changer mon mot de passe';
+  document.getElementById('cpwd-sub').textContent = forced
+    ? 'Bienvenue ! Pour votre sécurité, vous devez définir un nouveau mot de passe avant de continuer.'
+    : 'Choisissez un nouveau mot de passe sécurisé.';
+  document.getElementById('cpwd-cancel-btn').style.display = forced ? 'none' : 'block';
+  modal.classList.add('open');
+}
+
+async function changePassword() {
+  const newPwd  = document.getElementById('cpwd-new').value;
+  const confirm = document.getElementById('cpwd-confirm').value;
+  const errEl   = document.getElementById('cpwd-error');
+  errEl.textContent = '';
+
+  if (!newPwd || newPwd.length < 6) { errEl.textContent = 'Minimum 6 caractères requis.'; return; }
+  if (newPwd !== confirm)           { errEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+
+  const token = getAuthToken();
+  if (!token) { errEl.textContent = 'Session expirée. Reconnectez-vous.'; return; }
+
+  const btn = document.getElementById('cpwd-submit-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    const r = await fetch('/api/auth', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ action: 'change-password', newPassword: newPwd }),
+    });
+    const data = await r.json();
+    if (!data.success) { errEl.textContent = data.error; return; }
+
+    localStorage.setItem('mwh_token', data.token);
+    const u = getAuthUser();
+    if (u) { u.mustChangePassword = false; localStorage.setItem('mwh_user', JSON.stringify(u)); }
+
+    document.getElementById('modal-changepwd').classList.remove('open');
+    updateAuthSection();
+    alert('✅ Mot de passe changé avec succès ! Bienvenue sur Mhono wa Hazi.');
+  } catch(e) {
+    errEl.textContent = 'Erreur réseau. Réessayez.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Changer mon mot de passe';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  initFirebase();
+  loadProvidersFromFirebase();
+  updateAuthSection();
+  // Si le token stocké exige un changement de mot de passe, bloquer l'accès
+  const u = getAuthUser();
+  if (u?.mustChangePassword) {
+    goTo('profile');
+    setTimeout(() => openChangePwdModal(true), 400);
+  }
+});
 </script>
 </body>
 </html>
