@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Seed données suivi — Mhono wa Hazi</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:500px;margin:40px auto;padding:20px;background:#f9fafb}
+  h1{font-size:20px;color:#1a9e6f;margin-bottom:8px}
+  p{font-size:13px;color:#6b7280;margin-bottom:24px}
+  .field{margin-bottom:14px}
+  label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+  input{width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box}
+  button{width:100%;background:#1a9e6f;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+  button:hover{background:#0d6b4a}
+  #log{margin-top:20px;background:#fff;border-radius:10px;padding:14px;font-size:13px;line-height:1.8;border:1px solid #e5e7eb;min-height:60px;color:#374151}
+  .ok{color:#059669;font-weight:700}
+  .err{color:#dc2626;font-weight:700}
+</style>
+</head>
+<body>
+<h1>Seed données de test — Suivi</h1>
+<p>Insère une demande + 4 mises à jour de suivi dans Firestore pour tester le rendu.</p>
+
+<div class="field">
+  <label>Email du compte client (pour voir dans "Mes demandes")</label>
+  <input id="email-client" type="email" value="defistylez@gmail.com" placeholder="email du client">
+</div>
+
+<button onclick="seedData()">Insérer les données de test</button>
+<div id="log">En attente…</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="/firebase-config.js"></script>
+<script>
+const cfg = window.FIREBASE_CONFIG;
+if (!firebase.apps.length) firebase.initializeApp(cfg);
+const db = firebase.firestore();
+
+function log(msg, type='') {
+  const el = document.getElementById('log');
+  el.innerHTML += `<span class="${type}">${msg}</span><br>`;
+}
+
+async function seedData() {
+  document.getElementById('log').innerHTML = '';
+  const emailClient = document.getElementById('email-client').value.trim();
+  if (!emailClient) { log('Renseignez un email client.', 'err'); return; }
+
+  log('Création de la demande de test…');
+
+  const now = firebase.firestore.Timestamp.now();
+  const yesterday = firebase.firestore.Timestamp.fromMillis(Date.now() - 86400000);
+  const twoDaysAgo = firebase.firestore.Timestamp.fromMillis(Date.now() - 172800000);
+
+  try {
+    // ── Demande 1 : Plomberie en cours ──────────────────────────
+    const dem1 = await db.collection('demandes').add({
+      type: 'service_request',
+      serviceType: 'Plomberie',
+      description: 'Fuite sous l\'évier de la cuisine, ça coule depuis 2 jours. Joint à remplacer.',
+      localisation: 'Quartier Bandamaji, Moroni',
+      nom: emailClient.split('@')[0],
+      email: emailClient,
+      contact_wa: '+269 321 45 67',
+      ref: 'MWH-DEM-TEST01',
+      statut: 'presque_terme',
+      source: 'seed_test',
+      createdAt: twoDaysAgo
+    });
+    log('✓ Demande créée : MWH-DEM-TEST01', 'ok');
+
+    // Suivis de la demande 1
+    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
+      statut: 'en_attente',
+      message: 'Bonjour, j\'ai bien reçu votre demande. Je confirme ma venue demain matin entre 8h et 10h. Prévoyez l\'accès sous l\'évier.',
+      photoUrls: [],
+      prestataire: 'Said Omar',
+      createdAt: twoDaysAgo
+    });
+    log('  ↳ Suivi 1/4 ajouté (En attente)', 'ok');
+
+    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
+      statut: 'en_cours',
+      message: 'Je suis sur place. J\'ai identifié le problème : c\'est le flexible d\'alimentation qui est fissuré. J\'ai le matériel nécessaire, le remplacement prendra environ 30 minutes.',
+      photoUrls: [
+        'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80',
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80'
+      ],
+      prestataire: 'Said Omar',
+      createdAt: yesterday
+    });
+    log('  ↳ Suivi 2/4 ajouté (En cours + 2 photos)', 'ok');
+
+    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
+      statut: 'presque_terme',
+      message: 'Flexible remplacé, joint refait. Je teste l\'étanchéité pendant 15 min avant de partir. Tout a l\'air bon pour l\'instant.',
+      photoUrls: [
+        'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80'
+      ],
+      prestataire: 'Said Omar',
+      createdAt: now
+    });
+    log('  ↳ Suivi 3/4 ajouté (Presque terminé + 1 photo)', 'ok');
+
+    // ── Demande 2 : Service personnalisé ────────────────────────
+    const dem2 = await db.collection('demandes').add({
+      type: 'service_request',
+      serviceType: 'custom',
+      customServiceTitle: 'Photographe mariage',
+      description: 'Besoin d\'un photographe pour un mariage le 15 juin à Moroni, environ 6 heures de prestation. Cérémonie + repas.',
+      localisation: 'Moroni, Salle des fêtes Corniche',
+      budget: '50 000 KMF',
+      urgence: 'cette_semaine',
+      nom: emailClient.split('@')[0],
+      email: emailClient,
+      contact_wa: '+269 321 45 67',
+      ref: 'MWH-CUST-TEST02',
+      statut: 'en_cours',
+      source: 'seed_test',
+      createdAt: yesterday
+    });
+    log('✓ Demande créée : MWH-CUST-TEST02 (Service personnalisé)', 'ok');
+
+    await db.collection('demandes').doc(dem2.id).collection('suivis').add({
+      statut: 'en_cours',
+      message: 'Bonjour ! J\'ai bien reçu votre demande de photographe pour le mariage. Je suis disponible le 15 juin. Je vous prépare un devis détaillé avec mes formules.',
+      photoUrls: [
+        'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80'
+      ],
+      prestataire: 'Aïcha Photographe',
+      createdAt: now
+    });
+    log('  ↳ Suivi 1/1 ajouté (En cours + 1 photo)', 'ok');
+
+    log('');
+    log('✅ Données insérées avec succès !', 'ok');
+    log('');
+    log('→ Ouvre l\'appli, connecte-toi avec ' + emailClient);
+    log('→ Va dans Mes demandes');
+    log('→ Clique "📊 Voir le suivi" sur une des 2 cartes');
+
+  } catch(e) {
+    log('Erreur : ' + e.message, 'err');
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
