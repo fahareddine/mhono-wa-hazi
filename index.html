@@ -14,7 +14,8 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
 :root{--green:#1A9E6F;--gl:#E6F7F1;--gd:#0D6B4A;--orange:#F5A623;--ol:#FEF3DC;--red:#E53E3E;--rl:#FFF5F5;--blue:#3B82F6;--bl:#EFF6FF;--g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;--g900:#111827;--w:#FFFFFF;--sh1:0 1px 3px rgba(0,0,0,0.08);--sh2:0 4px 16px rgba(0,0,0,0.10);--sh3:0 8px 32px rgba(0,0,0,0.13);--r1:8px;--r2:12px;--r3:16px;--r4:24px;--font:'Plus Jakarta Sans',sans-serif;--disp:'Syne',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -274,6 +275,10 @@ textarea.req-input{resize:vertical;min-height:90px}
 .demande-empty-title{font-size:16px;font-weight:700;color:var(--g600);margin-bottom:6px}
 .demande-empty-sub{font-size:13px;line-height:1.6}
 
+/* Conteneur catégories + flèches */
+.cats-container{position:relative;display:flex;align-items:center}
+.cats-arrow{display:none}
+
 /* ══════════════════════════════════════════════════
    DESKTOP SIDEBAR — masqué sur mobile
 ══════════════════════════════════════════════════ */
@@ -331,11 +336,23 @@ textarea.req-input{resize:vertical;min-height:90px}
   .hero-stat-num{font-size:20px}
   .home-search-bar{max-width:520px;padding:15px 22px}
 
-  /* Catégories — wrap sur desktop */
-  .cats-scroll{flex-wrap:wrap;overflow-x:visible;padding:12px 32px;gap:8px;border-bottom:none}
-  .cat-item{padding:10px 14px}
+  /* Catégories — scroll horizontal avec flèches sur desktop */
+  .cats-container{padding:0 32px;gap:0}
+  .cats-scroll{flex-wrap:nowrap;overflow-x:auto;padding:12px 0;gap:4px;border-bottom:none;scroll-behavior:smooth}
+  .cat-item{padding:10px 14px;flex-shrink:0}
   .cat-item.active::after{display:none}
   .cat-item.active .cat-icon{background:var(--gl);box-shadow:0 0 0 2px var(--green)}
+  .cats-arrow{
+    display:flex;align-items:center;justify-content:center;
+    width:32px;height:32px;flex-shrink:0;
+    background:var(--w);border:1.5px solid var(--g200);border-radius:50%;
+    cursor:pointer;font-size:20px;color:var(--g600);
+    box-shadow:var(--sh1);transition:all .15s;z-index:2;
+  }
+  .cats-arrow:hover{background:var(--gl);border-color:var(--green);color:var(--gd)}
+  .cats-arrow:disabled{opacity:0.3;cursor:default;pointer-events:none}
+  .cats-arrow-left{margin-right:8px}
+  .cats-arrow-right{margin-left:8px}
 
   /* Section headers */
   .section-header{padding:20px 32px 10px}
@@ -368,72 +385,141 @@ textarea.req-input{resize:vertical;min-height:90px}
   .cards-list{grid-template-columns:repeat(3,1fr)}
   .home-search-bar{max-width:600px}
 }
+
+/* ===== STITCH DESIGN SYSTEM ===== */
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-family:'Material Symbols Outlined';font-size:24px;display:inline-block;vertical-align:middle;line-height:1}
+.stitch-header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+.stitch-header-inner{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:60px}
+.stitch-location{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:600;color:var(--green)}
+.stitch-logo{font-family:var(--disp);font-size:18px;font-weight:800;color:var(--g800)}
+.stitch-header-actions{display:flex;align-items:center;gap:6px}
+.stitch-icon-btn{background:none;border:none;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--g600);position:relative}
+.stitch-notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid white}
+.stitch-avatar-btn{cursor:pointer;font-size:18px;width:36px;height:36px;background:var(--g100);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.stitch-hero{position:relative;padding:24px 16px 16px;overflow:hidden;background:var(--w)}
+.stitch-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(133,249,194,0.12);border-radius:50%;filter:blur(40px);z-index:0}
+.stitch-hero-title{font-size:26px;font-weight:800;color:var(--g900);line-height:1.2;margin-bottom:16px;position:relative;z-index:1}
+.stitch-hero-accent{color:var(--green)}
+.stitch-search-bar{display:flex;align-items:center;gap:10px;background:var(--w);border-radius:50px;padding:8px 8px 8px 16px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.08);cursor:pointer;position:relative;z-index:1}
+.stitch-search-icon{color:var(--g400);font-size:20px;flex-shrink:0}
+.stitch-search-placeholder{flex:1;font-size:14px;color:var(--g400)}
+.stitch-search-btn{background:linear-gradient(135deg,var(--green) 0%,var(--gd) 100%);color:white;font-size:13px;font-weight:700;padding:8px 16px;border-radius:50px;flex-shrink:0}
+.stitch-stats{display:flex;border-top:1px solid var(--g100);border-bottom:1px solid var(--g100);background:var(--g50);padding:12px 0}
+.stitch-cats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 16px 16px}
+.stitch-cat-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.stitch-cat-icon{width:56px;height:56px;background:var(--g100);border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--green);transition:background .15s}
+.stitch-cat-item.active .stitch-cat-icon,.stitch-cat-item:hover .stitch-cat-icon{background:var(--gl)}
+.stitch-cat-label{font-size:10px;font-weight:600;color:var(--g500);text-align:center;line-height:1.3}
+.stitch-cat-item.active .stitch-cat-label{color:var(--green)}
+.stitch-featured-banner{margin:0 16px 12px;border-radius:16px;overflow:hidden;position:relative;height:140px;cursor:pointer;background:linear-gradient(135deg,var(--gd) 0%,var(--green) 60%,#22C48A 100%)}
+.stitch-banner-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,0.45) 0%,transparent 100%)}
+.stitch-banner-content{position:relative;z-index:1;padding:18px 16px}
+.stitch-banner-tag{display:inline-block;background:rgba(133,249,194,0.2);color:#85f9c2;font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:0.5px;border:1px solid rgba(133,249,194,0.3)}
+.stitch-banner-title{font-size:18px;font-weight:800;color:white;margin-bottom:4px}
+.stitch-banner-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:10px}
+.stitch-banner-btn{background:white;color:var(--green);font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:none;cursor:pointer}
+.stitch-bottom-nav{position:sticky;bottom:0;background:rgba(255,255,255,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,0.06);box-shadow:0 -4px 20px rgba(0,0,0,0.05);display:flex;align-items:flex-end;z-index:100;padding-bottom:env(safe-area-inset-bottom,0);border-radius:24px 24px 0 0}
+.stitch-bottom-nav .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0 8px;cursor:pointer;font-size:10px;font-weight:600;color:var(--g400);transition:color .15s}
+.stitch-bottom-nav .nav-item .material-symbols-outlined{font-size:22px}
+.stitch-bottom-nav .nav-item.active{color:var(--green)}
 </style>
 </head>
 <body>
 
 <!-- HOME -->
 <div id="home" class="screen active">
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-logo">Mhono <span>wa Hazi</span></div>
-      <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-        <button onclick="openModal('notif-modal')" style="background:none;border:none;cursor:pointer;font-size:20px;position:relative">🔔<span style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid white"></span></button>
-        <div onclick="goTo('profile')" style="cursor:pointer;font-size:20px">👤</div>
+  <!-- Header glassmorphism -->
+  <header class="stitch-header">
+    <div class="stitch-header-inner">
+      <div class="stitch-location" onclick="openModal('modal-location')">
+        <span class="material-symbols-outlined" style="font-size:18px">location_on</span>
+        <span id="location-label">Moroni, Ngazidja</span>
+      </div>
+      <div class="stitch-logo">Mhono wa Hazi</div>
+      <div class="stitch-header-actions">
+        <button onclick="openModal('notif-modal')" class="stitch-icon-btn">
+          <span class="material-symbols-outlined" style="font-size:22px">notifications</span>
+          <span class="stitch-notif-dot"></span>
+        </button>
+        <div onclick="goTo('profile')" class="stitch-avatar-btn">👤</div>
       </div>
     </div>
-  </div>
+  </header>
+
   <div class="screen-body pb20">
-    <div class="home-top">
-      <div class="hero-location"><div class="hero-location-dot"></div><span id="location-label">Moroni, Ngazidja</span><span class="hero-location-change" onclick="openModal('modal-location')">📍 Changer</span></div>
-      <div class="hero-greeting">De quel service<br>avez-vous besoin ?</div>
-      <div class="home-search-bar" onclick="goTo('explore')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <span>Rechercher un service ou prestataire…</span>
+    <!-- Hero -->
+    <section class="stitch-hero">
+      <h1 class="stitch-hero-title">De quel service<br><span class="stitch-hero-accent">avez-vous besoin ?</span></h1>
+      <div class="stitch-search-bar" onclick="goTo('explore')">
+        <span class="material-symbols-outlined stitch-search-icon">search</span>
+        <span class="stitch-search-placeholder">Rechercher un service ou prestataire…</span>
+        <div class="stitch-search-btn">Trouver</div>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="hero-stat-num">32+</div><div class="hero-stat-lbl">Prestataires</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">1 800+</div><div class="hero-stat-lbl">Services réalisés</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">4.8★</div><div class="hero-stat-lbl">Note moyenne</div></div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stitch-stats">
+      <div class="hero-stat"><div class="hero-stat-num">32+</div><div class="hero-stat-lbl">Prestataires</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">1 800+</div><div class="hero-stat-lbl">Services réalisés</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4.8★</div><div class="hero-stat-lbl">Note moyenne</div></div>
+    </div>
+
+    <!-- Catégories -->
+    <div class="section-header"><div class="section-title">Catégories populaires</div><div class="section-link" onclick="goTo('explore')">Tout voir</div></div>
+    <div class="stitch-cats-grid">
+      <div class="stitch-cat-item active" onclick="filterCat('Ménage')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">cleaning_services</span></div><span class="stitch-cat-label">Ménage</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Plomberie')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">plumbing</span></div><span class="stitch-cat-label">Plomberie</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Électricité')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">bolt</span></div><span class="stitch-cat-label">Électricité</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Bâtiment')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">construction</span></div><span class="stitch-cat-label">Bâtiment</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Cours')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">menu_book</span></div><span class="stitch-cat-label">Cours part.</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Jardinage')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">yard</span></div><span class="stitch-cat-label">Jardinage</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Informatique')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">laptop_chromebook</span></div><span class="stitch-cat-label">IT / Réseau</span></div>
+      <div class="stitch-cat-item" onclick="filterCat('Déménagement')"><div class="stitch-cat-icon"><span class="material-symbols-outlined">local_shipping</span></div><span class="stitch-cat-label">Déménag.</span></div>
+    </div>
+
+    <!-- Featured banner -->
+    <div class="stitch-featured-banner" onclick="filterCat('Bâtiment')">
+      <div class="stitch-banner-overlay"></div>
+      <div class="stitch-banner-content">
+        <div class="stitch-banner-tag">PREMIUM CURATED</div>
+        <div class="stitch-banner-title">Travaux & Bâtiment</div>
+        <div class="stitch-banner-sub">Maçonnerie, carrelage, peinture, charpente, toiture…</div>
+        <button class="stitch-banner-btn">Explorer les experts</button>
       </div>
     </div>
-    <div class="section-header"><div class="section-title">Catégories</div><div class="section-link" onclick="goTo('explore')">Tout voir</div></div>
-    <div class="cats-scroll">
-      <div class="cat-item active" onclick="filterCat('Ménage')"><div class="cat-icon">🧹</div><div class="cat-label">Ménage</div></div>
-      <div class="cat-item" onclick="filterCat('Plomberie')"><div class="cat-icon">🔧</div><div class="cat-label">Plomberie</div></div>
-      <div class="cat-item" onclick="filterCat('Électricité')"><div class="cat-icon">⚡</div><div class="cat-label">Électricité</div></div>
-      <div class="cat-item" onclick="filterCat('Bâtiment')"><div class="cat-icon">🏗️</div><div class="cat-label">Bâtiment</div></div>
-      <div class="cat-item" onclick="filterCat('Cours')"><div class="cat-icon">📚</div><div class="cat-label">Cours part.</div></div>
-      <div class="cat-item" onclick="filterCat('Jardinage')"><div class="cat-icon">🌿</div><div class="cat-label">Jardinage</div></div>
-      <div class="cat-item" onclick="filterCat('Informatique')"><div class="cat-icon">💻</div><div class="cat-label">IT / Réseau</div></div>
-      <div class="cat-item" onclick="filterCat('Déménagement')"><div class="cat-icon">📦</div><div class="cat-label">Déménag.</div></div>
-      <div class="cat-item" onclick="filterCat('Cuisine')"><div class="cat-icon">🍳</div><div class="cat-label">Cuisine</div></div>
-      <div class="cat-item" onclick="filterCat('Garde')"><div class="cat-icon">👶</div><div class="cat-label">Garde enf.</div></div>
-    </div>
-    <div class="building-banner" onclick="filterCat('Bâtiment')">
-      <div class="building-icon">🏗️</div>
-      <div><div style="font-family:var(--disp);font-size:16px;color:white">Travaux & Bâtiment</div><div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px">Maçonnerie, carrelage, peinture, charpente, toiture, ferraillage…</div></div>
-    </div>
+
+    <!-- Promo -->
     <div class="promo-banner" onclick="goTo('request')" style="cursor:pointer">
       <div class="promo-tag">Nouveau</div>
       <div class="promo-text">Vous avez besoin d'un service ?</div>
       <div class="promo-sub">Décrivez votre besoin → Info Experts trouve le bon prestataire</div>
       <div style="margin-top:10px;display:inline-block;background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.4)">Faire une demande →</div>
     </div>
-    <div class="section-header" style="margin-top:8px"><div class="section-title">Prestataires populaires</div><div class="section-link" onclick="goTo('explore')">Tout voir</div></div>
+
+    <!-- Prestataires populaires -->
+    <div class="section-header" style="margin-top:8px">
+      <div>
+        <div class="section-title">Prestataires populaires</div>
+        <div style="font-size:12px;color:var(--g500);margin-top:2px">Vérifiés et recommandés par la communauté</div>
+      </div>
+      <div class="section-link" onclick="goTo('explore')">Tout voir</div>
+    </div>
     <div class="cards-list" id="home-cards"></div>
+
     <div class="ie-footer">
       <div class="ie-footer-logo">Info Experts — Opérateur officiel</div>
       <div class="ie-footer-text">Toutes les réservations et paiements sont gérés par Info Experts.<br>Vos transactions sont sécurisées.</div>
       <div class="ie-footer-contact">📞 +269 331 27 22 &nbsp;|&nbsp; <a href="mailto:contact@info-experts.fr" style="color:inherit">contact@info-experts.fr</a></div>
     </div>
   </div>
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Accueil</div>
-    <div class="nav-item" onclick="goTo('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explorer</div>
+
+  <!-- Bottom nav glassmorphism -->
+  <div class="stitch-bottom-nav">
+    <div class="nav-item active" onclick="goTo('home')"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">home</span>Accueil</div>
+    <div class="nav-item" onclick="goTo('explore')"><span class="material-symbols-outlined">explore</span>Explorer</div>
     <div class="nav-center-wrap"><div class="nav-center-btn" onclick="goTo('request')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
-    <div class="nav-item" onclick="goTo('bookings')" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Demandes</div>
-    <div class="nav-item" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Compte</div>
+    <div class="nav-item" onclick="goTo('bookings')"><span class="material-symbols-outlined">calendar_today</span>Demandes</div>
+    <div class="nav-item" onclick="goTo('profile')"><span class="material-symbols-outlined">person</span>Compte</div>
   </div>
 </div>
 
@@ -1229,6 +1315,26 @@ function filterSearch(){
   if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.job.toLowerCase().includes(q)||p.tags.some(t=>t.toLowerCase().includes(q)));
   renderExplore(list);
 }
+
+function scrollCats(dir){
+  const el=document.getElementById('cats-scroll');
+  if(!el) return;
+  el.scrollBy({left:dir*180,behavior:'smooth'});
+  setTimeout(updateCatsArrows,300);
+}
+function updateCatsArrows(){
+  const el=document.getElementById('cats-scroll');
+  const prev=document.getElementById('cats-prev');
+  const next=document.getElementById('cats-next');
+  if(!el||!prev||!next) return;
+  prev.disabled=el.scrollLeft<=4;
+  next.disabled=el.scrollLeft>=el.scrollWidth-el.clientWidth-4;
+}
+// Init flèches au chargement
+window.addEventListener('load',()=>{
+  const el=document.getElementById('cats-scroll');
+  if(el){el.addEventListener('scroll',updateCatsArrows);updateCatsArrows();}
+});
 
 function filterCat(cat){
   activeCat=cat; goTo('explore');
