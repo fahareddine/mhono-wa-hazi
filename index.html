@@ -1976,7 +1976,6 @@ async function loadMesDemandes() {
     const db       = firebase.firestore();
     const snap     = await db.collection('demandes')
       .where('email', '==', user.email)
-      .orderBy('createdAt', 'desc')
       .limit(50)
       .get();
 
@@ -1995,8 +1994,14 @@ async function loadMesDemandes() {
     const statutLabel = s => s === 'confirmé' ? 'Confirmé' : s === 'annulé' ? 'Annulé' : 'En attente';
     const fmtD = ts => { try { const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); } catch{return '';} };
 
+    const docs = snap.docs.sort((a, b) => {
+      const ta = a.data().createdAt?.toMillis?.() || 0;
+      const tb = b.data().createdAt?.toMillis?.() || 0;
+      return tb - ta;
+    });
+
     let html = '';
-    snap.forEach(doc => {
+    docs.forEach(doc => {
       const d      = doc.data();
       const statut = d.statut || 'en-attente';
       const isCustom = d.serviceType === 'custom';
