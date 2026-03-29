@@ -491,9 +491,21 @@ textarea.req-input{resize:vertical;min-height:90px}
 .suivi-btn-add{width:100%;background:linear-gradient(135deg,var(--green),var(--gd));color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.3px}
 .suivi-btn-add:disabled{opacity:.5}
 /* Lightbox */
-.suivi-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center}
-.suivi-lightbox img{max-width:95vw;max-height:88vh;object-fit:contain;border-radius:10px}
-.suivi-lightbox-close{position:absolute;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;backdrop-filter:blur(4px)}
+.suivi-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.suivi-lightbox img{max-width:95vw;max-height:78vh;object-fit:contain;border-radius:10px;transition:opacity .2s}
+.suivi-lightbox-close{position:absolute;top:16px;right:16px;width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;backdrop-filter:blur(4px);z-index:2}
+.suivi-lightbox-nav{display:flex;align-items:center;gap:16px}
+.suivi-lb-arrow{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;border:none;backdrop-filter:blur(4px);transition:background .15s}
+.suivi-lb-arrow:hover{background:rgba(255,255,255,0.3)}
+.suivi-lb-arrow:disabled{opacity:.25;cursor:default}
+.suivi-lb-counter{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;min-width:40px;text-align:center}
+/* J-day badge */
+.suivi-jday{font-size:10px;font-weight:800;background:rgba(0,0,0,0.08);color:var(--g600);padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.5px}
+/* Terminer mission */
+.suivi-termine-btn{width:calc(100% - 32px);margin:0 16px 24px;background:transparent;color:var(--red,#e53e3e);border:1.5px solid var(--red,#e53e3e);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.suivi-termine-btn:hover{background:#fff5f5}
+/* Photo count indicator */
+.suivi-photo-count{font-size:11px;color:var(--g400);margin-left:8px;font-weight:600}
 /* Mes demandes — actions */
 .demande-card-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .btn-suivi{background:var(--green);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px}
@@ -966,13 +978,17 @@ textarea.req-input{resize:vertical;min-height:90px}
           <textarea id="suivi-new-msg" rows="3" placeholder="Décrivez l'avancement : ce qui a été fait, ce qu'il reste…"></textarea>
           <label class="suivi-photo-label" for="suivi-new-photos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Joindre des photos
+            Joindre des photos <span class="suivi-photo-count" id="suivi-photo-count">(max 3)</span>
           </label>
           <input id="suivi-new-photos" type="file" accept="image/*" multiple style="display:none" onchange="previewSuiviPhotos(this)">
           <div class="suivi-preview-imgs" id="suivi-preview-imgs"></div>
           <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
         </div>
       </div>
+      <button class="suivi-termine-btn" id="suivi-termine-btn" onclick="termineMission()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg>
+        Clôturer la mission
+      </button>
     </div>
     <!-- Timeline -->
     <div class="suivi-timeline" id="suivi-timeline">
@@ -980,9 +996,14 @@ textarea.req-input{resize:vertical;min-height:90px}
     </div>
   </div>
   <!-- Lightbox photos -->
-  <div id="suivi-lightbox" class="suivi-lightbox" style="display:none" onclick="closeLightbox()">
-    <div class="suivi-lightbox-close">✕</div>
+  <div id="suivi-lightbox" class="suivi-lightbox" style="display:none">
+    <div class="suivi-lightbox-close" onclick="closeLightbox()">✕</div>
     <img id="suivi-lightbox-img" src="" alt="">
+    <div class="suivi-lightbox-nav">
+      <button class="suivi-lb-arrow" id="lb-prev" onclick="lightboxNav(-1)">‹</button>
+      <span class="suivi-lb-counter" id="lb-counter">1 / 1</span>
+      <button class="suivi-lb-arrow" id="lb-next" onclick="lightboxNav(1)">›</button>
+    </div>
   </div>
 </div>
 
@@ -2253,9 +2274,12 @@ function renderSuiviTimeline(items) {
   const el = document.getElementById('suivi-timeline');
   if (!el) return;
 
-  // Mettre à jour le stepper avec le dernier statut
   const lastStatut = items.length ? (items[items.length-1].statut || 'en_attente') : 'en_attente';
   updateSuiviStepper(lastStatut);
+
+  // Masquer le bouton clôturer si déjà terminé
+  const termineBtn = document.getElementById('suivi-termine-btn');
+  if (termineBtn) termineBtn.style.display = lastStatut === 'termine' ? 'none' : 'flex';
 
   if (items.length === 0) {
     el.innerHTML = `
@@ -2267,31 +2291,47 @@ function renderSuiviTimeline(items) {
     return;
   }
 
+  // Date de début de mission (depuis le cache)
+  const missionStart = _demandesCache[_suiviDemandeId]?.createdAt;
+  const startMs = missionStart?.toDate ? missionStart.toDate().getTime() : null;
+
   const fmtD = ts => {
     try {
       const d = ts?.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})
+      return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})
         + ' · ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     } catch{ return ''; }
   };
 
+  const getJday = ts => {
+    if (!startMs || !ts) return '';
+    try {
+      const itemMs = ts?.toDate ? ts.toDate().getTime() : new Date(ts).getTime();
+      const days = Math.floor((itemMs - startMs) / 86400000);
+      return `<span class="suivi-jday">J${days === 0 ? '1' : days + 1}</span>`;
+    } catch { return ''; }
+  };
+
   let html = '';
   items.forEach((item, idx) => {
-    const st     = item.statut || 'en_cours';
-    const isDone = idx < items.length - 1;
-    const photos = (item.photoUrls || []).map(url =>
-      `<img class="suivi-photo" src="${url}" alt="photo" loading="lazy" onclick="openLightbox('${url.replace(/'/g,"\\'")}'">`
+    const st      = item.statut || 'en_cours';
+    const isDone  = idx < items.length - 1;
+    const urls    = (item.photoUrls || []).slice(0, 3);
+    // Encode URLs as JSON for the lightbox array
+    const urlsJson = JSON.stringify(urls).replace(/"/g, '&quot;');
+    const photos  = urls.map((url, pi) =>
+      `<img class="suivi-photo" src="${url}" alt="photo ${pi+1}" loading="lazy" onclick="openLightbox(${pi}, '${urlsJson}')">`
     ).join('');
-    const photosGrid = photos
-      ? `<div class="suivi-photos" style="${(item.photoUrls||[]).length===1?'grid-template-columns:1fr;max-width:240px':''}">${photos}</div>`
-      : '';
+    const cols    = urls.length === 1 ? 'grid-template-columns:1fr;max-width:220px' : urls.length === 2 ? 'grid-template-columns:1fr 1fr' : 'grid-template-columns:1fr 1fr 1fr';
+    const photosGrid = photos ? `<div class="suivi-photos" style="${cols}">${photos}</div>` : '';
+
     html += `
       <div class="suivi-item ${isDone?'done':''}">
         <div class="suivi-dot ${st}">${SUIVI_STATUS_ICONS[st]||'•'}</div>
         <div class="suivi-card">
           <div class="suivi-card-header">
             <span class="suivi-status-badge ${st}">${SUIVI_STATUS_LABELS[st]||st}</span>
-            <span class="suivi-date">${fmtD(item.createdAt)}</span>
+            <span class="suivi-date">${fmtD(item.createdAt)}${getJday(item.createdAt)}</span>
           </div>
           ${item.prestataire ? `<div class="suivi-prest-name">👷 ${item.prestataire}</div>` : ''}
           <div class="suivi-msg">${item.message || ''}</div>
@@ -2300,14 +2340,17 @@ function renderSuiviTimeline(items) {
       </div>`;
   });
   el.innerHTML = html;
-  // Scroll vers le bas pour voir le dernier update
   setTimeout(() => { el.parentElement.scrollTop = el.parentElement.scrollHeight; }, 100);
 }
 
 function previewSuiviPhotos(input) {
-  _suiviPhotosFiles = Array.from(input.files);
+  // Limite à 3 photos
+  const all = Array.from(input.files).slice(0, 3);
+  _suiviPhotosFiles = all;
+  const countEl = document.getElementById('suivi-photo-count');
+  if (countEl) countEl.textContent = all.length > 0 ? `(${all.length}/3)` : '(max 3)';
   const prev = document.getElementById('suivi-preview-imgs');
-  prev.innerHTML = _suiviPhotosFiles.map(f =>
+  prev.innerHTML = all.map(f =>
     `<img class="suivi-preview-img" src="${URL.createObjectURL(f)}" alt="">`
   ).join('');
 }
@@ -2354,13 +2397,69 @@ async function addSuiviUpdate() {
   btn.textContent = 'Publier la mise à jour'; btn.disabled = false;
 }
 
-function openLightbox(url) {
-  const lb = document.getElementById('suivi-lightbox');
-  document.getElementById('suivi-lightbox-img').src = url;
-  lb.style.display = 'flex';
+let _lbUrls = [];
+let _lbIdx  = 0;
+
+function openLightbox(idx, urlsJson) {
+  try { _lbUrls = typeof urlsJson === 'string' ? JSON.parse(urlsJson.replace(/&quot;/g,'"')) : urlsJson; } catch{ _lbUrls = []; }
+  _lbIdx = idx || 0;
+  renderLightbox();
+  document.getElementById('suivi-lightbox').style.display = 'flex';
+  document.addEventListener('keydown', lbKeyNav);
 }
+
+function renderLightbox() {
+  document.getElementById('suivi-lightbox-img').src = _lbUrls[_lbIdx] || '';
+  document.getElementById('lb-counter').textContent = `${_lbIdx + 1} / ${_lbUrls.length}`;
+  document.getElementById('lb-prev').disabled = _lbIdx === 0;
+  document.getElementById('lb-next').disabled = _lbIdx === _lbUrls.length - 1;
+  // Masquer la nav si 1 seule photo
+  document.querySelector('.suivi-lightbox-nav').style.display = _lbUrls.length > 1 ? 'flex' : 'none';
+}
+
+function lightboxNav(dir) {
+  _lbIdx = Math.max(0, Math.min(_lbUrls.length - 1, _lbIdx + dir));
+  const img = document.getElementById('suivi-lightbox-img');
+  img.style.opacity = '0';
+  setTimeout(() => { img.src = _lbUrls[_lbIdx]; img.style.opacity = '1'; }, 150);
+  document.getElementById('lb-counter').textContent = `${_lbIdx + 1} / ${_lbUrls.length}`;
+  document.getElementById('lb-prev').disabled = _lbIdx === 0;
+  document.getElementById('lb-next').disabled = _lbIdx === _lbUrls.length - 1;
+}
+
+function lbKeyNav(e) {
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+}
+
 function closeLightbox() {
   document.getElementById('suivi-lightbox').style.display = 'none';
+  document.removeEventListener('keydown', lbKeyNav);
+}
+
+async function termineMission() {
+  if (!_suiviDemandeId) return;
+  if (!confirm('Clôturer la mission ? Cette action marquera le service comme terminé.')) return;
+  const btn = document.getElementById('suivi-termine-btn');
+  btn.disabled = true; btn.textContent = 'Clôture en cours…';
+  try {
+    const user = getAuthUser();
+    await db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
+      statut: 'termine',
+      message: '✅ Mission clôturée par le prestataire. Merci pour votre confiance !',
+      photoUrls: [],
+      prestataire: user?.nom || null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('demandes').doc(_suiviDemandeId).update({ statut: 'termine' });
+    if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = 'termine';
+    btn.style.display = 'none';
+  } catch(e) {
+    console.error('[TERMINE]', e);
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg> Clôturer la mission';
+  }
 }
 
 // ── SERVICE WORKER ────────────────────────────────────────────────────────────
