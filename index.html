@@ -271,6 +271,9 @@ textarea.req-input{resize:vertical;min-height:90px}
 .demande-statut.en-cours{background:#DBEAFE;color:#2563EB}
 .demande-statut.presque-terme{background:#D1FAE5;color:#059669}
 .demande-statut.termine{background:#DCFCE7;color:#16A34A}
+.demande-statut.en-attente-validation{background:#FEF3C7;color:#92400E;animation:pulse-badge 1.5s ease infinite alternate}
+.demande-statut.valide{background:#DCFCE7;color:#15803D}
+@keyframes pulse-badge{from{opacity:1}to{opacity:.6}}
 .demande-service{font-size:15px;font-weight:700;color:var(--g800);margin-bottom:4px}
 .demande-meta{font-size:12px;color:var(--g500);display:flex;gap:10px;flex-wrap:wrap}
 .demande-meta span{display:flex;align-items:center;gap:3px}
@@ -526,6 +529,25 @@ textarea.req-input{resize:vertical;min-height:90px}
 .suivi-st-btn.confirming{border-color:#f97316;background:#fff7ed;animation:pulse-confirm .6s ease infinite alternate}
 .suivi-st-btn.confirming .suivi-st-btn-label{color:#c2410c}
 @keyframes pulse-confirm{from{box-shadow:0 0 0 0 rgba(249,115,22,0.3)}to{box-shadow:0 0 0 6px rgba(249,115,22,0)}}
+/* Validation client */
+.suivi-validation-banner{margin:12px 14px;background:linear-gradient(135deg,#fef9c3,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:16px;display:none}
+.suivi-validation-title{font-size:14px;font-weight:800;color:#78350f;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.suivi-validation-sub{font-size:12px;color:#92400e;margin-bottom:12px;line-height:1.5}
+.suivi-validation-btn{width:100%;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.3px}
+.suivi-validation-btn:disabled{opacity:.6;cursor:not-allowed}
+.suivi-validation-btn.confirming{background:linear-gradient(135deg,#f97316,#ea580c);animation:pulse-confirm .6s ease infinite alternate}
+/* Modal récapitulatif paiement */
+.paiement-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:none;align-items:flex-end;justify-content:center}
+.paiement-modal.open{display:flex}
+.paiement-sheet{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;animation:slideUp .3s ease}
+.paiement-sheet-title{font-size:18px;font-weight:800;color:var(--g900);margin-bottom:4px}
+.paiement-sheet-sub{font-size:13px;color:var(--g500);margin-bottom:20px}
+.paiement-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g100)}
+.paiement-row:last-of-type{border-bottom:none}
+.paiement-row-label{font-size:13px;color:var(--g500)}
+.paiement-row-val{font-size:13px;font-weight:700;color:var(--g800)}
+.paiement-wa-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+.paiement-close-btn{width:100%;background:var(--g100);color:var(--g700);border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
 /* Chat */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:300px}
 .chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--g50)}
@@ -1026,9 +1048,9 @@ textarea.req-input{resize:vertical;min-height:90px}
           <span class="suivi-st-btn-icon">🔜</span>
           <span class="suivi-st-btn-label">Presque terminé</span>
         </button>
-        <button class="suivi-st-btn" id="st-btn-termine" onclick="setMissionStatut('termine')">
-          <span class="suivi-st-btn-icon">✅</span>
-          <span class="suivi-st-btn-label">Terminer</span>
+        <button class="suivi-st-btn" id="st-btn-en_attente_validation" onclick="setMissionStatut('en_attente_validation')">
+          <span class="suivi-st-btn-icon">📩</span>
+          <span class="suivi-st-btn-label">Signaler terminé</span>
         </button>
       </div>
       <!-- Formulaire mise à jour -->
@@ -1049,6 +1071,15 @@ textarea.req-input{resize:vertical;min-height:90px}
           <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
         </div>
       </div>
+    </div>
+    <!-- Bannière validation client -->
+    <div class="suivi-validation-banner" id="suivi-validation-banner">
+      <div class="suivi-validation-title">🎉 Travail terminé — à valider</div>
+      <div class="suivi-validation-sub">Le prestataire a signalé la fin de la mission. Vérifiez le travail et validez pour déclencher le paiement.</div>
+      <button class="suivi-validation-btn" id="suivi-validation-btn" onclick="validerMission()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg>
+        Valider et payer
+      </button>
     </div>
     <!-- Timeline -->
     <div class="suivi-timeline" id="suivi-timeline">
@@ -2153,21 +2184,25 @@ async function loadMesDemandes() {
     }
 
     const statutClass = s => {
-      if (s === 'confirmé')       return 'confirme';
-      if (s === 'annulé')         return 'annule';
-      if (s === 'en_cours')       return 'en-cours';
-      if (s === 'presque_terme')  return 'presque-terme';
-      if (s === 'termine')        return 'termine';
-      if (s === 'nouveau')        return 'nouveau';
+      if (s === 'confirmé')              return 'confirme';
+      if (s === 'annulé')                return 'annule';
+      if (s === 'en_cours')              return 'en-cours';
+      if (s === 'presque_terme')         return 'presque-terme';
+      if (s === 'en_attente_validation') return 'en-attente-validation';
+      if (s === 'valide')                return 'valide';
+      if (s === 'termine')               return 'termine';
+      if (s === 'nouveau')               return 'nouveau';
       return 'en-attente';
     };
     const statutLabel = s => {
-      if (s === 'confirmé')       return 'Confirmé';
-      if (s === 'annulé')         return 'Annulé';
-      if (s === 'en_cours')       return '🔧 En cours';
-      if (s === 'presque_terme')  return '🔜 Presque terminé';
-      if (s === 'termine')        return '✅ Terminé';
-      if (s === 'nouveau')        return 'Nouveau';
+      if (s === 'confirmé')              return 'Confirmé';
+      if (s === 'annulé')                return 'Annulé';
+      if (s === 'en_cours')              return '🔧 En cours';
+      if (s === 'presque_terme')         return '🔜 Presque terminé';
+      if (s === 'en_attente_validation') return '🔔 À valider';
+      if (s === 'valide')                return '✅ Validé & Payé';
+      if (s === 'termine')               return '✅ Terminé';
+      if (s === 'nouveau')               return 'Nouveau';
       return 'En attente';
     };
     const fmtD = ts => { try { const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); } catch{return '';} };
@@ -2304,9 +2339,9 @@ let _suiviUnsub = null;
 let _suiviPhotosFiles = [];
 let _demandesCache = {}; // stocke les données des demandes chargées
 
-const SUIVI_STATUS_LABELS = { en_attente:'En attente', en_cours:'En cours', presque_terme:'Presque terminé', termine:'Terminé ✓' };
-const SUIVI_STATUS_ICONS  = { en_attente:'⏳', en_cours:'🔧', presque_terme:'🔜', termine:'✅' };
-const SUIVI_STATUS_ORDER  = ['en_attente','en_cours','presque_terme','termine'];
+const SUIVI_STATUS_LABELS = { en_attente:'En attente', en_cours:'En cours', presque_terme:'Presque terminé', en_attente_validation:'🔔 À valider', termine:'Terminé ✓', valide:'✅ Validé & Payé' };
+const SUIVI_STATUS_ICONS  = { en_attente:'⏳', en_cours:'🔧', presque_terme:'🔜', en_attente_validation:'🔔', termine:'✅', valide:'💰' };
+const SUIVI_STATUS_ORDER  = ['en_attente','en_cours','presque_terme','en_attente_validation','valide'];
 
 function openSuivi(demandeId) {
   _suiviDemandeId = demandeId;
@@ -2490,36 +2525,50 @@ function previewSuiviPhotos(input) {
   ).join('');
 }
 
-let _missionStatut = 'en_attente'; // statut courant géré par les boutons
-let _termineConfirmTimer = null;   // timer annulation confirmation
+let _missionStatut = 'en_attente';
+let _termineConfirmTimer = null;
+let _validerConfirmTimer = null;
 
 function updateStatutBtns(statut) {
   _missionStatut = statut;
-  const order = ['en_cours', 'presque_terme', 'termine'];
+  const order = ['en_cours', 'presque_terme', 'en_attente_validation'];
   const curIdx = order.indexOf(statut);
   order.forEach((st, i) => {
     const btn = document.getElementById('st-btn-' + st);
     if (!btn) return;
     btn.classList.remove('done', 'active', 'locked', 'confirming');
     btn.dataset.confirming = '';
-    if (st === 'termine') {
-      btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
+    if (st === 'en_attente_validation') {
+      btn.querySelector('.suivi-st-btn-icon').textContent = '📩';
+      btn.querySelector('.suivi-st-btn-label').textContent = 'Signaler terminé';
     }
     if (i < curIdx)        btn.classList.add('done');
     else if (i === curIdx) btn.classList.add('active');
   });
+  // Masquer les boutons prestataire si mission validée
+  const btnsWrap = document.getElementById('suivi-status-btns');
+  const formWrap = document.querySelector('.suivi-add-wrap');
+  if (btnsWrap) btnsWrap.style.display = (statut === 'valide') ? 'none' : 'grid';
+  if (formWrap) formWrap.style.display  = (statut === 'valide') ? 'none' : 'block';
   clearTimeout(_termineConfirmTimer);
+
+  // Bannière validation : visible pour le client si statut = en_attente_validation
+  const user = getAuthUser();
+  const banner = document.getElementById('suivi-validation-banner');
+  if (banner) {
+    const showBanner = statut === 'en_attente_validation' && user && (user.role === 'client' || user.role === 'admin');
+    banner.style.display = showBanner ? 'block' : 'none';
+  }
 }
 
 function setMissionStatut(statut) {
   if (!_suiviDemandeId || !db) return;
   if (statut === _missionStatut) return;
 
-  // Confirmation double-tap pour "termine"
-  if (statut === 'termine') {
-    const btn = document.getElementById('st-btn-termine');
-    if (btn.dataset.confirming !== 'yes') {
-      // 1er tap : demande confirmation
+  // Confirmation double-tap pour "signaler terminé"
+  if (statut === 'en_attente_validation') {
+    const btn = document.getElementById('st-btn-en_attente_validation');
+    if (btn && btn.dataset.confirming !== 'yes') {
       btn.dataset.confirming = 'yes';
       btn.classList.add('confirming');
       btn.querySelector('.suivi-st-btn-icon').textContent = '⚠️';
@@ -2528,31 +2577,29 @@ function setMissionStatut(statut) {
       _termineConfirmTimer = setTimeout(() => {
         btn.dataset.confirming = '';
         btn.classList.remove('confirming');
-        btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
-        btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
+        btn.querySelector('.suivi-st-btn-icon').textContent = '📩';
+        btn.querySelector('.suivi-st-btn-label').textContent = 'Signaler terminé';
       }, 3000);
       return;
     }
-    // 2e tap : confirmer
     clearTimeout(_termineConfirmTimer);
     btn.dataset.confirming = '';
-    btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
-    btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
   }
 
   _doSetMissionStatut(statut);
 }
 
 async function _doSetMissionStatut(statut) {
-  const labels = { en_cours:'démarrée', presque_terme:'presque terminée', termine:'terminée ✅' };
-  const msgs   = { en_cours:'🔧 Mission démarrée.', presque_terme:'🔜 Mission presque terminée.', termine:'✅ Mission terminée. Merci pour votre confiance !' };
+  const msgs = {
+    en_cours: '🔧 Mission démarrée.',
+    presque_terme: '🔜 Mission presque terminée.',
+    en_attente_validation: '📩 Travail terminé — en attente de validation du client.'
+  };
   const user = getAuthUser();
   try {
     await Promise.all([
       db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
-        statut,
-        message: msgs[statut] || '',
-        photoUrls: [],
+        statut, message: msgs[statut] || '', photoUrls: [],
         prestataire: user?.nom || null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }),
@@ -2560,8 +2607,102 @@ async function _doSetMissionStatut(statut) {
     ]);
     if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = statut;
     updateStatutBtns(statut);
-    showToast(`Mission ${labels[statut] || statut}`);
+    showToast(statut === 'en_attente_validation' ? '📩 Client notifié — en attente de validation' : 'Statut mis à jour ✓');
   } catch(e) { console.error('[SET STATUT]', e); showToast('Erreur mise à jour statut'); }
+}
+
+// ── VALIDATION CLIENT ──────────────────────────────────────────────────────────
+function validerMission() {
+  const btn = document.getElementById('suivi-validation-btn');
+  if (!btn) return;
+  if (btn.dataset.confirming !== 'yes') {
+    btn.dataset.confirming = 'yes';
+    btn.classList.add('confirming');
+    btn.textContent = '⚠️ Confirmer la validation ?';
+    clearTimeout(_validerConfirmTimer);
+    _validerConfirmTimer = setTimeout(() => {
+      btn.dataset.confirming = '';
+      btn.classList.remove('confirming');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg> Valider et payer';
+    }, 4000);
+    return;
+  }
+  clearTimeout(_validerConfirmTimer);
+  _doValiderMission();
+}
+
+async function _doValiderMission() {
+  if (!_suiviDemandeId || !db) return;
+  const btn = document.getElementById('suivi-validation-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Validation en cours…'; }
+
+  const d    = _demandesCache[_suiviDemandeId] || {};
+  const user = getAuthUser();
+
+  try {
+    // 1. Créer le document paiement
+    const paiementRef = await db.collection('paiements').add({
+      demandeId:         _suiviDemandeId,
+      demandeRef:        d.ref || _suiviDemandeId.slice(0,8).toUpperCase(),
+      service:           d.service || d.serviceType || d.customServiceTitle || '—',
+      clientNom:         user?.nom   || d.nom   || '—',
+      clientEmail:       user?.email || d.email || '—',
+      prestataireNom:    d.prestataire    || '—',
+      prestataireEmail:  d.prestataireEmail || '—',
+      prestataireWA:     d.prestataireWA   || '—',
+      montant:           d.tarif || d.budget || '—',
+      statut:            'en_attente',
+      createdAt:         firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // 2. Mettre à jour le statut de la demande
+    await db.collection('demandes').doc(_suiviDemandeId).update({ statut: 'valide' });
+    await db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
+      statut: 'valide',
+      message: `✅ Mission validée par ${user?.nom || 'le client'}. Paiement en cours.`,
+      photoUrls: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = 'valide';
+
+    // 3. Afficher le récapitulatif
+    showPaiementModal(d, paiementRef.id);
+  } catch(e) {
+    console.error('[VALIDER]', e);
+    showToast('Erreur lors de la validation');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg> Valider et payer'; }
+  }
+}
+
+function showPaiementModal(d, paiementId) {
+  document.getElementById('pr-service').textContent = d.service || d.serviceType || d.customServiceTitle || '—';
+  document.getElementById('pr-presta').textContent  = d.prestataire || '—';
+  document.getElementById('pr-client').textContent  = d.nom || '—';
+  document.getElementById('pr-tarif').textContent   = d.tarif || d.budget || 'À convenir';
+  document.getElementById('pr-ref').textContent     = d.ref || paiementId.slice(0,8).toUpperCase();
+
+  // Bouton WhatsApp prestataire
+  const waBtn = document.getElementById('pr-wa-btn');
+  const waNum = (d.prestataireWA || '').replace(/\D/g, '');
+  if (waNum) {
+    const msg = encodeURIComponent(`✅ Bonjour ${d.prestataire || ''} ! Votre mission "${d.service || d.serviceType || ''}" a été validée par le client. Réf : ${d.ref || ''}. Merci et à bientôt sur Mhono wa Hazi ! 🎉`);
+    waBtn.onclick = () => window.open(`https://wa.me/${waNum}?text=${msg}`, '_blank');
+    waBtn.style.display = 'flex';
+  } else {
+    waBtn.style.display = 'none';
+  }
+
+  document.getElementById('paiement-modal').classList.add('open');
+  // Masquer la bannière
+  const banner = document.getElementById('suivi-validation-banner');
+  if (banner) banner.style.display = 'none';
+  showToast('Mission validée ✅');
+}
+
+function closePaiementModal(e) {
+  if (e && e.target !== document.getElementById('paiement-modal')) return;
+  document.getElementById('paiement-modal').classList.remove('open');
 }
 
 async function addSuiviUpdate() {
@@ -2800,5 +2941,27 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 })();
 </script>
+
+<!-- MODAL RÉCAPITULATIF PAIEMENT -->
+<div class="paiement-modal" id="paiement-modal" onclick="closePaiementModal(event)">
+  <div class="paiement-sheet">
+    <div class="paiement-sheet-title">✅ Mission validée !</div>
+    <div class="paiement-sheet-sub">Récapitulatif de la mission</div>
+    <div class="paiement-row"><span class="paiement-row-label">Service</span><span class="paiement-row-val" id="pr-service">—</span></div>
+    <div class="paiement-row"><span class="paiement-row-label">Prestataire</span><span class="paiement-row-val" id="pr-presta">—</span></div>
+    <div class="paiement-row"><span class="paiement-row-label">Client</span><span class="paiement-row-val" id="pr-client">—</span></div>
+    <div class="paiement-row"><span class="paiement-row-label">Tarif</span><span class="paiement-row-val" id="pr-tarif">—</span></div>
+    <div class="paiement-row"><span class="paiement-row-label">Référence</span><span class="paiement-row-val" id="pr-ref">—</span></div>
+    <div class="paiement-row" style="border-top:2px solid var(--g200);margin-top:4px;padding-top:12px">
+      <span class="paiement-row-label" style="font-weight:700;color:var(--g700)">Statut paiement</span>
+      <span class="paiement-row-val" style="color:var(--orange)">⏳ En attente</span>
+    </div>
+    <button class="paiement-wa-btn" id="pr-wa-btn">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.531 5.845L.057 23.476a.496.496 0 0 0 .601.601l5.638-1.474A11.938 11.938 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.804 9.804 0 0 1-5.031-1.389l-.36-.214-3.733.976.997-3.622-.234-.372A9.804 9.804 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      Notifier le prestataire sur WhatsApp
+    </button>
+    <button class="paiement-close-btn" onclick="closePaiementModal()">Fermer</button>
+  </div>
+</div>
 </body>
 </html>

@@ -740,7 +740,9 @@ async function loadDemandes() {
             <option value="nouveau" ${x.statut==='nouveau'?'selected':''}>Nouveau</option>
             <option value="en_cours" ${x.statut==='en_cours'?'selected':''}>En cours</option>
             <option value="presque_terme" ${x.statut==='presque_terme'?'selected':''}>Presque terminé</option>
-            <option value="termine" ${x.statut==='termine'?'selected':''}>Terminé</option>
+            <option value="en_attente_validation" ${x.statut==='en_attente_validation'?'selected':''}>🔔 À valider</option>
+            <option value="valide" ${x.statut==='valide'?'selected':''}>✅ Validé & Payé</option>
+            <option value="termine" ${x.statut==='termine'?'selected':''}>Terminé (legacy)</option>
             <option value="annule" ${x.statut==='annule'?'selected':''}>Annulé</option>
           </select>
           <span style="margin-left:auto;font-size:11px;color:var(--g400)">${date}</span>
@@ -776,10 +778,14 @@ async function updateStatut(docId, statut) {
 async function assignPrestataire(docId, val) {
   if (!val) return;
   const [email, nom] = val.split('|');
+  // Récupérer le téléphone du prestataire
+  const prestaUser = _prestaUsers.find(p => p.email === email);
+  const prestataireWA = prestaUser?.telephone || '';
   try {
     await db.collection('demandes').doc(docId).update({
       prestataireEmail: email,
       prestataire: nom,
+      prestataireWA,
       statut: 'en_cours'
     });
     showToast(`Mission assignée à ${nom} ✓`, 'success');
