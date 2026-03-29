@@ -256,6 +256,49 @@ textarea.req-input{resize:vertical;min-height:90px}
 .article-date{font-size:11px;color:var(--g400);padding:16px 20px 0;font-style:italic}
 .location-opt{padding:13px 14px;font-size:14px;color:var(--g700);cursor:pointer;border-radius:var(--r1);border:1.5px solid var(--g200);transition:all .15s;font-weight:500}
 .location-opt:hover{background:var(--gl);border-color:var(--green);color:var(--gd);font-weight:600}
+/* Location picker smart */
+.loc-search-wrap{position:relative;margin-bottom:12px}
+.loc-search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--g400);pointer-events:none}
+.loc-search-input{width:100%;padding:11px 14px 11px 38px;border:1.5px solid var(--g200);border-radius:12px;font-size:14px;font-family:var(--font);color:var(--g800);outline:none;box-sizing:border-box;transition:border .15s}
+.loc-search-input:focus{border-color:var(--green)}
+.loc-results{overflow-y:auto;max-height:340px;flex:1}
+.loc-pref-item{border-bottom:1px solid var(--g100)}
+.loc-pref-header{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;cursor:pointer;user-select:none}
+.loc-pref-name{font-size:13px;font-weight:700;color:var(--g700)}
+.loc-pref-chef{font-size:11px;color:var(--g400);margin-top:1px}
+.loc-pref-arrow{width:16px;height:16px;color:var(--g400);transition:transform .2s;flex-shrink:0}
+.loc-pref-item.open .loc-pref-arrow{transform:rotate(90deg)}
+.loc-communes{display:none;padding-left:8px}
+.loc-pref-item.open .loc-communes{display:block}
+.loc-com-header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 8px 8px;cursor:pointer;border-radius:8px;transition:background .1s}
+.loc-com-header:hover{background:var(--g50)}
+.loc-com-name{font-size:13px;color:var(--g600);font-weight:600}
+.loc-com-count{font-size:11px;color:var(--g400)}
+.loc-villages{display:none;padding-left:8px}
+.loc-com-item.open .loc-villages{display:block}
+.loc-village-btn{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;border:none;background:none;font-size:13px;color:var(--g700);cursor:pointer;border-radius:8px;font-family:var(--font);text-align:left;transition:background .1s}
+.loc-village-btn:hover,.loc-com-header:hover{background:var(--gl)}
+.loc-village-dot{width:6px;height:6px;border-radius:50%;background:var(--g300);flex-shrink:0}
+/* Résultats de recherche */
+.loc-result-item{display:flex;align-items:center;gap:10px;padding:10px 6px;cursor:pointer;border-radius:10px;transition:background .1s}
+.loc-result-item:hover{background:var(--gl)}
+.loc-result-icon{width:32px;height:32px;border-radius:8px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.loc-result-label{font-size:13px;font-weight:700;color:var(--g800)}
+.loc-result-sub{font-size:11px;color:var(--g400);margin-top:1px}
+/* Chips zones prestataire */
+.loc-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0}
+.loc-chip{display:inline-flex;align-items:center;gap:5px;background:var(--gl);color:var(--gd);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;border:1px solid #86efac}
+.loc-chip-x{cursor:pointer;font-size:14px;line-height:1;color:var(--gd);opacity:.6}
+.loc-chip-x:hover{opacity:1}
+/* Champ localisation tap-to-pick */
+.loc-pick-field{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--g200);border-radius:12px;cursor:pointer;background:#fff;transition:border .15s;min-height:44px}
+.loc-pick-field:hover{border-color:var(--green)}
+.loc-pick-field svg{width:16px;height:16px;color:var(--g400);flex-shrink:0}
+.loc-pick-value{font-size:13px;color:var(--g800);flex:1}
+.loc-pick-value.placeholder{color:var(--g400)}
+.loc-village-btn.selected{background:var(--gl);color:var(--gd);font-weight:600}
+.loc-zone-add{border:1.5px solid var(--g300);border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:700;color:var(--g500);width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:all .15s;flex-shrink:0;margin-left:6px}
+.loc-zone-add:hover,.loc-zone-add.selected{background:var(--green);border-color:var(--green);color:#fff}
 .ac-item-f{padding:10px 14px;font-size:14px;color:var(--g700);cursor:pointer;transition:background .1s}
 .ac-item-f:hover,.ac-item-f.focused{background:var(--gl);color:var(--gd);font-weight:600}
 .ac-item-f mark{background:none;color:var(--green);font-weight:800}
@@ -599,7 +642,7 @@ textarea.req-input{resize:vertical;min-height:90px}
   <!-- Header glassmorphism -->
   <header class="stitch-header">
     <div class="stitch-header-inner">
-      <div class="stitch-location" onclick="openModal('modal-location')">
+      <div class="stitch-location" onclick="openLocModal('single','header-loc')">
         <span class="material-symbols-outlined" style="font-size:18px">location_on</span>
         <span id="location-label">Moroni, Ngazidja</span>
       </div>
@@ -909,7 +952,11 @@ textarea.req-input{resize:vertical;min-height:90px}
     </div>
     <div class="req-section">
       <label class="req-label">Votre localisation *</label>
-      <input id="req-loc" type="text" class="req-input" placeholder="Ex : Quartier Bandamaji, Moroni">
+      <div class="loc-pick-field" onclick="openLocModal('single','req-loc-pick')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span class="loc-pick-value placeholder" id="req-loc-pick-display">Ex : Bandamaji, Moroni</span>
+      </div>
+      <input type="hidden" id="req-loc" value="">
     </div>
     <div class="req-section">
       <label class="req-label">Date souhaitée</label>
@@ -1528,21 +1575,23 @@ textarea.req-input{resize:vertical;min-height:90px}
 <div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--g800);color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:50px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap"></div>
 
 <!-- MODAL LOCALISATION -->
-<div id="modal-location" class="modal-overlay" onclick="closeModal(event,'modal-location')">
-  <div class="modal-sheet">
+<div id="modal-location" class="modal-overlay" onclick="closeLocModal(event)">
+  <div class="modal-sheet" style="max-height:88vh;display:flex;flex-direction:column;padding-bottom:8px">
     <div class="modal-handle"></div>
-    <div class="modal-title">Choisir votre ville</div>
-    <div class="modal-sub">Sélectionnez votre zone pour trouver les prestataires près de chez vous.</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div onclick="setLocation('Moroni, Ngazidja')" class="location-opt">📍 Moroni — Centre ville</div>
-      <div onclick="setLocation('Itsandra, Ngazidja')" class="location-opt">📍 Itsandra</div>
-      <div onclick="setLocation('Mitsamiouli, Ngazidja')" class="location-opt">📍 Mitsamiouli — Nord Grande Comore</div>
-      <div onclick="setLocation('Bangoi-Kouni, Ngazidja')" class="location-opt">📍 Bangoi-Kouni</div>
-      <div onclick="setLocation('Foumbouni, Ngazidja')" class="location-opt">📍 Foumbouni — Sud Grande Comore</div>
-      <div onclick="setLocation('Ikoni, Ngazidja')" class="location-opt">📍 Ikoni</div>
-      <div onclick="setLocation('Mutsamudu, Anjouan')" class="location-opt">📍 Mutsamudu — Anjouan</div>
-      <div onclick="setLocation('Domoni, Anjouan')" class="location-opt">📍 Domoni</div>
-      <div onclick="setLocation('Fomboni, Mohéli')" class="location-opt">📍 Fomboni — Mohéli</div>
+    <div id="loc-modal-title" class="modal-title" style="padding-bottom:4px">📍 Votre localisation</div>
+    <div id="loc-modal-sub" class="modal-sub" style="margin-bottom:12px">Recherchez votre village ou choisissez par zone.</div>
+    <!-- Barre de recherche -->
+    <div class="loc-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="loc-search-input" id="loc-search" type="text" placeholder="Rechercher un village, une commune…" oninput="locSearch(this.value)" autocomplete="off" spellcheck="false">
+    </div>
+    <!-- Résultats / Browse -->
+    <div class="loc-results" id="loc-results"></div>
+    <!-- Chips zones (prestataire) -->
+    <div id="loc-zones-wrap" style="display:none;border-top:1px solid var(--g100);padding-top:10px;margin-top:6px">
+      <div style="font-size:11px;font-weight:700;color:var(--g500);letter-spacing:.4px;margin-bottom:6px">ZONES SÉLECTIONNÉES</div>
+      <div class="loc-chips" id="loc-chips"></div>
+      <button onclick="locConfirmZones()" style="width:100%;margin-top:8px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Confirmer les zones</button>
     </div>
   </div>
 </div>
@@ -1805,6 +1854,8 @@ async function submitRequest() {
   document.getElementById('req-type').value = '';
   document.getElementById('req-desc').value = '';
   document.getElementById('req-loc').value = '';
+  const _rldisp = document.getElementById('req-loc-pick-display');
+  if (_rldisp) { _rldisp.textContent = 'Ex : Bandamaji, Moroni'; _rldisp.classList.add('placeholder'); }
   document.getElementById('req-date').value = '';
   document.getElementById('req-wa').value = '';
   document.getElementById('req-nom').value = '';
@@ -2067,16 +2118,268 @@ function showToast(msg) {
   t._t = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, 2500);
 }
 
-// ── LOCALISATION ──────────────────────────────────────────────────────────────
+// ── LOCALISATION INTELLIGENTE (Grande Comore / Ngazidja) ─────────────────────
+const GC = {
+  'Moroni': {
+    label: 'Moroni (Capitale)',
+    communes: {
+      'Moroni Centre': ['Médina', 'Badjanani', 'Cavani', 'Coulée', 'Hamramba', 'Magudju', 'Zilaoudjé'],
+      'Bangoi-Kouni': ['Bangoi-Kouni', 'Nkourani ya Bangwe', 'Moroni-Est', 'Djomani', 'Zilimadji'],
+    }
+  },
+  'Itsandra': {
+    label: 'Itsandra',
+    communes: {
+      'Itsandra Mdjini': ['Itsandra Ha-Mdjini', 'Bangwa Kouni', 'Nkourani', 'Foumbouni ya Itsandra'],
+      'Hantsambou': ['Hantsambou', 'Mvouni', 'Bahani ya Itsandra', 'Mwali Bora'],
+    }
+  },
+  'Hamahamet': {
+    label: 'Hamahamet (Nord)',
+    communes: {
+      'Mitsamiouli': ['Mitsamiouli Centre', 'Ntsaoueni', 'Vouvouni', 'Bandrani ya Mitsamiouli'],
+      'Mbude': ['Koimbani', 'Mde', 'Ntringui', 'Bouni'],
+    }
+  },
+  'Oichili': {
+    label: 'Oichili',
+    communes: {
+      'Oichili Nord': ['Ntsoudjini', 'Tsidjé', 'Mbéni', 'Dimadjou'],
+      'Oichili Sud': ['Sidjou', 'Nyumbadjuu', 'Ziyarani', 'Ndroudré'],
+    }
+  },
+  'Hambou': {
+    label: 'Hambou',
+    communes: {
+      'Hambou': ['Ovoué', 'Chezani', 'Dembeni', 'Bambadjani'],
+      'Maoueni': ['Maoueni', 'Chomoni', 'Bahani ya Hambou', 'Mvuni'],
+    }
+  },
+  'Mbadjini Est': {
+    label: 'Mbadjini Est',
+    communes: {
+      'Foumbouni': ['Foumbouni', 'Nioumamilima', 'Itsahidi', 'Mwana Trindri'],
+      'Ongoni': ['Ongoni', 'Djoumoichongo', 'Bandrani ya Mbadjini', 'Ntsahidja'],
+    }
+  },
+  'Dimani': {
+    label: 'Dimani',
+    communes: {
+      'Koni': ['Koni-Djodjo', 'Koni-Ngani', 'Singani', 'Ourovéni ya Dimani'],
+      'Douniani': ['Douniani', 'Salimani', 'Bouéni ya Dimani', 'Ouzini'],
+    }
+  },
+  'Bambao': {
+    label: 'Bambao',
+    communes: {
+      'Mandza': ['Mandza', 'Koua', 'Ndrodroni', 'Ouani ya Ngazidja'],
+      'Bahani': ['Bahani ya Bambao', 'Djomani ya Bambao', 'Mitsoudjé', 'Ourovéni ya Bambao'],
+    }
+  },
+};
+
+let locIdx = [];
+let _locMode = 'single';
+let _locTarget = null;
+let _locZones = [];
+let _locOpenPref = null;
+let _locOpenComms = new Set();
+
+function _locEsc(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function buildLocIndex() {
+  locIdx = [];
+  for (const [pref, pd] of Object.entries(GC)) {
+    locIdx.push({ type:'prefecture', pref, label:pd.label, search:(pd.label+' '+pref).toLowerCase() });
+    for (const [commune, villages] of Object.entries(pd.communes)) {
+      locIdx.push({ type:'commune', pref, commune, label:commune, search:commune.toLowerCase() });
+      for (const v of villages) {
+        locIdx.push({ type:'village', pref, commune, village:v, label:v, search:v.toLowerCase() });
+      }
+    }
+  }
+}
+
+function openLocModal(mode, target) {
+  if (!locIdx.length) buildLocIndex();
+  _locMode = mode || 'single';
+  _locTarget = target || null;
+  _locZones = [];
+  _locOpenPref = null;
+  _locOpenComms = new Set();
+  document.getElementById('loc-modal-title').textContent = mode === 'multi' ? '🗺️ Zones d\'intervention' : '📍 Votre localisation';
+  document.getElementById('loc-modal-sub').textContent = mode === 'multi'
+    ? 'Sélectionnez les zones où vous intervenez.'
+    : 'Recherchez votre village ou choisissez par zone.';
+  document.getElementById('loc-search').value = '';
+  const zonesWrap = document.getElementById('loc-zones-wrap');
+  if (zonesWrap) zonesWrap.style.display = mode === 'multi' ? 'block' : 'none';
+  renderLocChips();
+  locBrowse();
+  document.getElementById('modal-location').classList.add('open');
+}
+
+function closeLocModal(event) {
+  if (!event || event.target === document.getElementById('modal-location')) {
+    document.getElementById('modal-location').classList.remove('open');
+  }
+}
+
+function locSearch(q) {
+  q = (q||'').trim().toLowerCase();
+  if (!q) { locBrowse(); return; }
+  const results = locIdx.filter(item => item.search.includes(q));
+  const container = document.getElementById('loc-results');
+  if (!results.length) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--g400);font-size:13px">Aucun résultat pour "'+q+'"</div>';
+    return;
+  }
+  let html = '';
+  for (const item of results.slice(0, 30)) {
+    const sub = item.type === 'village' ? item.pref + ' › ' + item.commune
+              : item.type === 'commune' ? item.pref : '';
+    const icon = item.type === 'prefecture' ? '🏛️' : item.type === 'commune' ? '🏘️' : '📍';
+    const sel = _locMode === 'multi' && _locZones.includes(item.label);
+    html += '<div class="loc-result-item" onclick="locSelectItem(\''+item.type+'\',\''+_locEsc(item.pref)+'\',\''+_locEsc(item.commune||'')+'\',\''+_locEsc(item.village||'')+'\')">'
+      + '<div class="loc-result-icon">'+icon+'</div>'
+      + '<div style="flex:1;min-width:0"><div class="loc-result-label">'+item.label+'</div>'
+      + (sub ? '<div class="loc-result-sub">'+sub+'</div>' : '')
+      + '</div>'
+      + (sel ? '<span style="color:var(--green);font-weight:700;font-size:16px">✓</span>' : '')
+      + '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function locBrowse() {
+  const container = document.getElementById('loc-results');
+  let html = '';
+  for (const [pref, pd] of Object.entries(GC)) {
+    const isOpen = _locOpenPref === pref;
+    const prefSel = _locMode === 'multi' && _locZones.includes(pref);
+    html += '<div class="loc-pref-item' + (isOpen ? ' open' : '') + '">'
+      + '<div class="loc-pref-header" onclick="locTogglePref(\''+_locEsc(pref)+'\')">'
+      + '<span style="font-size:16px">🏛️</span>'
+      + '<div style="flex:1;margin:0 8px"><div class="loc-pref-name">'+pd.label+'</div></div>'
+      + (_locMode==='multi' ? '<button class="loc-zone-add'+(prefSel?' selected':'')+'" onclick="event.stopPropagation();locToggleZone(\''+_locEsc(pref)+'\')" title="Toute la préfecture">'+(prefSel?'✓':'+')+'</button>' : '')
+      + '<svg class="loc-pref-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>'
+      + '</div>';
+    if (isOpen) {
+      html += '<div class="loc-communes">';
+      for (const [commune, villages] of Object.entries(pd.communes)) {
+        const ck = pref+'|'+commune;
+        const comOpen = _locOpenComms.has(ck);
+        const comSel = _locMode === 'multi' && _locZones.includes(commune);
+        html += '<div class="loc-com-item' + (comOpen ? ' open' : '') + '">'
+          + '<div class="loc-com-header" onclick="locToggleComm(\''+_locEsc(pref)+'\',\''+_locEsc(commune)+'\')">'
+          + '<span style="font-size:14px">🏘️</span>'
+          + '<span class="loc-com-name" style="flex:1;margin:0 8px">'+commune+'</span>'
+          + (_locMode==='multi' ? '<button class="loc-zone-add'+(comSel?' selected':'')+'" onclick="event.stopPropagation();locToggleZone(\''+_locEsc(commune)+'\')" title="Toute la commune">'+(comSel?'✓':'+')+'</button>' : '')
+          + '<span class="loc-com-count">'+villages.length+' v.</span>'
+          + '</div>'
+          + '<div class="loc-villages">';
+        for (const v of villages) {
+          const vSel = _locMode === 'multi' && _locZones.includes(v);
+          html += '<button class="loc-village-btn'+(vSel?' selected':'')+'" onclick="locSelectItem(\'village\',\''+_locEsc(pref)+'\',\''+_locEsc(commune)+'\',\''+_locEsc(v)+'\')">'
+            + '<span class="loc-village-dot"></span>'+v
+            + (vSel ? '<span style="margin-left:auto;color:var(--green);font-size:13px">✓</span>' : '')
+            + '</button>';
+        }
+        html += '</div></div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function locTogglePref(pref) {
+  _locOpenPref = _locOpenPref === pref ? null : pref;
+  _locOpenComms = new Set();
+  locBrowse();
+}
+
+function locToggleComm(pref, commune) {
+  const k = pref + '|' + commune;
+  if (_locOpenComms.has(k)) _locOpenComms.delete(k); else _locOpenComms.add(k);
+  locBrowse();
+}
+
+function locToggleZone(label) {
+  const idx = _locZones.indexOf(label);
+  if (idx === -1) _locZones.push(label); else _locZones.splice(idx, 1);
+  renderLocChips();
+  const q = document.getElementById('loc-search').value.trim();
+  if (q) locSearch(q); else locBrowse();
+}
+
+function locSelectItem(type, pref, commune, village) {
+  const label = village || commune || pref;
+  const full = village ? (village + ', ' + commune + ', ' + pref + ', Ngazidja')
+             : commune ? (commune + ', ' + pref + ', Ngazidja')
+             : (pref + ', Ngazidja');
+
+  if (_locMode === 'multi') {
+    locToggleZone(label);
+    return;
+  }
+
+  // Single mode — write to target
+  if (_locTarget === 'header-loc') {
+    document.getElementById('location-label').textContent = label;
+    localStorage.setItem('mwh_location', full);
+  } else if (_locTarget === 'req-loc-pick') {
+    document.getElementById('req-loc').value = full;
+    const disp = document.getElementById('req-loc-pick-display');
+    if (disp) { disp.textContent = label; disp.classList.remove('placeholder'); }
+  } else if (_locTarget) {
+    const el = document.getElementById(_locTarget);
+    if (el) el.value = full;
+  }
+  document.getElementById('modal-location').classList.remove('open');
+  showToast('📍 ' + label);
+}
+
+function renderLocChips() {
+  const chips = document.getElementById('loc-chips');
+  if (!chips) return;
+  chips.innerHTML = _locZones.map(z =>
+    '<div class="loc-chip">'+z+'<span class="loc-chip-x" onclick="locRemoveZone(\''+_locEsc(z)+'\')">×</span></div>'
+  ).join('');
+  const wrap = document.getElementById('loc-zones-wrap');
+  if (wrap && _locMode === 'multi') wrap.style.display = 'block';
+}
+
+function locRemoveZone(z) {
+  _locZones = _locZones.filter(x => x !== z);
+  renderLocChips();
+  const q = document.getElementById('loc-search').value.trim();
+  if (q) locSearch(q); else locBrowse();
+}
+
+function locConfirmZones() {
+  if (!_locZones.length) { showToast('Sélectionnez au moins une zone.'); return; }
+  const val = _locZones.join(', ');
+  if (_locTarget) {
+    const el = document.getElementById(_locTarget);
+    if (el) el.value = val;
+  }
+  document.getElementById('modal-location').classList.remove('open');
+  showToast('🗺️ ' + _locZones.length + ' zone' + (_locZones.length > 1 ? 's' : '') + ' sélectionnée' + (_locZones.length > 1 ? 's' : ''));
+}
+
+// Legacy compat
 function setLocation(ville) {
   localStorage.setItem('mwh_location', ville);
-  const short = ville.split(',')[0];
-  document.getElementById('location-label').textContent = short + ', Ngazidja'.replace(', Ngazidja','');
-  document.getElementById('location-label').textContent = ville.split(',')[0];
+  const lbl = document.getElementById('location-label');
+  if (lbl) lbl.textContent = ville.split(',')[0];
   document.getElementById('modal-location').classList.remove('open');
-  showToast('📍 Localisation : ' + short);
+  showToast('📍 ' + ville.split(',')[0]);
 }
+
 (function initLocation() {
+  buildLocIndex();
   const saved = localStorage.getItem('mwh_location');
   if (saved) {
     const el = document.getElementById('location-label');
