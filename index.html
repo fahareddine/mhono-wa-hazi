@@ -265,8 +265,12 @@ textarea.req-input{resize:vertical;min-height:90px}
 .demande-ref{font-size:11px;font-family:monospace;background:var(--g100);color:var(--g600);padding:3px 8px;border-radius:6px}
 .demande-statut{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
 .demande-statut.en-attente{background:var(--ol);color:#9A6400}
+.demande-statut.nouveau{background:var(--ol);color:#9A6400}
 .demande-statut.confirme{background:var(--gl);color:var(--gd)}
 .demande-statut.annule{background:var(--rl);color:var(--red)}
+.demande-statut.en-cours{background:#DBEAFE;color:#2563EB}
+.demande-statut.presque-terme{background:#D1FAE5;color:#059669}
+.demande-statut.termine{background:#DCFCE7;color:#16A34A}
 .demande-service{font-size:15px;font-weight:700;color:var(--g800);margin-bottom:4px}
 .demande-meta{font-size:12px;color:var(--g500);display:flex;gap:10px;flex-wrap:wrap}
 .demande-meta span{display:flex;align-items:center;gap:3px}
@@ -1440,7 +1444,7 @@ textarea.req-input{resize:vertical;min-height:90px}
   <div class="topbar">
     <div class="topbar-inner">
       <button class="back-btn" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div style="font-size:16px;font-weight:700;color:var(--g800)">Mes demandes</div>
+      <div id="mes-demandes-title" style="font-size:16px;font-weight:700;color:var(--g800)">Mes demandes</div>
     </div>
   </div>
   <div class="screen-body pb20" style="overflow-y:auto">
@@ -2105,12 +2109,17 @@ async function loadMesDemandes() {
     return;
   }
 
+  const isPresta = user.role === 'prestataire';
+  const titleEl = document.getElementById('mes-demandes-title');
+  if (titleEl) titleEl.textContent = isPresta ? 'Mes missions' : 'Mes demandes';
+
   listEl.innerHTML = `<div class="demande-empty"><div class="demande-empty-icon">⏳</div><div class="demande-empty-title">Chargement…</div></div>`;
 
   try {
     const db       = firebase.firestore();
+    const queryField = isPresta ? 'prestataireEmail' : 'email';
     const snap     = await db.collection('demandes')
-      .where('email', '==', user.email)
+      .where(queryField, '==', user.email)
       .limit(50)
       .get();
 
@@ -2118,15 +2127,31 @@ async function loadMesDemandes() {
       listEl.innerHTML = `
         <div class="demande-empty">
           <div class="demande-empty-icon">📭</div>
-          <div class="demande-empty-title">Aucune demande</div>
-          <div class="demande-empty-sub">Vous n'avez pas encore soumis de demande de service.</div>
-          <button class="btn-primary" style="margin-top:16px" onclick="goTo('request')">Faire une demande</button>
+          <div class="demande-empty-title">Aucune mission</div>
+          <div class="demande-empty-sub">${isPresta ? 'Aucune mission ne vous a encore été assignée.' : 'Vous n\'avez pas encore soumis de demande de service.'}</div>
+          ${!isPresta ? `<button class="btn-primary" style="margin-top:16px" onclick="goTo('request')">Faire une demande</button>` : ''}
         </div>`;
       return;
     }
 
-    const statutClass = s => s === 'confirmé' ? 'confirme' : s === 'annulé' ? 'annule' : 'en-attente';
-    const statutLabel = s => s === 'confirmé' ? 'Confirmé' : s === 'annulé' ? 'Annulé' : 'En attente';
+    const statutClass = s => {
+      if (s === 'confirmé')       return 'confirme';
+      if (s === 'annulé')         return 'annule';
+      if (s === 'en_cours')       return 'en-cours';
+      if (s === 'presque_terme')  return 'presque-terme';
+      if (s === 'termine')        return 'termine';
+      if (s === 'nouveau')        return 'nouveau';
+      return 'en-attente';
+    };
+    const statutLabel = s => {
+      if (s === 'confirmé')       return 'Confirmé';
+      if (s === 'annulé')         return 'Annulé';
+      if (s === 'en_cours')       return '🔧 En cours';
+      if (s === 'presque_terme')  return '🔜 Presque terminé';
+      if (s === 'termine')        return '✅ Terminé';
+      if (s === 'nouveau')        return 'Nouveau';
+      return 'En attente';
+    };
     const fmtD = ts => { try { const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}); } catch{return '';} };
 
     const docs = snap.docs.sort((a, b) => {

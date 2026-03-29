@@ -45,7 +45,11 @@
 
   <div class="field">
     <label>Email du compte client (pour voir dans "Mes demandes")</label>
-    <input id="email-client" type="email" placeholder="defistylez@gmail.com">
+    <input id="email-client" type="email" placeholder="client@example.com">
+  </div>
+  <div class="field">
+    <label>Email du prestataire de test (pour voir dans "Mes missions")</label>
+    <input id="email-presta" type="email" placeholder="prestataire@example.com">
   </div>
 
   <button id="seed-btn" onclick="seedAll()">🚀 Créer les données de démonstration</button>
@@ -116,7 +120,8 @@ const SUIVI_ICONS = { en_attente:'⏳', en_cours:'🔧', presque_terme:'🔜', t
 
 async function seedAll() {
   const email = document.getElementById('email-client').value.trim();
-  if (!email) { alert('Renseignez votre email.'); return; }
+  const emailPresta = document.getElementById('email-presta').value.trim();
+  if (!email) { alert('Renseignez l\'email client.'); return; }
 
   logEl().innerHTML = '';
   document.getElementById('seed-btn').disabled = true;
@@ -133,6 +138,7 @@ async function seedAll() {
       nom: email.split('@')[0],
       email, contact_wa:'+269 321 45 67',
       prestataire:'Said Omar',
+      ...(emailPresta ? { prestataireEmail: emailPresta } : {}),
       ref:'MWH-DEM-DEMO01',
       statut:'termine',
       source:'seed_demo',
@@ -188,6 +194,7 @@ async function seedAll() {
       nom: email.split('@')[0],
       email, contact_wa:'+269 321 45 67',
       prestataire:'Aïcha Photographe',
+      ...(emailPresta ? { prestataireEmail: emailPresta } : {}),
       ref:'MWH-CUST-DEMO02',
       statut:'en_cours',
       source:'seed_demo',
@@ -226,6 +233,7 @@ async function seedAll() {
       nom: email.split('@')[0],
       email, contact_wa:'+269 321 45 67',
       prestataire:'Hassan Électricien',
+      ...(emailPresta ? { prestataireEmail: emailPresta } : {}),
       ref:'MWH-DEM-DEMO03',
       statut:'termine',
       source:'seed_demo',

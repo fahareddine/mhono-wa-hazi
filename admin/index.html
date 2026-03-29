@@ -693,6 +693,17 @@ async function deleteProvider(docId, name) {
 }
 
 // ── DEMANDES ──────────────────────────────────────────
+let _prestaUsers = []; // cache pour le select d'assignation
+
+async function loadPrestaUsers() {
+  if (_prestaUsers.length) return _prestaUsers;
+  try {
+    const snap = await db.collection('users').where('role','==','prestataire').get();
+    _prestaUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  } catch(e) { _prestaUsers = []; }
+  return _prestaUsers;
+}
+
 async function loadDemandes() {
   if (!db) {
     document.getElementById('demandes-list').innerHTML = '<div class="empty-state">Firebase non configuré.</div>';
@@ -700,7 +711,10 @@ async function loadDemandes() {
   }
   document.getElementById('demandes-list').innerHTML = '<div class="loading"><div class="spinner"></div>Chargement…</div>';
   try {
-    const statut = document.getElementById('filter-statut').value;
+    const [statut, prestas] = await Promise.all([
+      Promise.resolve(document.getElementById('filter-statut').value),
+      loadPrestaUsers()
+    ]);
     let query = db.collection('demandes').orderBy('createdAt','desc');
     if (statut) query = db.collection('demandes').where('statut','==',statut).orderBy('createdAt','desc');
     const snap = await query.get();
@@ -708,12 +722,16 @@ async function loadDemandes() {
       document.getElementById('demandes-list').innerHTML = '<div class="empty-state">Aucune demande pour le moment.</div>';
       return;
     }
+    const prestaOptions = prestas.map(p =>
+      `<option value="${p.email}|${p.nom||p.email}">${p.nom||p.email}</option>`
+    ).join('');
     document.getElementById('demandes-list').innerHTML = snap.docs.map(d => {
       const x = d.data();
       const date = x.createdAt?.toDate ? x.createdAt.toDate().toLocaleDateString('fr-FR') : '—';
       const isCustom = x.serviceType === 'custom';
       const svcLabel = isCustom ? (x.customServiceTitle || 'Service personnalisé') : (x.serviceType || '—');
       const customBadgeHtml = isCustom ? `<span style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">✨ Personnalisé</span>` : '';
+      const assignedLabel = x.prestataire ? `<span style="font-size:11px;color:var(--green);font-weight:600">👷 ${x.prestataire}</span>` : '';
       return `<div class="demande-card">
         <div class="demande-header">
           <span class="demande-ref">${x.ref||d.id}</span>
@@ -721,6 +739,7 @@ async function loadDemandes() {
           <select class="statut-select" onchange="updateStatut('${d.id}',this.value)">
             <option value="nouveau" ${x.statut==='nouveau'?'selected':''}>Nouveau</option>
             <option value="en_cours" ${x.statut==='en_cours'?'selected':''}>En cours</option>
+            <option value="presque_terme" ${x.statut==='presque_terme'?'selected':''}>Presque terminé</option>
             <option value="termine" ${x.statut==='termine'?'selected':''}>Terminé</option>
             <option value="annule" ${x.statut==='annule'?'selected':''}>Annulé</option>
           </select>
@@ -733,7 +752,12 @@ async function loadDemandes() {
           ${x.urgence ? `<span style="color:var(--g500)">⚡ Urgence : ${({normal:'Pas urgent',cette_semaine:'Cette semaine',urgent:'Urgent (24-48h)'})[x.urgence]||x.urgence}</span><br>` : ''}
           <span style="color:var(--g500)">📅 ${x.date||'Date non précisée'}</span>
         </div>
-        <div class="demande-actions">
+        <div class="demande-actions" style="flex-wrap:wrap;gap:6px">
+          ${assignedLabel}
+          ${prestas.length ? `<select class="btn btn-outline btn-sm" style="cursor:pointer" onchange="assignPrestataire('${d.id}',this.value);this.value=''">
+            <option value="">👷 Assigner prestataire…</option>
+            ${prestaOptions}
+          </select>` : ''}
           <button class="btn btn-primary btn-sm" onclick="window.open('https://wa.me/${encodeURIComponent('+')}'+(x.contact_wa||'').replace(/\\D/g,'')+'?text='+encodeURIComponent('Bonjour 👋 Info Experts vous contacte concernant votre demande Mhono wa Hazi (${x.ref||''}).'))">💬 WhatsApp ${x.contact_wa||''}</button>
           <button class="btn btn-outline btn-sm" onclick="updateStatut('${d.id}','termine')">✓ Marquer terminé</button>
         </div>
@@ -747,6 +771,20 @@ async function updateStatut(docId, statut) {
     await db.collection('demandes').doc(docId).update({ statut });
     showToast('Statut mis à jour ✓', 'success');
   } catch(e) { showToast('Erreur mise à jour', 'error'); }
+}
+
+async function assignPrestataire(docId, val) {
+  if (!val) return;
+  const [email, nom] = val.split('|');
+  try {
+    await db.collection('demandes').doc(docId).update({
+      prestataireEmail: email,
+      prestataire: nom,
+      statut: 'en_cours'
+    });
+    showToast(`Mission assignée à ${nom} ✓`, 'success');
+    loadDemandes();
+  } catch(e) { showToast('Erreur assignation', 'error'); console.error(e); }
 }
 
 // ── TOAST ─────────────────────────────────────────────
