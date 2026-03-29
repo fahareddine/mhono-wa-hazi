@@ -523,6 +523,9 @@ textarea.req-input{resize:vertical;min-height:90px}
 .suivi-st-btn.active{border-color:var(--green);background:var(--gl);box-shadow:0 0 0 3px rgba(26,158,111,0.15)}
 .suivi-st-btn.active .suivi-st-btn-label{color:var(--gd);font-weight:800}
 .suivi-st-btn.locked{opacity:.4;cursor:not-allowed}
+.suivi-st-btn.confirming{border-color:#f97316;background:#fff7ed;animation:pulse-confirm .6s ease infinite alternate}
+.suivi-st-btn.confirming .suivi-st-btn-label{color:#c2410c}
+@keyframes pulse-confirm{from{box-shadow:0 0 0 0 rgba(249,115,22,0.3)}to{box-shadow:0 0 0 6px rgba(249,115,22,0)}}
 /* Chat */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:300px}
 .chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--g50)}
@@ -2488,6 +2491,7 @@ function previewSuiviPhotos(input) {
 }
 
 let _missionStatut = 'en_attente'; // statut courant géré par les boutons
+let _termineConfirmTimer = null;   // timer annulation confirmation
 
 function updateStatutBtns(statut) {
   _missionStatut = statut;
@@ -2496,17 +2500,51 @@ function updateStatutBtns(statut) {
   order.forEach((st, i) => {
     const btn = document.getElementById('st-btn-' + st);
     if (!btn) return;
-    btn.classList.remove('done', 'active', 'locked');
-    if (i < curIdx)       btn.classList.add('done');
+    btn.classList.remove('done', 'active', 'locked', 'confirming');
+    btn.dataset.confirming = '';
+    if (st === 'termine') {
+      btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
+    }
+    if (i < curIdx)        btn.classList.add('done');
     else if (i === curIdx) btn.classList.add('active');
-    // future steps restent cliquables (pas de locked)
   });
+  clearTimeout(_termineConfirmTimer);
 }
 
-async function setMissionStatut(statut) {
+function setMissionStatut(statut) {
   if (!_suiviDemandeId || !db) return;
-  if (statut === _missionStatut) return; // déjà actif
-  const labels = { en_cours:'démarré la mission', presque_terme:'presque terminé', termine:'terminé la mission' };
+  if (statut === _missionStatut) return;
+
+  // Confirmation double-tap pour "termine"
+  if (statut === 'termine') {
+    const btn = document.getElementById('st-btn-termine');
+    if (btn.dataset.confirming !== 'yes') {
+      // 1er tap : demande confirmation
+      btn.dataset.confirming = 'yes';
+      btn.classList.add('confirming');
+      btn.querySelector('.suivi-st-btn-icon').textContent = '⚠️';
+      btn.querySelector('.suivi-st-btn-label').textContent = 'Confirmer ?';
+      clearTimeout(_termineConfirmTimer);
+      _termineConfirmTimer = setTimeout(() => {
+        btn.dataset.confirming = '';
+        btn.classList.remove('confirming');
+        btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
+        btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
+      }, 3000);
+      return;
+    }
+    // 2e tap : confirmer
+    clearTimeout(_termineConfirmTimer);
+    btn.dataset.confirming = '';
+    btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
+    btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
+  }
+
+  _doSetMissionStatut(statut);
+}
+
+async function _doSetMissionStatut(statut) {
+  const labels = { en_cours:'démarrée', presque_terme:'presque terminée', termine:'terminée ✅' };
   const msgs   = { en_cours:'🔧 Mission démarrée.', presque_terme:'🔜 Mission presque terminée.', termine:'✅ Mission terminée. Merci pour votre confiance !' };
   const user = getAuthUser();
   try {
@@ -2522,7 +2560,7 @@ async function setMissionStatut(statut) {
     ]);
     if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = statut;
     updateStatutBtns(statut);
-    showToast(`Mission ${labels[statut] || statut} ✓`);
+    showToast(`Mission ${labels[statut] || statut}`);
   } catch(e) { console.error('[SET STATUT]', e); showToast('Erreur mise à jour statut'); }
 }
 
