@@ -437,78 +437,110 @@ textarea.req-input{resize:vertical;min-height:90px}
 .urgence-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--g200);color:var(--g600);cursor:pointer;background:var(--g50);transition:all .15s}
 .urgence-chip.sel{background:var(--green);color:#fff;border-color:var(--green)}
 .badge-custom{display:inline-block;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
-/* ── FEATURE: SUIVI D'AVANCEMENT ─────────────────────────── */
+/* ══════════════════════════════════════════════
+   SUIVI D'AVANCEMENT — Design complet
+══════════════════════════════════════════════ */
 /* Mission banner */
-.suivi-mission-banner{background:linear-gradient(135deg,var(--gd),var(--green));padding:16px 20px;color:#fff}
-.suivi-mission-svc{font-size:18px;font-weight:800;margin-bottom:4px}
-.suivi-mission-meta{font-size:12px;color:rgba(255,255,255,0.8);display:flex;gap:12px;flex-wrap:wrap}
-.suivi-mission-prest{font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
-.suivi-prest-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-/* Progress stepper */
-.suivi-stepper{display:flex;align-items:center;padding:14px 16px;background:#fff;border-bottom:1px solid var(--g100)}
-.suivi-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
-.suivi-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:60%;width:80%;height:2px;background:var(--g200);z-index:0}
-.suivi-step:not(:last-child).done::after{background:var(--green)}
-.suivi-step-dot{width:28px;height:28px;border-radius:50%;background:var(--g100);border:2px solid var(--g300);display:flex;align-items:center;justify-content:center;font-size:13px;z-index:1;position:relative}
-.suivi-step.done .suivi-step-dot{background:var(--green);border-color:var(--green);color:#fff}
-.suivi-step.active .suivi-step-dot{background:#fff;border-color:var(--green);color:var(--green);box-shadow:0 0 0 3px rgba(26,158,111,0.15)}
-.suivi-step-lbl{font-size:9px;font-weight:600;color:var(--g400);margin-top:4px;text-align:center;line-height:1.2}
-.suivi-step.done .suivi-step-lbl,.suivi-step.active .suivi-step-lbl{color:var(--green)}
+.suivi-mission-banner{background:linear-gradient(135deg,var(--gd) 0%,var(--green) 100%);padding:16px 20px 18px;color:#fff}
+.suivi-mission-svc{font-size:19px;font-weight:800;margin-bottom:4px;line-height:1.2}
+.suivi-mission-meta{font-size:12px;color:rgba(255,255,255,0.75);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.suivi-mission-prest{margin-top:10px;display:flex;align-items:center;gap:8px}
+.suivi-prest-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.25);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.suivi-prest-info{display:flex;flex-direction:column}
+.suivi-prest-label{font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.suivi-prest-name-big{font-size:14px;font-weight:700;color:#fff}
+/* Stepper */
+.suivi-stepper{display:flex;align-items:flex-start;padding:14px 12px;background:#fff;border-bottom:1px solid var(--g100)}
+.suivi-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;cursor:default}
+.suivi-step:not(:last-child)::after{content:'';position:absolute;top:13px;left:55%;width:90%;height:2px;background:var(--g200);z-index:0}
+.suivi-step:not(:last-child).done::after,.suivi-step:not(:last-child).active::after{background:var(--green)}
+.suivi-step-dot{width:26px;height:26px;border-radius:50%;background:var(--g100);border:2px solid var(--g300);display:flex;align-items:center;justify-content:center;font-size:12px;z-index:1;position:relative;transition:all .2s}
+.suivi-step.done .suivi-step-dot{background:var(--green);border-color:var(--green)}
+.suivi-step.active .suivi-step-dot{background:#fff;border-color:var(--green);box-shadow:0 0 0 3px rgba(26,158,111,0.18)}
+.suivi-step-lbl{font-size:9px;font-weight:600;color:var(--g400);margin-top:4px;text-align:center;line-height:1.3;max-width:52px}
+.suivi-step.done .suivi-step-lbl,.suivi-step.active .suivi-step-lbl{color:var(--gd)}
+/* Tabs */
+.suivi-tabs{display:flex;background:#fff;border-bottom:2px solid var(--g100)}
+.suivi-tab{flex:1;padding:12px 0;text-align:center;font-size:13px;font-weight:700;color:var(--g400);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.suivi-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.suivi-tab-badge{background:var(--red,#e53e3e);color:#fff;font-size:10px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+/* Tab content */
+.suivi-tab-content{display:none}
+.suivi-tab-content.active{display:block}
 /* Timeline */
 .suivi-timeline{padding:16px}
-.suivi-item{position:relative;padding-left:36px;padding-bottom:20px}
-.suivi-item:not(:last-child)::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--g200)}
+.suivi-item{position:relative;padding-left:38px;padding-bottom:20px}
+.suivi-item:not(:last-child)::before{content:'';position:absolute;left:12px;top:28px;bottom:0;width:2px;background:var(--g200)}
 .suivi-item:not(:last-child).done::before{background:linear-gradient(to bottom,var(--green),var(--g200))}
-.suivi-dot{position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.suivi-dot{position:absolute;left:0;top:3px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
 .suivi-dot.en_attente{background:#FEF3C7}
 .suivi-dot.en_cours{background:#DBEAFE}
 .suivi-dot.presque_terme{background:#D1FAE5}
 .suivi-dot.termine{background:#DCFCE7}
 .suivi-card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid var(--g100)}
-.suivi-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.suivi-status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.suivi-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.suivi-status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0}
 .suivi-status-badge.en_attente{background:#FEF3C7;color:#D97706}
 .suivi-status-badge.en_cours{background:#DBEAFE;color:#2563EB}
 .suivi-status-badge.presque_terme{background:#D1FAE5;color:#059669}
 .suivi-status-badge.termine{background:#DCFCE7;color:#16A34A}
-.suivi-date{font-size:11px;color:var(--g400)}
+.suivi-jday{font-size:10px;font-weight:800;background:var(--g100);color:var(--g600);padding:2px 7px;border-radius:20px;flex-shrink:0}
+.suivi-date{font-size:11px;color:var(--g400);margin-left:auto}
 .suivi-prest-name{font-size:11px;color:var(--g500);font-weight:600;margin-bottom:6px}
-.suivi-msg{font-size:13px;color:var(--g700);line-height:1.65}
-.suivi-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.suivi-msg{font-size:13px;color:var(--g700);line-height:1.65;white-space:pre-wrap}
+.suivi-photos{display:grid;gap:6px;margin-top:10px}
 .suivi-photo{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer;transition:transform .15s}
-.suivi-photo:hover{transform:scale(1.03)}
+.suivi-photo:active,.suivi-photo:hover{transform:scale(1.03)}
 /* Add form */
-.suivi-add-wrap{padding:16px 16px 0}
-.suivi-add-form{background:#f8fffe;border-radius:16px;padding:16px;border:1.5px dashed var(--green)}
-.suivi-add-form h3{font-size:14px;font-weight:700;color:var(--g800);margin:0 0 12px;display:flex;align-items:center;gap:6px}
-.suivi-add-form textarea{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;resize:none;box-sizing:border-box;outline:none;transition:border .15s}
+.suivi-add-wrap{padding:12px 14px 0}
+.suivi-add-form{background:#f5fef9;border-radius:16px;padding:14px;border:1.5px dashed #86efac}
+.suivi-add-form h3{font-size:13px;font-weight:700;color:var(--g800);margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.suivi-add-form textarea{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;resize:none;box-sizing:border-box;outline:none;transition:border .15s;min-height:72px}
 .suivi-add-form textarea:focus{border-color:var(--green)}
-.suivi-status-select{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px;cursor:pointer}
-.suivi-photo-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:600;cursor:pointer;padding:6px 12px;background:var(--gl);border-radius:20px;margin-bottom:10px}
-.suivi-photo-label svg{width:16px;height:16px;flex-shrink:0}
+.suivi-status-select{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--g800);font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px;cursor:pointer}
+.suivi-photo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.suivi-photo-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:700;cursor:pointer;padding:6px 12px;background:var(--gl);border-radius:20px}
+.suivi-photo-label svg{width:15px;height:15px;flex-shrink:0}
+.suivi-photo-count{font-size:11px;color:var(--g500);font-weight:600}
 .suivi-preview-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.suivi-preview-img{width:64px;height:64px;object-fit:cover;border-radius:8px}
-.suivi-btn-add{width:100%;background:linear-gradient(135deg,var(--green),var(--gd));color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.3px}
-.suivi-btn-add:disabled{opacity:.5}
+.suivi-preview-img{width:60px;height:60px;object-fit:cover;border-radius:8px;position:relative}
+.suivi-upload-bar{height:4px;background:var(--g200);border-radius:2px;margin-bottom:8px;overflow:hidden;display:none}
+.suivi-upload-bar-fill{height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s}
+.suivi-btn-add{width:100%;background:linear-gradient(135deg,var(--green),var(--gd));color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+.suivi-btn-add:disabled{opacity:.5;cursor:not-allowed}
+/* Terminer */
+.suivi-termine-btn{width:calc(100% - 28px);margin:12px 14px 16px;background:#fff;color:#dc2626;border:1.5px solid #fca5a5;border-radius:12px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.suivi-termine-btn:hover{background:#fef2f2}
+/* Chat */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:300px}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--g50)}
+.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--g400);font-size:13px;gap:8px}
+.chat-bubble-wrap{display:flex;flex-direction:column;max-width:80%}
+.chat-bubble-wrap.me{align-self:flex-end;align-items:flex-end}
+.chat-bubble-wrap.other{align-self:flex-start;align-items:flex-start}
+.chat-bubble{padding:10px 14px;border-radius:18px;font-size:13px;line-height:1.55;color:var(--g800);word-break:break-word}
+.chat-bubble-wrap.me .chat-bubble{background:var(--green);color:#fff;border-bottom-right-radius:4px}
+.chat-bubble-wrap.other .chat-bubble{background:#fff;border:1px solid var(--g200);border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.chat-sender{font-size:10px;font-weight:700;color:var(--g400);margin-bottom:3px;padding:0 4px}
+.chat-time{font-size:10px;color:var(--g400);margin-top:3px;padding:0 4px}
+.chat-input-bar{display:flex;gap:8px;align-items:flex-end;padding:10px 12px;background:#fff;border-top:1px solid var(--g100)}
+.chat-input{flex:1;background:var(--g50);border:1.5px solid var(--g200);border-radius:20px;padding:9px 14px;font-size:13px;font-family:inherit;color:var(--g800);outline:none;resize:none;max-height:100px;min-height:38px;transition:border .15s;line-height:1.4}
+.chat-input:focus{border-color:var(--green);background:#fff}
+.chat-send-btn{width:38px;height:38px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.chat-send-btn:hover{background:var(--gd)}
+.chat-send-btn svg{width:18px;height:18px;color:#fff}
 /* Lightbox */
 .suivi-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
 .suivi-lightbox img{max-width:95vw;max-height:78vh;object-fit:contain;border-radius:10px;transition:opacity .2s}
 .suivi-lightbox-close{position:absolute;top:16px;right:16px;width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;backdrop-filter:blur(4px);z-index:2}
 .suivi-lightbox-nav{display:flex;align-items:center;gap:16px}
-.suivi-lb-arrow{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;border:none;backdrop-filter:blur(4px);transition:background .15s}
+.suivi-lb-arrow{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;color:#fff;border:none;backdrop-filter:blur(4px);transition:background .15s}
 .suivi-lb-arrow:hover{background:rgba(255,255,255,0.3)}
-.suivi-lb-arrow:disabled{opacity:.25;cursor:default}
-.suivi-lb-counter{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;min-width:40px;text-align:center}
-/* J-day badge */
-.suivi-jday{font-size:10px;font-weight:800;background:rgba(0,0,0,0.08);color:var(--g600);padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.5px}
-/* Terminer mission */
-.suivi-termine-btn{width:calc(100% - 32px);margin:0 16px 24px;background:transparent;color:var(--red,#e53e3e);border:1.5px solid var(--red,#e53e3e);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.suivi-termine-btn:hover{background:#fff5f5}
-/* Photo count indicator */
-.suivi-photo-count{font-size:11px;color:var(--g400);margin-left:8px;font-weight:600}
-/* Mes demandes — actions */
+.suivi-lb-arrow:disabled{opacity:.2;cursor:default}
+.suivi-lb-counter{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;min-width:36px;text-align:center}
+/* Mes demandes */
 .demande-card-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn-suivi{background:var(--green);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btn-suivi{background:var(--green);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
 .btn-suivi-outline{background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
 </style>
 </head>
@@ -936,36 +968,38 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div style="font-size:16px;font-weight:700;color:var(--g800)">Suivi de mission</div>
     </div>
   </div>
-  <div class="screen-body pb20" style="overflow-y:auto">
-    <!-- Bandeau mission -->
-    <div class="suivi-mission-banner" id="suivi-mission-banner">
-      <div class="suivi-mission-svc" id="suivi-banner-svc">Mission</div>
-      <div class="suivi-mission-meta">
-        <span id="suivi-banner-loc"></span>
-        <span id="suivi-banner-date"></span>
-      </div>
-      <div class="suivi-mission-prest" id="suivi-banner-prest"></div>
+  <!-- Bandeau mission -->
+  <div class="suivi-mission-banner" id="suivi-mission-banner">
+    <div class="suivi-mission-svc" id="suivi-banner-svc">Mission</div>
+    <div class="suivi-mission-meta">
+      <span id="suivi-banner-loc"></span>
+      <span id="suivi-banner-date"></span>
     </div>
-    <!-- Barre de progression -->
-    <div class="suivi-stepper" id="suivi-stepper">
-      <div class="suivi-step" id="step-en_attente">
-        <div class="suivi-step-dot">⏳</div>
-        <div class="suivi-step-lbl">En<br>attente</div>
-      </div>
-      <div class="suivi-step" id="step-en_cours">
-        <div class="suivi-step-dot">🔧</div>
-        <div class="suivi-step-lbl">En<br>cours</div>
-      </div>
-      <div class="suivi-step" id="step-presque_terme">
-        <div class="suivi-step-dot">🔜</div>
-        <div class="suivi-step-lbl">Presque<br>terminé</div>
-      </div>
-      <div class="suivi-step" id="step-termine">
-        <div class="suivi-step-dot">✅</div>
-        <div class="suivi-step-lbl">Terminé</div>
-      </div>
+    <div class="suivi-mission-prest" id="suivi-banner-prest"></div>
+  </div>
+  <!-- Stepper -->
+  <div class="suivi-stepper">
+    <div class="suivi-step" id="step-en_attente"><div class="suivi-step-dot">⏳</div><div class="suivi-step-lbl">En attente</div></div>
+    <div class="suivi-step" id="step-en_cours"><div class="suivi-step-dot">🔧</div><div class="suivi-step-lbl">En cours</div></div>
+    <div class="suivi-step" id="step-presque_terme"><div class="suivi-step-dot">🔜</div><div class="suivi-step-lbl">Presque fini</div></div>
+    <div class="suivi-step" id="step-termine"><div class="suivi-step-dot">✅</div><div class="suivi-step-lbl">Terminé</div></div>
+  </div>
+  <!-- Tabs -->
+  <div class="suivi-tabs">
+    <div class="suivi-tab active" id="tab-btn-suivi" onclick="switchSuiviTab('suivi')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      Suivi
     </div>
-    <!-- Formulaire ajout (prestataire seulement) -->
+    <div class="suivi-tab" id="tab-btn-messages" onclick="switchSuiviTab('messages')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+      <span class="suivi-tab-badge" id="msg-badge" style="display:none">0</span>
+    </div>
+  </div>
+
+  <!-- TAB : SUIVI -->
+  <div class="suivi-tab-content active" id="tab-content-suivi" style="overflow-y:auto;flex:1">
+    <!-- Formulaire prestataire -->
     <div id="suivi-add-section" style="display:none">
       <div class="suivi-add-wrap">
         <div class="suivi-add-form">
@@ -976,17 +1010,21 @@ textarea.req-input{resize:vertical;min-height:90px}
             <option value="termine">✅ Terminé</option>
           </select>
           <textarea id="suivi-new-msg" rows="3" placeholder="Décrivez l'avancement : ce qui a été fait, ce qu'il reste…"></textarea>
-          <label class="suivi-photo-label" for="suivi-new-photos">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Joindre des photos <span class="suivi-photo-count" id="suivi-photo-count">(max 3)</span>
-          </label>
+          <div class="suivi-photo-row">
+            <label class="suivi-photo-label" for="suivi-new-photos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Photos
+            </label>
+            <span class="suivi-photo-count" id="suivi-photo-count">0 / 3</span>
+          </div>
           <input id="suivi-new-photos" type="file" accept="image/*" multiple style="display:none" onchange="previewSuiviPhotos(this)">
           <div class="suivi-preview-imgs" id="suivi-preview-imgs"></div>
+          <div class="suivi-upload-bar" id="suivi-upload-bar"><div class="suivi-upload-bar-fill" id="suivi-upload-fill"></div></div>
           <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
         </div>
       </div>
       <button class="suivi-termine-btn" id="suivi-termine-btn" onclick="termineMission()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>
         Clôturer la mission
       </button>
     </div>
@@ -995,7 +1033,26 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div class="demande-empty"><div class="demande-empty-icon">⏳</div><div class="demande-empty-title">Chargement…</div></div>
     </div>
   </div>
-  <!-- Lightbox photos -->
+
+  <!-- TAB : MESSAGES -->
+  <div class="suivi-tab-content" id="tab-content-messages" style="display:none;flex-direction:column;height:calc(100vh - 260px)">
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:#d1d5db"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Pas encore de messages.<br>Posez votre première question !
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <textarea class="chat-input" id="chat-input" placeholder="Écrire un message…" rows="1" onkeydown="chatKeydown(event)"></textarea>
+        <button class="chat-send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
   <div id="suivi-lightbox" class="suivi-lightbox" style="display:none">
     <div class="suivi-lightbox-close" onclick="closeLightbox()">✕</div>
     <img id="suivi-lightbox-img" src="" alt="">
@@ -1487,6 +1544,7 @@ textarea.req-input{resize:vertical;min-height:90px}
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 <script src="/firebase-config.js"></script>
+<script src="/cloudinary-config.js"></script>
 <script>
 let P=[
   {id:1,i:'SO',av:'av-g',name:'Said Omar',job:'Plombier',cat:'Plomberie',loc:'Moroni Centre',rat:4.9,rev:47,price:'3 500',unit:'KMF/h',avail:'ok',zone:'Moroni et environs',delay:'Moins de 2h',done:'98',rate:'99%',reply:'< 1h',langs:'Shikomori · Français',tags:['Fuite','Installation','Urgence 24h'],vrf:true,days:['Lun','Mar','Mer','Jeu','Ven','Sam'],slots:['08h–10h','10h–12h','14h–16h','16h–18h'],rvl:[{n:'Mariam D.',s:'★★★★★',d:'il y a 3 jours',t:'Très professionnel et ponctuel. Fuite réparée en moins d\'une heure. Je recommande !'},{n:'Ousseni K.',s:'★★★★★',d:'la semaine dernière',t:'Excellent travail, prix correct. Il a vérifié toute la plomberie sans supplément.'}]},
@@ -2233,9 +2291,12 @@ function openSuivi(demandeId) {
   document.getElementById('suivi-add-section').style.display =
     (user && user.role === 'prestataire') ? 'block' : 'none';
 
+  // Reset tabs
+  switchSuiviTab('suivi');
+
   goTo('suivi');
 
-  // Listener temps réel
+  // Listeners temps réel
   if (_suiviUnsub) { _suiviUnsub(); _suiviUnsub = null; }
   if (!db) { renderSuiviTimeline([]); return; }
   _suiviUnsub = db.collection('demandes').doc(demandeId)
@@ -2244,10 +2305,13 @@ function openSuivi(demandeId) {
       const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderSuiviTimeline(items);
     }, err => { console.error('[SUIVI]', err); renderSuiviTimeline([]); });
+
+  startChatListener(demandeId);
 }
 
 function closeSuivi() {
-  if (_suiviUnsub) { _suiviUnsub(); _suiviUnsub = null; }
+  if (_suiviUnsub)  { _suiviUnsub();  _suiviUnsub  = null; }
+  if (_chatUnsub)   { _chatUnsub();   _chatUnsub   = null; }
   _suiviDemandeId = null;
   goTo('mes-demandes');
 }
@@ -2343,14 +2407,42 @@ function renderSuiviTimeline(items) {
   setTimeout(() => { el.parentElement.scrollTop = el.parentElement.scrollHeight; }, 100);
 }
 
+// ── CLOUDINARY UPLOAD ─────────────────────────────────────────────────────────
+async function uploadToCloudinary(file, onProgress) {
+  const cloud  = window.CLOUDINARY_CLOUD;
+  const preset = window.CLOUDINARY_PRESET;
+  if (!cloud || cloud === 'VOTRE_CLOUD_NAME') {
+    // Fallback Firebase Storage si Cloudinary non configuré
+    if (window.firebase && firebase.storage) {
+      const ref = firebase.storage().ref(`suivis/${_suiviDemandeId}/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      return ref.getDownloadURL();
+    }
+    throw new Error('Cloudinary non configuré');
+  }
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', preset);
+    fd.append('folder', 'mhono/suivis');
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+    xhr.onload = () => {
+      try { const d = JSON.parse(xhr.responseText); resolve(d.secure_url); }
+      catch(e) { reject(e); }
+    };
+    xhr.onerror = () => reject(new Error('Upload échoué'));
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloud}/image/upload`);
+    xhr.send(fd);
+  });
+}
+
 function previewSuiviPhotos(input) {
-  // Limite à 3 photos
   const all = Array.from(input.files).slice(0, 3);
   _suiviPhotosFiles = all;
   const countEl = document.getElementById('suivi-photo-count');
-  if (countEl) countEl.textContent = all.length > 0 ? `(${all.length}/3)` : '(max 3)';
-  const prev = document.getElementById('suivi-preview-imgs');
-  prev.innerHTML = all.map(f =>
+  if (countEl) countEl.textContent = `${all.length} / 3`;
+  document.getElementById('suivi-preview-imgs').innerHTML = all.map(f =>
     `<img class="suivi-preview-img" src="${URL.createObjectURL(f)}" alt="">`
   ).join('');
 }
@@ -2364,37 +2456,124 @@ async function addSuiviUpdate() {
   const btn = document.getElementById('suivi-add-btn');
   btn.textContent = 'Publication…'; btn.disabled = true;
 
+  // Upload photos
   let photoUrls = [];
-  if (_suiviPhotosFiles.length > 0 && window.firebase && firebase.storage) {
+  if (_suiviPhotosFiles.length > 0) {
+    const bar     = document.getElementById('suivi-upload-bar');
+    const barFill = document.getElementById('suivi-upload-fill');
+    bar.style.display = 'block';
     try {
-      const uploadPromises = _suiviPhotosFiles.map(async file => {
-        const ref = firebase.storage().ref(`suivis/${_suiviDemandeId}/${Date.now()}_${file.name}`);
-        await ref.put(file);
-        return ref.getDownloadURL();
-      });
-      photoUrls = await Promise.all(uploadPromises);
-    } catch(e) { console.warn('[SUIVI PHOTOS]', e); }
+      let uploaded = 0;
+      const total  = _suiviPhotosFiles.length;
+      photoUrls = await Promise.all(_suiviPhotosFiles.map(async file => {
+        const url = await uploadToCloudinary(file, p => {
+          barFill.style.width = Math.round(((uploaded + p) / total) * 100) + '%';
+        });
+        uploaded++;
+        barFill.style.width = Math.round((uploaded / total) * 100) + '%';
+        return url;
+      }));
+    } catch(e) { console.warn('[UPLOAD]', e); }
+    bar.style.display = 'none';
+    barFill.style.width = '0%';
   }
 
   try {
     const user = getAuthUser();
     await db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
-      message: msg,
-      statut,
-      photoUrls,
+      message: msg, statut, photoUrls,
       prestataire: user?.nom || null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    // Mettre à jour le statut de la demande principale
     await db.collection('demandes').doc(_suiviDemandeId).update({ statut });
   } catch(e) { console.error('[ADD SUIVI]', e); alert('Erreur lors de la publication.'); }
 
-  // Reset form
   document.getElementById('suivi-new-msg').value = '';
   document.getElementById('suivi-new-photos').value = '';
   document.getElementById('suivi-preview-imgs').innerHTML = '';
+  document.getElementById('suivi-photo-count').textContent = '0 / 3';
   _suiviPhotosFiles = [];
   btn.textContent = 'Publier la mise à jour'; btn.disabled = false;
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────────
+function switchSuiviTab(tab) {
+  ['suivi','messages'].forEach(t => {
+    document.getElementById('tab-btn-' + t)?.classList.toggle('active', t === tab);
+    const c = document.getElementById('tab-content-' + t);
+    if (c) { c.classList.toggle('active', t === tab); c.style.display = t === tab ? (t === 'messages' ? 'flex' : 'block') : 'none'; }
+  });
+  if (tab === 'messages') {
+    document.getElementById('msg-badge').style.display = 'none';
+    setTimeout(() => {
+      const cm = document.getElementById('chat-messages');
+      if (cm) cm.scrollTop = cm.scrollHeight;
+    }, 50);
+  }
+}
+
+// ── CHAT ───────────────────────────────────────────────────────────────────────
+let _chatUnsub = null;
+let _chatUnread = 0;
+
+function startChatListener(demandeId) {
+  if (_chatUnsub) { _chatUnsub(); _chatUnsub = null; }
+  if (!db) return;
+  const user = getAuthUser();
+  _chatUnsub = db.collection('demandes').doc(demandeId)
+    .collection('messages').orderBy('createdAt', 'asc')
+    .onSnapshot(snap => {
+      const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderChat(msgs, user);
+    }, err => console.error('[CHAT]', err));
+}
+
+function renderChat(msgs, user) {
+  const el = document.getElementById('chat-messages');
+  if (!el) return;
+  if (msgs.length === 0) {
+    el.innerHTML = `<div class="chat-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:#d1d5db"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Pas encore de messages.<br>Posez votre première question !</div>`;
+    return;
+  }
+  const fmtT = ts => { try { const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); } catch{ return ''; } };
+  const myRole = user?.role || 'client';
+  el.innerHTML = msgs.map(m => {
+    const isMe = m.senderRole === myRole;
+    return `<div class="chat-bubble-wrap ${isMe?'me':'other'}">
+      ${!isMe ? `<div class="chat-sender">${m.senderName||'Utilisateur'}</div>` : ''}
+      <div class="chat-bubble">${m.text||''}</div>
+      <div class="chat-time">${fmtT(m.createdAt)}</div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+
+  // Badge si tab messages pas actif
+  const activeTab = document.getElementById('tab-btn-messages');
+  if (!activeTab?.classList.contains('active')) {
+    const badge = document.getElementById('msg-badge');
+    if (badge) { badge.textContent = msgs.length; badge.style.display = 'flex'; }
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text || !_suiviDemandeId || !db) return;
+  const user = getAuthUser();
+  input.value = '';
+  input.style.height = 'auto';
+  try {
+    await db.collection('demandes').doc(_suiviDemandeId).collection('messages').add({
+      text,
+      senderRole: user?.role || 'client',
+      senderName: user?.nom  || 'Client',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.error('[SEND MSG]', e); input.value = text; }
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 let _lbUrls = [];
