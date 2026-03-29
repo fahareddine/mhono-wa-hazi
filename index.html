@@ -374,14 +374,16 @@ textarea.req-input{resize:vertical;min-height:90px}
   /* Articles & autres écrans */
   .article-hero,.article-section,.article-cgu-block{padding-left:32px;padding-right:32px}
 
-  /* Modals restes centrés */
-  .modal-overlay{align-items:center}
+  /* Modals décalés à droite de la sidebar */
+  .modal-overlay{align-items:center;left:240px}
+  .modal-sheet{max-width:480px;width:100%;border-radius:16px;margin:0 auto}
   .modal-box{max-width:480px}
 }
 
 @media(min-width:1200px){
   #desktop-sidebar{width:260px}
   .screen{margin-left:260px}
+  .modal-overlay{left:260px}
   .cards-list{grid-template-columns:repeat(3,1fr)}
   .home-search-bar{max-width:600px}
 }
