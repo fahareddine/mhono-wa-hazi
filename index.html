@@ -548,6 +548,17 @@ textarea.req-input{resize:vertical;min-height:90px}
 .paiement-row-val{font-size:13px;font-weight:700;color:var(--g800)}
 .paiement-wa-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
 .paiement-close-btn{width:100%;background:var(--g100);color:var(--g700);border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
+/* Évaluation */
+.avis-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--g100)}
+.avis-section-title{font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px;text-align:center}
+.stars-rating{display:flex;gap:4px;justify-content:center;margin-bottom:10px}
+.stars-rating .star{font-size:36px;color:var(--g200);cursor:pointer;transition:color .1s;line-height:1;user-select:none}
+.stars-rating .star.active{color:var(--orange)}
+.avis-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:var(--r2);font-size:13px;font-family:var(--font);resize:none;min-height:60px;outline:none;box-sizing:border-box;transition:border .15s}
+.avis-textarea:focus{border-color:var(--green)}
+.btn-avis{width:100%;padding:12px;border-radius:var(--r2);background:var(--orange);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:var(--font);margin-top:8px}
+.btn-avis:disabled{opacity:.5;cursor:not-allowed}
+.avis-sent{text-align:center;padding:10px;color:var(--gd);font-size:13px;font-weight:600;background:var(--gl);border-radius:var(--r2);margin-top:8px;display:none}
 /* Chat */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:300px}
 .chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--g50)}
@@ -2244,9 +2255,45 @@ async function loadMesDemandes() {
         </div>`;
     });
     listEl.innerHTML = html;
+    updateDemandesBadge(docs);
   } catch(e) {
     console.error('[MES DEMANDES]', e);
     listEl.innerHTML = `<div class="demande-empty" style="color:var(--red)"><div class="demande-empty-icon">⚠️</div><div class="demande-empty-title">Erreur de chargement</div><div class="demande-empty-sub">${e.message||'Réessayez.'}</div></div>`;
+  }
+}
+
+function updateDemandesBadge(docs) {
+  const user = getAuthUser();
+  // Badges uniquement pour les clients (action requise = en_attente_validation)
+  let count = 0;
+  if (user && user.role === 'client' && docs) {
+    count = docs.filter(d => d.data().statut === 'en_attente_validation').length;
+  }
+  // Injecter badge dans tous les nav items "Demandes" si pas encore fait
+  document.querySelectorAll('[onclick*="goTo(\'bookings\')"], [onclick*="goTo(\'mes-demandes\')"]').forEach(el => {
+    if (!el.querySelector('.demandes-badge')) {
+      el.style.position = 'relative';
+      const span = document.createElement('span');
+      span.className = 'nav-badge demandes-badge';
+      span.style.display = 'none';
+      el.appendChild(span);
+    }
+    const badge = el.querySelector('.demandes-badge');
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  });
+  // Badge sur le menu item "Mes demandes" dans le profil
+  const menuItem = document.getElementById('menu-mes-demandes');
+  if (menuItem) {
+    if (!menuItem.querySelector('.demandes-badge')) {
+      const span = document.createElement('span');
+      span.className = 'demandes-badge';
+      span.style.cssText = 'margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px';
+      menuItem.querySelector('.menu-item-arrow').before(span);
+    }
+    const badge = menuItem.querySelector('.demandes-badge');
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
   }
 }
 
@@ -2698,11 +2745,89 @@ function showPaiementModal(d, paiementId) {
   const banner = document.getElementById('suivi-validation-banner');
   if (banner) banner.style.display = 'none';
   showToast('Mission validée ✅');
+
+  // Init évaluation
+  _avisNote = 0;
+  _avisPrestataireEmail = d.prestataireEmail || null;
+  _avisPrestataireNom   = d.prestataire || null;
+  _avisPaiementId       = paiementId;
+  document.querySelectorAll('#stars-rating .star').forEach(el => el.classList.remove('active'));
+  document.getElementById('avis-comment').value = '';
+  const btnAvis = document.getElementById('btn-avis');
+  btnAvis.disabled = true;
+  btnAvis.textContent = 'Envoyer l\'avis';
+  btnAvis.style.display = 'block';
+  document.getElementById('avis-sent').style.display = 'none';
+  document.getElementById('avis-section').style.opacity = '1';
+  document.getElementById('avis-section').style.display = d.prestataireEmail ? 'block' : 'none';
 }
 
 function closePaiementModal(e) {
   if (e && e.target !== document.getElementById('paiement-modal')) return;
   document.getElementById('paiement-modal').classList.remove('open');
+}
+
+// ── ÉVALUATION ────────────────────────────────────────────────────────────────
+let _avisNote = 0;
+let _avisPrestataireEmail = null;
+let _avisPrestataireNom  = null;
+let _avisPaiementId      = null;
+
+function setAvisStar(n) {
+  _avisNote = n;
+  document.querySelectorAll('#stars-rating .star').forEach((el, i) => {
+    el.classList.toggle('active', i < n);
+  });
+  document.getElementById('btn-avis').disabled = false;
+}
+
+async function envoyerAvis() {
+  if (!_avisNote || !db) return;
+  const btn     = document.getElementById('btn-avis');
+  btn.disabled  = true;
+  btn.textContent = 'Envoi…';
+  const user    = getAuthUser();
+  const comment = document.getElementById('avis-comment').value.trim();
+  try {
+    await db.collection('avis').add({
+      note:             _avisNote,
+      commentaire:      comment,
+      prestataireEmail: _avisPrestataireEmail,
+      prestataireNom:   _avisPrestataireNom || '—',
+      clientNom:        user?.nom   || '—',
+      clientEmail:      user?.email || '—',
+      paiementId:       _avisPaiementId,
+      demandeId:        _suiviDemandeId,
+      createdAt:        firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if (_avisPrestataireEmail) await _updateProviderNote(_avisPrestataireEmail, _avisNote);
+    document.getElementById('avis-sent').style.display = 'block';
+    document.getElementById('avis-section').style.opacity = '0.7';
+    btn.style.display = 'none';
+    showToast('Avis envoyé ✓');
+  } catch(e) {
+    console.error('[AVIS]', e);
+    btn.disabled = false;
+    btn.textContent = 'Envoyer l\'avis';
+    showToast('Erreur envoi avis');
+  }
+}
+
+async function _updateProviderNote(email, newNote) {
+  if (!email || !db) return;
+  try {
+    let snap = await db.collection('providers').where('email','==',email).limit(1).get();
+    if (snap.empty) snap = await db.collection('users').where('email','==',email).limit(1).get();
+    if (snap.empty) return;
+    const doc  = snap.docs[0];
+    const data = doc.data();
+    const oldRat = data.rat || 0;
+    const oldRev = data.rev || 0;
+    const newRat = oldRev > 0
+      ? Math.round(((oldRat * oldRev) + newNote) / (oldRev + 1) * 10) / 10
+      : newNote;
+    await doc.ref.update({ rat: newRat, rev: oldRev + 1 });
+  } catch(e) { console.warn('[UPDATE NOTE]', e); }
 }
 
 async function addSuiviUpdate() {
@@ -2960,6 +3085,20 @@ window.addEventListener('DOMContentLoaded', function() {
       <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.531 5.845L.057 23.476a.496.496 0 0 0 .601.601l5.638-1.474A11.938 11.938 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.804 9.804 0 0 1-5.031-1.389l-.36-.214-3.733.976.997-3.622-.234-.372A9.804 9.804 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
       Notifier le prestataire sur WhatsApp
     </button>
+    <!-- Évaluation prestataire -->
+    <div class="avis-section" id="avis-section">
+      <div class="avis-section-title">⭐ Notez votre prestataire</div>
+      <div class="stars-rating" id="stars-rating">
+        <span class="star" onclick="setAvisStar(1)">★</span>
+        <span class="star" onclick="setAvisStar(2)">★</span>
+        <span class="star" onclick="setAvisStar(3)">★</span>
+        <span class="star" onclick="setAvisStar(4)">★</span>
+        <span class="star" onclick="setAvisStar(5)">★</span>
+      </div>
+      <textarea class="avis-textarea" id="avis-comment" placeholder="Commentaire optionnel…" rows="2"></textarea>
+      <button class="btn-avis" id="btn-avis" onclick="envoyerAvis()" disabled>Envoyer l'avis</button>
+      <div class="avis-sent" id="avis-sent">🎉 Merci pour votre avis !</div>
+    </div>
     <button class="paiement-close-btn" onclick="closePaiementModal()">Fermer</button>
   </div>
 </div>

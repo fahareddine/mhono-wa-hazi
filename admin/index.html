@@ -174,6 +174,11 @@ textarea.form-input{resize:vertical;min-height:80px}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Utilisateurs
         </div>
+        <div class="nav-link" onclick="showTab('paiements')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Paiements
+          <span id="badge-paiements" style="margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 4px;display:none"></span>
+        </div>
       </div>
       <div class="sidebar-footer">
         <button class="btn btn-outline btn-sm" onclick="logout()" style="width:100%">Déconnexion</button>
@@ -414,6 +419,34 @@ textarea.form-input{resize:vertical;min-height:80px}
         </div>
       </div>
 
+      <!-- PAIEMENTS -->
+      <div id="tab-paiements" class="tab" style="display:none">
+        <div class="page-header">
+          <div class="page-title">Paiements</div>
+          <div class="page-sub">Historique des missions validées</div>
+        </div>
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card orange"><div class="stat-num" id="pstat-attente">—</div><div class="stat-lbl">En attente de paiement</div></div>
+          <div class="stat-card green"><div class="stat-num" id="pstat-paye">—</div><div class="stat-lbl">Paiements effectués</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title" id="paiements-count">—</div>
+            <select id="filter-paiement-statut" class="form-input" style="width:150px;padding:6px 10px;font-size:13px" onchange="loadPaiements()">
+              <option value="">Tous</option>
+              <option value="en_attente">En attente</option>
+              <option value="payé">Payés</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="table">
+              <thead><tr><th>Date</th><th>Réf.</th><th>Client</th><th>Prestataire</th><th>Service</th><th>Montant</th><th>Statut</th><th>Action</th></tr></thead>
+              <tbody id="paiements-tbody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div>Chargement…</div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /main-content -->
   </div><!-- /admin-layout -->
 </div>
@@ -479,9 +512,10 @@ function showTab(name) {
   document.getElementById('tab-'+name).style.display = 'block';
   document.querySelector('.nav-link[onclick*="'+name+'"]')?.classList.add('active');
   if (name === 'providers') loadProviders();
-  if (name === 'demandes') loadDemandes();
+  if (name === 'demandes')  loadDemandes();
   if (name === 'dashboard') loadDashboard();
-  if (name === 'users') loadUsers();
+  if (name === 'users')     loadUsers();
+  if (name === 'paiements') loadPaiements();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────
@@ -791,6 +825,69 @@ async function assignPrestataire(docId, val) {
     showToast(`Mission assignée à ${nom} ✓`, 'success');
     loadDemandes();
   } catch(e) { showToast('Erreur assignation', 'error'); console.error(e); }
+}
+
+// ── PAIEMENTS ─────────────────────────────────────────
+async function loadPaiements() {
+  if (!db) return;
+  const filtreStatut = document.getElementById('filter-paiement-statut')?.value || '';
+  document.getElementById('paiements-tbody').innerHTML =
+    '<tr><td colspan="8"><div class="loading"><div class="spinner"></div>Chargement…</div></td></tr>';
+  try {
+    let query = db.collection('paiements').orderBy('createdAt','desc');
+    if (filtreStatut) query = db.collection('paiements').where('statut','==',filtreStatut).orderBy('createdAt','desc');
+    const [snap, allSnap] = await Promise.all([query.get(), db.collection('paiements').get()]);
+
+    const enAttente = allSnap.docs.filter(d => d.data().statut === 'en_attente').length;
+    const payes     = allSnap.docs.filter(d => d.data().statut === 'payé').length;
+    document.getElementById('pstat-attente').textContent = enAttente;
+    document.getElementById('pstat-paye').textContent    = payes;
+    const badge = document.getElementById('badge-paiements');
+    badge.style.display = enAttente > 0 ? 'flex' : 'none';
+    if (enAttente > 0) badge.textContent = enAttente;
+
+    document.getElementById('paiements-count').textContent =
+      snap.size + ' paiement' + (snap.size > 1 ? 's' : '');
+
+    if (snap.empty) {
+      document.getElementById('paiements-tbody').innerHTML =
+        '<tr><td colspan="8"><div class="empty-state">Aucun paiement enregistré.</div></td></tr>';
+      return;
+    }
+    document.getElementById('paiements-tbody').innerHTML = snap.docs.map(doc => {
+      const x = doc.data();
+      const date = x.createdAt?.toDate ? x.createdAt.toDate().toLocaleDateString('fr-FR') : '—';
+      const isPaye = x.statut === 'payé';
+      return `<tr>
+        <td>${date}</td>
+        <td style="font-family:monospace;font-size:12px">${x.demandeRef||'—'}</td>
+        <td>${x.clientNom||'—'}<br><span style="font-size:11px;color:var(--g400)">${x.clientEmail||''}</span></td>
+        <td>${x.prestataireNom||'—'}</td>
+        <td>${x.service||'—'}</td>
+        <td style="font-weight:700">${x.montant||'—'}</td>
+        <td><span class="badge ${isPaye?'badge-ok':'badge-tm'}">${isPaye?'Payé ✓':'En attente'}</span></td>
+        <td>${!isPaye
+          ? `<button class="btn btn-outline btn-sm" onclick="marquerPaye('${doc.id}')">✓ Marquer payé</button>`
+          : '<span style="font-size:11px;color:var(--g400)">—</span>'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    console.error('[PAIEMENTS]', e);
+    document.getElementById('paiements-tbody').innerHTML =
+      `<tr><td colspan="8"><div class="empty-state" style="color:var(--red)">Erreur : ${e.message}</div></td></tr>`;
+  }
+}
+
+async function marquerPaye(docId) {
+  if (!confirm('Confirmer le paiement de cette mission ?')) return;
+  try {
+    await db.collection('paiements').doc(docId).update({
+      statut: 'payé',
+      payeAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('Paiement confirmé ✓', 'success');
+    loadPaiements();
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
 
 // ── TOAST ─────────────────────────────────────────────
