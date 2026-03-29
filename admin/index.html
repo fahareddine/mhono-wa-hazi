@@ -72,6 +72,7 @@ body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:
 .badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
 .badge-ok{background:var(--gl);color:var(--gd)}
 .badge-tm{background:var(--ol);color:#9A6400}
+.badge-info{background:#EDE9FE;color:#6D28D9}
 .badge-no{background:var(--rl);color:var(--red)}
 .badge-vrf{background:#EDE9FE;color:#5B21B6}
 .actions{display:flex;gap:6px}
@@ -710,10 +711,13 @@ async function loadDemandes() {
     document.getElementById('demandes-list').innerHTML = snap.docs.map(d => {
       const x = d.data();
       const date = x.createdAt?.toDate ? x.createdAt.toDate().toLocaleDateString('fr-FR') : '—';
+      const isCustom = x.serviceType === 'custom';
+      const svcLabel = isCustom ? (x.customServiceTitle || 'Service personnalisé') : (x.serviceType || '—');
+      const customBadgeHtml = isCustom ? `<span style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">✨ Personnalisé</span>` : '';
       return `<div class="demande-card">
         <div class="demande-header">
           <span class="demande-ref">${x.ref||d.id}</span>
-          <span class="badge badge-${x.serviceType?.toLowerCase().includes('plomb')?'ok':'tm'}">${x.serviceType||'—'}</span>
+          <span class="badge badge-${isCustom?'info':'tm'}">${svcLabel}</span>${customBadgeHtml}
           <select class="statut-select" onchange="updateStatut('${d.id}',this.value)">
             <option value="nouveau" ${x.statut==='nouveau'?'selected':''}>Nouveau</option>
             <option value="en_cours" ${x.statut==='en_cours'?'selected':''}>En cours</option>
@@ -725,6 +729,8 @@ async function loadDemandes() {
         <div class="demande-body">
           <strong>📍 ${x.localisation||'—'}</strong><br>
           ${x.description||'—'}<br>
+          ${x.budget ? `<span style="color:var(--g500)">💰 Budget : ${x.budget}</span><br>` : ''}
+          ${x.urgence ? `<span style="color:var(--g500)">⚡ Urgence : ${({normal:'Pas urgent',cette_semaine:'Cette semaine',urgent:'Urgent (24-48h)'})[x.urgence]||x.urgence}</span><br>` : ''}
           <span style="color:var(--g500)">📅 ${x.date||'Date non précisée'}</span>
         </div>
         <div class="demande-actions">
