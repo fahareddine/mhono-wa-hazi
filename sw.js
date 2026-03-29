@@ -3,7 +3,7 @@
  * Cache-first pour les assets statiques, network-first pour l'API
  */
 
-const CACHE_NAME = 'mhono-v4';
+const CACHE_NAME = 'mhono-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
