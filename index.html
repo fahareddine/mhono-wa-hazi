@@ -1049,8 +1049,8 @@ textarea.req-input{resize:vertical;min-height:90px}
           <span class="suivi-st-btn-label">Presque terminé</span>
         </button>
         <button class="suivi-st-btn" id="st-btn-en_attente_validation" onclick="setMissionStatut('en_attente_validation')">
-          <span class="suivi-st-btn-icon">📩</span>
-          <span class="suivi-st-btn-label">Signaler terminé</span>
+          <span class="suivi-st-btn-icon">✅</span>
+          <span class="suivi-st-btn-label">Terminer</span>
         </button>
       </div>
       <!-- Formulaire mise à jour -->
@@ -2539,8 +2539,8 @@ function updateStatutBtns(statut) {
     btn.classList.remove('done', 'active', 'locked', 'confirming');
     btn.dataset.confirming = '';
     if (st === 'en_attente_validation') {
-      btn.querySelector('.suivi-st-btn-icon').textContent = '📩';
-      btn.querySelector('.suivi-st-btn-label').textContent = 'Signaler terminé';
+      btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
+      btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
     }
     if (i < curIdx)        btn.classList.add('done');
     else if (i === curIdx) btn.classList.add('active');
@@ -2577,8 +2577,8 @@ function setMissionStatut(statut) {
       _termineConfirmTimer = setTimeout(() => {
         btn.dataset.confirming = '';
         btn.classList.remove('confirming');
-        btn.querySelector('.suivi-st-btn-icon').textContent = '📩';
-        btn.querySelector('.suivi-st-btn-label').textContent = 'Signaler terminé';
+        btn.querySelector('.suivi-st-btn-icon').textContent = '✅';
+        btn.querySelector('.suivi-st-btn-label').textContent = 'Terminer';
       }, 3000);
       return;
     }
