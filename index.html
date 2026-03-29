@@ -512,9 +512,17 @@ textarea.req-input{resize:vertical;min-height:90px}
 .suivi-upload-bar-fill{height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .3s}
 .suivi-btn-add{width:100%;background:linear-gradient(135deg,var(--green),var(--gd));color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px}
 .suivi-btn-add:disabled{opacity:.5;cursor:not-allowed}
-/* Terminer */
-.suivi-termine-btn{width:calc(100% - 28px);margin:12px 14px 16px;background:#fff;color:#dc2626;border:1.5px solid #fca5a5;border-radius:12px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
-.suivi-termine-btn:hover{background:#fef2f2}
+/* Boutons statut mission */
+.suivi-status-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 14px 4px}
+.suivi-st-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:2px solid var(--g200);background:#fff;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.suivi-st-btn:active{transform:scale(.97)}
+.suivi-st-btn-icon{font-size:20px;line-height:1}
+.suivi-st-btn-label{font-size:11px;font-weight:700;color:var(--g500);text-align:center;line-height:1.3}
+.suivi-st-btn.done{border-color:#86efac;background:#f0fdf4}
+.suivi-st-btn.done .suivi-st-btn-label{color:var(--gd)}
+.suivi-st-btn.active{border-color:var(--green);background:var(--gl);box-shadow:0 0 0 3px rgba(26,158,111,0.15)}
+.suivi-st-btn.active .suivi-st-btn-label{color:var(--gd);font-weight:800}
+.suivi-st-btn.locked{opacity:.4;cursor:not-allowed}
 /* Chat */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:300px}
 .chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--g50)}
@@ -1005,14 +1013,25 @@ textarea.req-input{resize:vertical;min-height:90px}
   <div class="suivi-tab-content active" id="tab-content-suivi" style="overflow-y:auto;flex:1">
     <!-- Formulaire prestataire -->
     <div id="suivi-add-section" style="display:none">
+      <!-- Boutons statut -->
+      <div class="suivi-status-btns" id="suivi-status-btns">
+        <button class="suivi-st-btn" id="st-btn-en_cours" onclick="setMissionStatut('en_cours')">
+          <span class="suivi-st-btn-icon">🔧</span>
+          <span class="suivi-st-btn-label">Démarrer</span>
+        </button>
+        <button class="suivi-st-btn" id="st-btn-presque_terme" onclick="setMissionStatut('presque_terme')">
+          <span class="suivi-st-btn-icon">🔜</span>
+          <span class="suivi-st-btn-label">Presque terminé</span>
+        </button>
+        <button class="suivi-st-btn" id="st-btn-termine" onclick="setMissionStatut('termine')">
+          <span class="suivi-st-btn-icon">✅</span>
+          <span class="suivi-st-btn-label">Terminer</span>
+        </button>
+      </div>
+      <!-- Formulaire mise à jour -->
       <div class="suivi-add-wrap">
         <div class="suivi-add-form">
-          <h3>📝 Nouvelle mise à jour</h3>
-          <select class="suivi-status-select" id="suivi-new-status">
-            <option value="en_cours">🔧 En cours</option>
-            <option value="presque_terme">🔜 Presque terminé</option>
-            <option value="termine">✅ Terminé</option>
-          </select>
+          <h3>📝 Publier une mise à jour</h3>
           <textarea id="suivi-new-msg" rows="3" placeholder="Décrivez l'avancement : ce qui a été fait, ce qu'il reste…"></textarea>
           <div class="suivi-photo-row">
             <label class="suivi-photo-label" for="suivi-new-photos">
@@ -1027,10 +1046,6 @@ textarea.req-input{resize:vertical;min-height:90px}
           <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
         </div>
       </div>
-      <button class="suivi-termine-btn" id="suivi-termine-btn" onclick="termineMission()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>
-        Clôturer la mission
-      </button>
     </div>
     <!-- Timeline -->
     <div class="suivi-timeline" id="suivi-timeline">
@@ -2367,8 +2382,8 @@ function renderSuiviTimeline(items) {
   updateSuiviStepper(lastStatut);
 
   // Masquer le bouton clôturer si déjà terminé
-  const termineBtn = document.getElementById('suivi-termine-btn');
-  if (termineBtn) termineBtn.style.display = lastStatut === 'termine' ? 'none' : 'flex';
+  // Mettre à jour les boutons statut prestataire
+  updateStatutBtns(lastStatut);
 
   if (items.length === 0) {
     el.innerHTML = `
@@ -2472,10 +2487,49 @@ function previewSuiviPhotos(input) {
   ).join('');
 }
 
+let _missionStatut = 'en_attente'; // statut courant géré par les boutons
+
+function updateStatutBtns(statut) {
+  _missionStatut = statut;
+  const order = ['en_cours', 'presque_terme', 'termine'];
+  const curIdx = order.indexOf(statut);
+  order.forEach((st, i) => {
+    const btn = document.getElementById('st-btn-' + st);
+    if (!btn) return;
+    btn.classList.remove('done', 'active', 'locked');
+    if (i < curIdx)       btn.classList.add('done');
+    else if (i === curIdx) btn.classList.add('active');
+    // future steps restent cliquables (pas de locked)
+  });
+}
+
+async function setMissionStatut(statut) {
+  if (!_suiviDemandeId || !db) return;
+  if (statut === _missionStatut) return; // déjà actif
+  const labels = { en_cours:'démarré la mission', presque_terme:'presque terminé', termine:'terminé la mission' };
+  const msgs   = { en_cours:'🔧 Mission démarrée.', presque_terme:'🔜 Mission presque terminée.', termine:'✅ Mission terminée. Merci pour votre confiance !' };
+  const user = getAuthUser();
+  try {
+    await Promise.all([
+      db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
+        statut,
+        message: msgs[statut] || '',
+        photoUrls: [],
+        prestataire: user?.nom || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }),
+      db.collection('demandes').doc(_suiviDemandeId).update({ statut })
+    ]);
+    if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = statut;
+    updateStatutBtns(statut);
+    showToast(`Mission ${labels[statut] || statut} ✓`);
+  } catch(e) { console.error('[SET STATUT]', e); showToast('Erreur mise à jour statut'); }
+}
+
 async function addSuiviUpdate() {
   if (!_suiviDemandeId) return;
   const msg    = document.getElementById('suivi-new-msg').value.trim();
-  const statut = document.getElementById('suivi-new-status').value;
+  const statut = _missionStatut || 'en_cours';
   if (!msg) { alert('Décrivez l\'avancement avant de publier.'); return; }
 
   const btn = document.getElementById('suivi-add-btn');
@@ -2642,29 +2696,6 @@ function closeLightbox() {
   document.removeEventListener('keydown', lbKeyNav);
 }
 
-async function termineMission() {
-  if (!_suiviDemandeId) return;
-  if (!confirm('Clôturer la mission ? Cette action marquera le service comme terminé.')) return;
-  const btn = document.getElementById('suivi-termine-btn');
-  btn.disabled = true; btn.textContent = 'Clôture en cours…';
-  try {
-    const user = getAuthUser();
-    await db.collection('demandes').doc(_suiviDemandeId).collection('suivis').add({
-      statut: 'termine',
-      message: '✅ Mission clôturée par le prestataire. Merci pour votre confiance !',
-      photoUrls: [],
-      prestataire: user?.nom || null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('demandes').doc(_suiviDemandeId).update({ statut: 'termine' });
-    if (_demandesCache[_suiviDemandeId]) _demandesCache[_suiviDemandeId].statut = 'termine';
-    btn.style.display = 'none';
-  } catch(e) {
-    console.error('[TERMINE]', e);
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><polyline points="20 6 9 17 4 12"/></svg> Clôturer la mission';
-  }
-}
 
 // ── SERVICE WORKER ────────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
