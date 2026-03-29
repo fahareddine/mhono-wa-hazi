@@ -2120,60 +2120,68 @@ function showToast(msg) {
 
 // ── LOCALISATION INTELLIGENTE (Grande Comore / Ngazidja) ─────────────────────
 const GC = {
-  'Moroni': {
-    label: 'Moroni (Capitale)',
+  'Moroni-Bambao': {
+    label: 'Moroni-Bambao (Capitale)',
     communes: {
-      'Moroni Centre': ['Médina', 'Badjanani', 'Cavani', 'Coulée', 'Hamramba', 'Magudju', 'Zilaoudjé'],
-      'Bangoi-Kouni': ['Bangoi-Kouni', 'Nkourani ya Bangwe', 'Moroni-Est', 'Djomani', 'Zilimadji'],
-    }
-  },
-  'Itsandra': {
-    label: 'Itsandra',
-    communes: {
-      'Itsandra Mdjini': ['Itsandra Ha-Mdjini', 'Bangwa Kouni', 'Nkourani', 'Foumbouni ya Itsandra'],
-      'Hantsambou': ['Hantsambou', 'Mvouni', 'Bahani ya Itsandra', 'Mwali Bora'],
-    }
-  },
-  'Hamahamet': {
-    label: 'Hamahamet (Nord)',
-    communes: {
-      'Mitsamiouli': ['Mitsamiouli Centre', 'Ntsaoueni', 'Vouvouni', 'Bandrani ya Mitsamiouli'],
-      'Mbude': ['Koimbani', 'Mde', 'Ntringui', 'Bouni'],
-    }
-  },
-  'Oichili': {
-    label: 'Oichili',
-    communes: {
-      'Oichili Nord': ['Ntsoudjini', 'Tsidjé', 'Mbéni', 'Dimadjou'],
-      'Oichili Sud': ['Sidjou', 'Nyumbadjuu', 'Ziyarani', 'Ndroudré'],
+      'Moroni': [],
+      'Itsandra Mdjini (Bambao)': [],
+      'Bambao Ya Hari': ['Vouvouni', 'M\'Dé', 'Selea', 'Niomadzaha', 'Moidzaza Djoumbé', 'Mboudadjou', 'Daoeni', 'Dzahani', 'Boueni'],
+      'Bambao Ya Mboini': ['Iconi', 'Mbachilé', 'Moindzaza Mboini', 'Ndrouani', 'Séréhini'],
     }
   },
   'Hambou': {
     label: 'Hambou',
     communes: {
-      'Hambou': ['Ovoué', 'Chezani', 'Dembeni', 'Bambadjani'],
-      'Maoueni': ['Maoueni', 'Chomoni', 'Bahani ya Hambou', 'Mvuni'],
+      'Tsinimoipangua': ['Mitsoudjé', 'Troumbéni', 'Chouani', 'Djoumoichonguo', 'Banguoi', 'Nkomioni', 'Salimani'],
+      'Djoumoipangua': ['Singani', 'Mdjoiezi', 'Hetsa', 'Bambani', 'Dzahadjou'],
     }
   },
-  'Mbadjini Est': {
-    label: 'Mbadjini Est',
+  'Mbadjini-Ouest': {
+    label: 'Mbadjini-Ouest',
     communes: {
-      'Foumbouni': ['Foumbouni', 'Nioumamilima', 'Itsahidi', 'Mwana Trindri'],
-      'Ongoni': ['Ongoni', 'Djoumoichongo', 'Bandrani ya Mbadjini', 'Ntsahidja'],
+      'Ngouengue': ['Dembeni', 'Mdjakagnoi', 'Mboudé ya Mboini', 'Mlimani', 'Panda', 'Mindradou', 'Mandzissani', 'Tsinimoichonguo', 'Kandzilé', 'Makorani', 'Itsoundzou'],
+      'Nioumangama': ['Ouzioini', 'Ifoundihé Chadjou', 'Ifoundihé Chamboini', 'Dima', 'Nkourani ya Sima', 'Domoni', 'Dzoidjou', 'Famaré'],
     }
   },
-  'Dimani': {
-    label: 'Dimani',
+  'Mbadjini-Est': {
+    label: 'Mbadjini-Est',
     communes: {
-      'Koni': ['Koni-Djodjo', 'Koni-Ngani', 'Singani', 'Ourovéni ya Dimani'],
-      'Douniani': ['Douniani', 'Salimani', 'Bouéni ya Dimani', 'Ouzini'],
+      'Itsahidi': ['Foumbouni', 'Koimbani', 'Malé', 'Midjendjeni', 'Ourovéni', 'Ndzouani', 'Chindini', 'Smamboini', 'Dzahadjou', 'Mohoro', 'Nyoumadzaha-Mvoumbari'],
     }
   },
-  'Bambao': {
-    label: 'Bambao',
+  'Oichili-Dimani': {
+    label: 'Oichili-Dimani',
     communes: {
-      'Mandza': ['Mandza', 'Koua', 'Ndrodroni', 'Ouani ya Ngazidja'],
-      'Bahani': ['Bahani ya Bambao', 'Djomani ya Bambao', 'Mitsoudjé', 'Ourovéni ya Bambao'],
+      'Oichili-Dimani': [],
+    }
+  },
+  'Hamahamet-Mboinkou': {
+    label: 'Hamahamet-Mboinkou',
+    communes: {
+      'Nyuma Msiru': ['Mbéni', 'Séléani', 'Salimani', 'Sada Shihouwe', 'Sada Mhuwamboi', 'Bouni', 'Heroubili', 'Batou', 'Nkourani', 'Ifoudihé', 'Mnoungou'],
+      'Nyuma Mro': ['Dimadjou', 'Nyadombwéni', 'Mdjihari', 'Moidja', 'Banbadjani', 'Ngolé', 'Itandzéni', 'Ouellah', 'Hadjambou', 'Mbatsé'],
+      'Mboinkou': ['Madjeoueni', 'Sadani', 'Trélézini', 'Chezani', 'Ndroudé', 'Nyumamilima', 'Hantsindzi', 'Badamadji'],
+    }
+  },
+  'Mitsamiouli-Mboudé': {
+    label: 'Mitsamiouli-Mboudé',
+    communes: {
+      'Cembenoi Lac-Salé': ['Bangoi Kouni', 'Batsa', 'Ouzio', 'Ivoini'],
+      'Cembenoi Sada-Djoulamlima': ['Ouemani', 'Koua', 'Ouellah'],
+      'Mitsamiouli': ['Mémboimboini', 'Hadawa', 'Fassi', 'Mitsamihouli', 'Nkourani', 'Ndzaouz', 'Toiyifa', 'Ntsadjéni', 'Founga', 'Ouhozi'],
+      'Niouma Komo': ['Bangoi Mafsakowa', 'Mémboidjou', 'Pidjani', 'Songomani'],
+      'Nyumamro Kiblani': ['Djomani', 'Koua', 'Mandza', 'Vouvouni', 'Mdjoiézi', 'Helendjé', 'Douniani', 'Chamlé'],
+      'Nyumamro Souhelini': ['Ntsaoueni', 'Ivmbeni', 'Djongoé', 'Maoueni', 'Simboussa', 'Ntsorale', 'Domoidjou', 'Domoimboini', 'Moidja'],
+    }
+  },
+  'Itsandra-Hamanvou': {
+    label: 'Itsandra-Hamanvou',
+    communes: {
+      'Hamanvou': ['Hahaya', 'Bouenindi', 'Mbambani', 'Mbaleni', 'Oussivo', 'Mbangani', 'Diboini', 'Bibavou', 'Milevani'],
+      'Mbadani': ['Batsa', 'Vanamboini', 'Vanadjou', 'Mhandani', 'Dzahadjou', 'Vounambadani'],
+      'Bangaani': ['Itsandra Mdjini', 'Salimani', 'Samba Mbodoni', 'Dzahani la Tsidjé', 'Maoueni', 'Mirontsi', 'Bandamadji', 'Dimadjou'],
+      'Djoumoichongo': ['Dzahani II', 'Bahani', 'Sima', 'Ouellah', 'Samba Nkouni'],
+      'Isahari': ['Ntsoudjini', 'Hantsambou', 'Milembeni', 'Zivandani'],
     }
   },
 };
