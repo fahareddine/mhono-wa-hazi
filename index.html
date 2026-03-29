@@ -438,42 +438,66 @@ textarea.req-input{resize:vertical;min-height:90px}
 .urgence-chip.sel{background:var(--green);color:#fff;border-color:var(--green)}
 .badge-custom{display:inline-block;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
 /* ── FEATURE: SUIVI D'AVANCEMENT ─────────────────────────── */
+/* Mission banner */
+.suivi-mission-banner{background:linear-gradient(135deg,var(--gd),var(--green));padding:16px 20px;color:#fff}
+.suivi-mission-svc{font-size:18px;font-weight:800;margin-bottom:4px}
+.suivi-mission-meta{font-size:12px;color:rgba(255,255,255,0.8);display:flex;gap:12px;flex-wrap:wrap}
+.suivi-mission-prest{font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
+.suivi-prest-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+/* Progress stepper */
+.suivi-stepper{display:flex;align-items:center;padding:14px 16px;background:#fff;border-bottom:1px solid var(--g100)}
+.suivi-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.suivi-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:60%;width:80%;height:2px;background:var(--g200);z-index:0}
+.suivi-step:not(:last-child).done::after{background:var(--green)}
+.suivi-step-dot{width:28px;height:28px;border-radius:50%;background:var(--g100);border:2px solid var(--g300);display:flex;align-items:center;justify-content:center;font-size:13px;z-index:1;position:relative}
+.suivi-step.done .suivi-step-dot{background:var(--green);border-color:var(--green);color:#fff}
+.suivi-step.active .suivi-step-dot{background:#fff;border-color:var(--green);color:var(--green);box-shadow:0 0 0 3px rgba(26,158,111,0.15)}
+.suivi-step-lbl{font-size:9px;font-weight:600;color:var(--g400);margin-top:4px;text-align:center;line-height:1.2}
+.suivi-step.done .suivi-step-lbl,.suivi-step.active .suivi-step-lbl{color:var(--green)}
+/* Timeline */
 .suivi-timeline{padding:16px}
-.suivi-item{position:relative;padding-left:28px;padding-bottom:24px}
-.suivi-item:not(:last-child)::before{content:'';position:absolute;left:9px;top:22px;bottom:0;width:2px;background:var(--g200)}
-.suivi-dot{position:absolute;left:0;top:4px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.suivi-dot.en_attente{background:#FEF3C7;color:#D97706}
-.suivi-dot.en_cours{background:#DBEAFE;color:#2563EB}
-.suivi-dot.presque_terme{background:#D1FAE5;color:#059669}
-.suivi-dot.termine{background:#DCFCE7;color:#16A34A}
-.suivi-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.suivi-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.suivi-item{position:relative;padding-left:36px;padding-bottom:20px}
+.suivi-item:not(:last-child)::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--g200)}
+.suivi-item:not(:last-child).done::before{background:linear-gradient(to bottom,var(--green),var(--g200))}
+.suivi-dot{position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.suivi-dot.en_attente{background:#FEF3C7}
+.suivi-dot.en_cours{background:#DBEAFE}
+.suivi-dot.presque_terme{background:#D1FAE5}
+.suivi-dot.termine{background:#DCFCE7}
+.suivi-card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid var(--g100)}
+.suivi-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .suivi-status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
 .suivi-status-badge.en_attente{background:#FEF3C7;color:#D97706}
 .suivi-status-badge.en_cours{background:#DBEAFE;color:#2563EB}
 .suivi-status-badge.presque_terme{background:#D1FAE5;color:#059669}
 .suivi-status-badge.termine{background:#DCFCE7;color:#16A34A}
 .suivi-date{font-size:11px;color:var(--g400)}
-.suivi-msg{font-size:13px;color:var(--g700);line-height:1.6}
-.suivi-photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.suivi-photo{width:72px;height:72px;object-fit:cover;border-radius:8px;cursor:pointer}
-.suivi-add-form{background:#f9fafb;border-radius:16px;padding:16px;margin:0 16px 24px;border:1px dashed var(--g300)}
-.suivi-add-form h3{font-size:14px;font-weight:700;color:var(--g800);margin:0 0 12px}
-.suivi-add-form textarea{width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;resize:none;box-sizing:border-box;outline:none}
+.suivi-prest-name{font-size:11px;color:var(--g500);font-weight:600;margin-bottom:6px}
+.suivi-msg{font-size:13px;color:var(--g700);line-height:1.65}
+.suivi-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.suivi-photo{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer;transition:transform .15s}
+.suivi-photo:hover{transform:scale(1.03)}
+/* Add form */
+.suivi-add-wrap{padding:16px 16px 0}
+.suivi-add-form{background:#f8fffe;border-radius:16px;padding:16px;border:1.5px dashed var(--green)}
+.suivi-add-form h3{font-size:14px;font-weight:700;color:var(--g800);margin:0 0 12px;display:flex;align-items:center;gap:6px}
+.suivi-add-form textarea{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;resize:none;box-sizing:border-box;outline:none;transition:border .15s}
 .suivi-add-form textarea:focus{border-color:var(--green)}
-.suivi-status-select{width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px}
-.suivi-photo-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--green);font-weight:600;cursor:pointer;padding:6px 0}
-.suivi-photo-label svg{width:18px;height:18px;flex-shrink:0}
-.suivi-preview-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.suivi-preview-img{width:64px;height:64px;object-fit:cover;border-radius:8px;position:relative}
-.suivi-btn-add{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+.suivi-status-select{width:100%;background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:10px;font-size:13px;color:var(--g800);font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px;cursor:pointer}
+.suivi-photo-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:600;cursor:pointer;padding:6px 12px;background:var(--gl);border-radius:20px;margin-bottom:10px}
+.suivi-photo-label svg{width:16px;height:16px;flex-shrink:0}
+.suivi-preview-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.suivi-preview-img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.suivi-btn-add{width:100%;background:linear-gradient(135deg,var(--green),var(--gd));color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.3px}
 .suivi-btn-add:disabled{opacity:.5}
-.suivi-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center}
-.suivi-lightbox img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px}
-.suivi-lightbox-close{position:absolute;top:20px;right:20px;width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#fff}
+/* Lightbox */
+.suivi-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center}
+.suivi-lightbox img{max-width:95vw;max-height:88vh;object-fit:contain;border-radius:10px}
+.suivi-lightbox-close{position:absolute;top:20px;right:20px;width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;backdrop-filter:blur(4px)}
+/* Mes demandes — actions */
 .demande-card-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn-suivi{background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer}
-.btn-suivi-outline{background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-suivi{background:var(--green);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btn-suivi-outline{background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -897,27 +921,57 @@ textarea.req-input{resize:vertical;min-height:90px}
   <div class="topbar">
     <div class="topbar-inner">
       <button class="back-btn" onclick="closeSuivi()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div style="font-size:16px;font-weight:700;color:var(--g800)" id="suivi-title">Suivi de la mission</div>
+      <div style="font-size:16px;font-weight:700;color:var(--g800)">Suivi de mission</div>
     </div>
   </div>
   <div class="screen-body pb20" style="overflow-y:auto">
+    <!-- Bandeau mission -->
+    <div class="suivi-mission-banner" id="suivi-mission-banner">
+      <div class="suivi-mission-svc" id="suivi-banner-svc">Mission</div>
+      <div class="suivi-mission-meta">
+        <span id="suivi-banner-loc"></span>
+        <span id="suivi-banner-date"></span>
+      </div>
+      <div class="suivi-mission-prest" id="suivi-banner-prest"></div>
+    </div>
+    <!-- Barre de progression -->
+    <div class="suivi-stepper" id="suivi-stepper">
+      <div class="suivi-step" id="step-en_attente">
+        <div class="suivi-step-dot">⏳</div>
+        <div class="suivi-step-lbl">En<br>attente</div>
+      </div>
+      <div class="suivi-step" id="step-en_cours">
+        <div class="suivi-step-dot">🔧</div>
+        <div class="suivi-step-lbl">En<br>cours</div>
+      </div>
+      <div class="suivi-step" id="step-presque_terme">
+        <div class="suivi-step-dot">🔜</div>
+        <div class="suivi-step-lbl">Presque<br>terminé</div>
+      </div>
+      <div class="suivi-step" id="step-termine">
+        <div class="suivi-step-dot">✅</div>
+        <div class="suivi-step-lbl">Terminé</div>
+      </div>
+    </div>
     <!-- Formulaire ajout (prestataire seulement) -->
     <div id="suivi-add-section" style="display:none">
-      <div class="suivi-add-form">
-        <h3>Ajouter une mise à jour</h3>
-        <select class="suivi-status-select" id="suivi-new-status">
-          <option value="en_cours">En cours</option>
-          <option value="presque_terme">Presque terminé</option>
-          <option value="termine">Terminé ✓</option>
-        </select>
-        <textarea id="suivi-new-msg" rows="3" placeholder="Décrivez l'avancement des travaux…"></textarea>
-        <label class="suivi-photo-label" for="suivi-new-photos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Ajouter des photos
-        </label>
-        <input id="suivi-new-photos" type="file" accept="image/*" multiple style="display:none" onchange="previewSuiviPhotos(this)">
-        <div class="suivi-preview-imgs" id="suivi-preview-imgs"></div>
-        <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
+      <div class="suivi-add-wrap">
+        <div class="suivi-add-form">
+          <h3>📝 Nouvelle mise à jour</h3>
+          <select class="suivi-status-select" id="suivi-new-status">
+            <option value="en_cours">🔧 En cours</option>
+            <option value="presque_terme">🔜 Presque terminé</option>
+            <option value="termine">✅ Terminé</option>
+          </select>
+          <textarea id="suivi-new-msg" rows="3" placeholder="Décrivez l'avancement : ce qui a été fait, ce qu'il reste…"></textarea>
+          <label class="suivi-photo-label" for="suivi-new-photos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Joindre des photos
+          </label>
+          <input id="suivi-new-photos" type="file" accept="image/*" multiple style="display:none" onchange="previewSuiviPhotos(this)">
+          <div class="suivi-preview-imgs" id="suivi-preview-imgs"></div>
+          <button class="suivi-btn-add" id="suivi-add-btn" onclick="addSuiviUpdate()">Publier la mise à jour</button>
+        </div>
       </div>
     </div>
     <!-- Timeline -->
@@ -2002,9 +2056,11 @@ async function loadMesDemandes() {
       return tb - ta;
     });
 
+    _demandesCache = {}; // reset cache
     let html = '';
     docs.forEach(doc => {
       const d      = doc.data();
+      _demandesCache[doc.id] = d; // stocker pour openSuivi
       const statut = d.statut || 'en-attente';
       const isCustom = d.serviceType === 'custom';
       const svc    = isCustom
@@ -2026,7 +2082,7 @@ async function loadMesDemandes() {
             <span>🗓 ${fmtD(d.createdAt)}</span>
           </div>
           <div class="demande-card-actions">
-            <button class="btn-suivi" onclick="openSuivi('${doc.id}','${(d.ref||'').replace(/'/g,"\\'")}')">📊 Voir le suivi</button>
+            <button class="btn-suivi" onclick="openSuivi('${doc.id}')">📊 Suivi de mission</button>
           </div>
         </div>`;
     });
@@ -2124,32 +2180,49 @@ async function submitCustomRequest() {
 let _suiviDemandeId = null;
 let _suiviUnsub = null;
 let _suiviPhotosFiles = [];
+let _demandesCache = {}; // stocke les données des demandes chargées
 
-function openSuivi(demandeId, demandeRef) {
+const SUIVI_STATUS_LABELS = { en_attente:'En attente', en_cours:'En cours', presque_terme:'Presque terminé', termine:'Terminé ✓' };
+const SUIVI_STATUS_ICONS  = { en_attente:'⏳', en_cours:'🔧', presque_terme:'🔜', termine:'✅' };
+const SUIVI_STATUS_ORDER  = ['en_attente','en_cours','presque_terme','termine'];
+
+function openSuivi(demandeId) {
   _suiviDemandeId = demandeId;
   _suiviPhotosFiles = [];
-  document.getElementById('suivi-title').textContent = demandeRef ? `Suivi — ${demandeRef}` : 'Suivi de la mission';
   document.getElementById('suivi-preview-imgs').innerHTML = '';
   document.getElementById('suivi-new-msg').value = '';
-  // Afficher le formulaire seulement pour les prestataires
+
+  // Remplir le bandeau mission avec les données cachées
+  const d = _demandesCache[demandeId] || {};
+  const isCustom = d.serviceType === 'custom';
+  const svcName  = isCustom ? (d.customServiceTitle || 'Service personnalisé') : (d.serviceType || 'Mission');
+  document.getElementById('suivi-banner-svc').textContent = svcName;
+  document.getElementById('suivi-banner-loc').textContent  = d.localisation ? '📍 ' + d.localisation : '';
+  document.getElementById('suivi-banner-date').textContent = d.createdAt
+    ? '🗓 ' + (d.createdAt.toDate ? d.createdAt.toDate().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '')
+    : '';
+  const prestEl = document.getElementById('suivi-banner-prest');
+  if (d.prestataire) {
+    const initials = d.prestataire.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    prestEl.innerHTML = `<span class="suivi-prest-av">${initials}</span> ${d.prestataire}`;
+  } else { prestEl.innerHTML = ''; }
+
+  // Afficher formulaire seulement pour les prestataires
   const user = getAuthUser();
-  const addSection = document.getElementById('suivi-add-section');
-  if (user && user.role === 'prestataire') {
-    addSection.style.display = 'block';
-  } else {
-    addSection.style.display = 'none';
-  }
+  document.getElementById('suivi-add-section').style.display =
+    (user && user.role === 'prestataire') ? 'block' : 'none';
+
   goTo('suivi');
-  // Lancer le listener temps réel
+
+  // Listener temps réel
   if (_suiviUnsub) { _suiviUnsub(); _suiviUnsub = null; }
   if (!db) { renderSuiviTimeline([]); return; }
   _suiviUnsub = db.collection('demandes').doc(demandeId)
-    .collection('suivis')
-    .orderBy('createdAt', 'asc')
+    .collection('suivis').orderBy('createdAt', 'asc')
     .onSnapshot(snap => {
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderSuiviTimeline(items);
-    }, err => { console.error('[SUIVI]', err); });
+    }, err => { console.error('[SUIVI]', err); renderSuiviTimeline([]); });
 }
 
 function closeSuivi() {
@@ -2158,47 +2231,77 @@ function closeSuivi() {
   goTo('mes-demandes');
 }
 
-const SUIVI_STATUS_LABELS = {
-  en_attente: 'En attente',
-  en_cours: 'En cours',
-  presque_terme: 'Presque terminé',
-  termine: 'Terminé ✓'
-};
-const SUIVI_STATUS_ICONS = {
-  en_attente: '⏳',
-  en_cours: '🔧',
-  presque_terme: '🔜',
-  termine: '✅'
-};
+function updateSuiviStepper(currentStatut) {
+  const curIdx = SUIVI_STATUS_ORDER.indexOf(currentStatut);
+  SUIVI_STATUS_ORDER.forEach((st, i) => {
+    const el = document.getElementById('step-' + st);
+    if (!el) return;
+    el.classList.remove('done','active');
+    if (i < curIdx)       el.classList.add('done');
+    else if (i === curIdx) el.classList.add('active');
+    if (i < curIdx) el.classList.add('done'); // also mark connector
+  });
+  // Marquer les connecteurs
+  SUIVI_STATUS_ORDER.forEach((st, i) => {
+    const el = document.getElementById('step-' + st);
+    if (!el) return;
+    if (i < curIdx) el.classList.add('done');
+  });
+}
 
 function renderSuiviTimeline(items) {
   const el = document.getElementById('suivi-timeline');
   if (!el) return;
+
+  // Mettre à jour le stepper avec le dernier statut
+  const lastStatut = items.length ? (items[items.length-1].statut || 'en_attente') : 'en_attente';
+  updateSuiviStepper(lastStatut);
+
   if (items.length === 0) {
-    el.innerHTML = `<div class="demande-empty"><div class="demande-empty-icon">📋</div><div class="demande-empty-title">Aucune mise à jour</div><div class="demande-empty-sub">Le prestataire n'a pas encore partagé d'avancement.</div></div>`;
+    el.innerHTML = `
+      <div class="demande-empty" style="padding:32px 16px">
+        <div style="font-size:48px;margin-bottom:12px">📋</div>
+        <div class="demande-empty-title">Pas encore de mise à jour</div>
+        <div class="demande-empty-sub">Le prestataire partagera ici l'avancement de la mission avec photos.</div>
+      </div>`;
     return;
   }
-  const fmtD = ts => { try { const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric', hour:'2-digit',minute:'2-digit'}); } catch{return '';} };
+
+  const fmtD = ts => {
+    try {
+      const d = ts?.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})
+        + ' · ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    } catch{ return ''; }
+  };
+
   let html = '';
-  items.forEach(item => {
-    const st = item.statut || 'en_cours';
+  items.forEach((item, idx) => {
+    const st     = item.statut || 'en_cours';
+    const isDone = idx < items.length - 1;
     const photos = (item.photoUrls || []).map(url =>
-      `<img class="suivi-photo" src="${url}" alt="photo" onclick="openLightbox('${url}')">`
+      `<img class="suivi-photo" src="${url}" alt="photo" loading="lazy" onclick="openLightbox('${url.replace(/'/g,"\\'")}'">`
     ).join('');
+    const photosGrid = photos
+      ? `<div class="suivi-photos" style="${(item.photoUrls||[]).length===1?'grid-template-columns:1fr;max-width:240px':''}">${photos}</div>`
+      : '';
     html += `
-      <div class="suivi-item">
+      <div class="suivi-item ${isDone?'done':''}">
         <div class="suivi-dot ${st}">${SUIVI_STATUS_ICONS[st]||'•'}</div>
         <div class="suivi-card">
           <div class="suivi-card-header">
             <span class="suivi-status-badge ${st}">${SUIVI_STATUS_LABELS[st]||st}</span>
             <span class="suivi-date">${fmtD(item.createdAt)}</span>
           </div>
+          ${item.prestataire ? `<div class="suivi-prest-name">👷 ${item.prestataire}</div>` : ''}
           <div class="suivi-msg">${item.message || ''}</div>
-          ${photos ? `<div class="suivi-photos">${photos}</div>` : ''}
+          ${photosGrid}
         </div>
       </div>`;
   });
   el.innerHTML = html;
+  // Scroll vers le bas pour voir le dernier update
+  setTimeout(() => { el.parentElement.scrollTop = el.parentElement.scrollHeight; }, 100);
 }
 
 function previewSuiviPhotos(input) {

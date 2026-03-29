@@ -2,149 +2,272 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Seed données suivi — Mhono wa Hazi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seed données complètes — Mhono wa Hazi</title>
 <style>
-  body{font-family:system-ui,sans-serif;max-width:500px;margin:40px auto;padding:20px;background:#f9fafb}
-  h1{font-size:20px;color:#1a9e6f;margin-bottom:8px}
-  p{font-size:13px;color:#6b7280;margin-bottom:24px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#f0fdf4;min-height:100vh;padding:20px}
+  .card{background:#fff;border-radius:16px;padding:24px;max-width:560px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+  h1{font-size:22px;font-weight:800;color:#065f46;margin-bottom:4px}
+  .sub{font-size:13px;color:#6b7280;margin-bottom:24px}
   .field{margin-bottom:14px}
-  label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
-  input{width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box}
-  button{width:100%;background:#1a9e6f;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
-  button:hover{background:#0d6b4a}
-  #log{margin-top:20px;background:#fff;border-radius:10px;padding:14px;font-size:13px;line-height:1.8;border:1px solid #e5e7eb;min-height:60px;color:#374151}
+  label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+  input{width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111;outline:none;transition:border .15s}
+  input:focus{border-color:#1a9e6f}
+  .scenario{background:#f0fdf4;border-radius:12px;padding:14px;margin-bottom:20px;border:1px solid #bbf7d0}
+  .scenario h3{font-size:13px;font-weight:700;color:#065f46;margin-bottom:8px}
+  .scenario ul{list-style:none;font-size:12px;color:#374151;line-height:2}
+  .scenario ul li::before{content:"✓ ";color:#1a9e6f;font-weight:700}
+  button{width:100%;background:linear-gradient(135deg,#1a9e6f,#0d6b4a);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  #log{margin-top:20px;background:#fff;border-radius:12px;padding:16px;font-size:13px;line-height:2;border:1px solid #e5e7eb;min-height:80px;max-height:400px;overflow-y:auto}
   .ok{color:#059669;font-weight:700}
   .err{color:#dc2626;font-weight:700}
+  .info{color:#2563eb}
+  .section{font-weight:800;color:#111;font-size:13px;border-top:1px solid #e5e7eb;padding-top:8px;margin-top:4px}
+  .link{display:block;margin-top:16px;background:#065f46;color:#fff;text-align:center;padding:12px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px}
+  .link:hover{background:#1a9e6f}
 </style>
 </head>
 <body>
-<h1>Seed données de test — Suivi</h1>
-<p>Insère une demande + 4 mises à jour de suivi dans Firestore pour tester le rendu.</p>
+<div class="card">
+  <h1>🌱 Seed données de démonstration</h1>
+  <p class="sub">Crée un scénario complet : prestataire → demande client → suivi avec photos jusqu'à la clôture.</p>
 
-<div class="field">
-  <label>Email du compte client (pour voir dans "Mes demandes")</label>
-  <input id="email-client" type="email" value="defistylez@gmail.com" placeholder="email du client">
+  <div class="scenario">
+    <h3>Ce qui va être créé :</h3>
+    <ul>
+      <li>1 demande Plomberie — fuite évier — avec 4 étapes de suivi + photos</li>
+      <li>1 demande Service personnalisé — Photographe mariage — avec 2 étapes</li>
+      <li>1 demande Électricité — panne tableau — terminée</li>
+    </ul>
+  </div>
+
+  <div class="field">
+    <label>Email du compte client (pour voir dans "Mes demandes")</label>
+    <input id="email-client" type="email" placeholder="defistylez@gmail.com">
+  </div>
+
+  <button id="seed-btn" onclick="seedAll()">🚀 Créer les données de démonstration</button>
+  <div id="log">En attente…</div>
+  <a id="app-link" class="link" href="https://mhono-wa-hazi.vercel.app" target="_blank" style="display:none">
+    → Ouvrir l'appli et voir les résultats
+  </a>
 </div>
-
-<button onclick="seedData()">Insérer les données de test</button>
-<div id="log">En attente…</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="/firebase-config.js"></script>
 <script>
+// Init Firebase
 const cfg = window.FIREBASE_CONFIG;
 if (!firebase.apps.length) firebase.initializeApp(cfg);
 const db = firebase.firestore();
 
+// Pré-remplir l'email depuis le compte connecté (localStorage de l'appli)
+try {
+  const u = JSON.parse(localStorage.getItem('mwh_user'));
+  if (u?.email) document.getElementById('email-client').value = u.email;
+} catch(e){}
+
+const logEl = () => document.getElementById('log');
 function log(msg, type='') {
-  const el = document.getElementById('log');
-  el.innerHTML += `<span class="${type}">${msg}</span><br>`;
+  logEl().innerHTML += `<span class="${type}">${msg}</span><br>`;
+  logEl().scrollTop = logEl().scrollHeight;
+}
+function logSection(msg) {
+  logEl().innerHTML += `<div class="section">${msg}</div>`;
 }
 
-async function seedData() {
-  document.getElementById('log').innerHTML = '';
-  const emailClient = document.getElementById('email-client').value.trim();
-  if (!emailClient) { log('Renseignez un email client.', 'err'); return; }
+// Photos Unsplash (publiques, fiables)
+const PHOTOS = {
+  plomberie: [
+    'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&q=75',
+    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=75',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75',
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=75',
+  ],
+  elec: [
+    'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&q=75',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75',
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=75',
+  ],
+  photo: [
+    'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=75',
+    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600&q=75',
+  ]
+};
 
-  log('Création de la demande de test…');
+function ts(daysAgo, hour=9) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(hour, 0, 0, 0);
+  return firebase.firestore.Timestamp.fromDate(d);
+}
 
-  const now = firebase.firestore.Timestamp.now();
-  const yesterday = firebase.firestore.Timestamp.fromMillis(Date.now() - 86400000);
-  const twoDaysAgo = firebase.firestore.Timestamp.fromMillis(Date.now() - 172800000);
-
-  try {
-    // ── Demande 1 : Plomberie en cours ──────────────────────────
-    const dem1 = await db.collection('demandes').add({
-      type: 'service_request',
-      serviceType: 'Plomberie',
-      description: 'Fuite sous l\'évier de la cuisine, ça coule depuis 2 jours. Joint à remplacer.',
-      localisation: 'Quartier Bandamaji, Moroni',
-      nom: emailClient.split('@')[0],
-      email: emailClient,
-      contact_wa: '+269 321 45 67',
-      ref: 'MWH-DEM-TEST01',
-      statut: 'presque_terme',
-      source: 'seed_test',
-      createdAt: twoDaysAgo
-    });
-    log('✓ Demande créée : MWH-DEM-TEST01', 'ok');
-
-    // Suivis de la demande 1
-    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
-      statut: 'en_attente',
-      message: 'Bonjour, j\'ai bien reçu votre demande. Je confirme ma venue demain matin entre 8h et 10h. Prévoyez l\'accès sous l\'évier.',
-      photoUrls: [],
-      prestataire: 'Said Omar',
-      createdAt: twoDaysAgo
-    });
-    log('  ↳ Suivi 1/4 ajouté (En attente)', 'ok');
-
-    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
-      statut: 'en_cours',
-      message: 'Je suis sur place. J\'ai identifié le problème : c\'est le flexible d\'alimentation qui est fissuré. J\'ai le matériel nécessaire, le remplacement prendra environ 30 minutes.',
-      photoUrls: [
-        'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80',
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80'
-      ],
-      prestataire: 'Said Omar',
-      createdAt: yesterday
-    });
-    log('  ↳ Suivi 2/4 ajouté (En cours + 2 photos)', 'ok');
-
-    await db.collection('demandes').doc(dem1.id).collection('suivis').add({
-      statut: 'presque_terme',
-      message: 'Flexible remplacé, joint refait. Je teste l\'étanchéité pendant 15 min avant de partir. Tout a l\'air bon pour l\'instant.',
-      photoUrls: [
-        'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80'
-      ],
-      prestataire: 'Said Omar',
-      createdAt: now
-    });
-    log('  ↳ Suivi 3/4 ajouté (Presque terminé + 1 photo)', 'ok');
-
-    // ── Demande 2 : Service personnalisé ────────────────────────
-    const dem2 = await db.collection('demandes').add({
-      type: 'service_request',
-      serviceType: 'custom',
-      customServiceTitle: 'Photographe mariage',
-      description: 'Besoin d\'un photographe pour un mariage le 15 juin à Moroni, environ 6 heures de prestation. Cérémonie + repas.',
-      localisation: 'Moroni, Salle des fêtes Corniche',
-      budget: '50 000 KMF',
-      urgence: 'cette_semaine',
-      nom: emailClient.split('@')[0],
-      email: emailClient,
-      contact_wa: '+269 321 45 67',
-      ref: 'MWH-CUST-TEST02',
-      statut: 'en_cours',
-      source: 'seed_test',
-      createdAt: yesterday
-    });
-    log('✓ Demande créée : MWH-CUST-TEST02 (Service personnalisé)', 'ok');
-
-    await db.collection('demandes').doc(dem2.id).collection('suivis').add({
-      statut: 'en_cours',
-      message: 'Bonjour ! J\'ai bien reçu votre demande de photographe pour le mariage. Je suis disponible le 15 juin. Je vous prépare un devis détaillé avec mes formules.',
-      photoUrls: [
-        'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80'
-      ],
-      prestataire: 'Aïcha Photographe',
-      createdAt: now
-    });
-    log('  ↳ Suivi 1/1 ajouté (En cours + 1 photo)', 'ok');
-
-    log('');
-    log('✅ Données insérées avec succès !', 'ok');
-    log('');
-    log('→ Ouvre l\'appli, connecte-toi avec ' + emailClient);
-    log('→ Va dans Mes demandes');
-    log('→ Clique "📊 Voir le suivi" sur une des 2 cartes');
-
-  } catch(e) {
-    log('Erreur : ' + e.message, 'err');
-    console.error(e);
+async function addSuivis(demandeId, suivis) {
+  for (const s of suivis) {
+    await db.collection('demandes').doc(demandeId).collection('suivis').add(s);
+    log(`  ↳ ${SUIVI_ICONS[s.statut]||'•'} ${s.statut} — "${s.message.slice(0,50)}…"`, 'info');
   }
+}
+
+const SUIVI_ICONS = { en_attente:'⏳', en_cours:'🔧', presque_terme:'🔜', termine:'✅' };
+
+async function seedAll() {
+  const email = document.getElementById('email-client').value.trim();
+  if (!email) { alert('Renseignez votre email.'); return; }
+
+  logEl().innerHTML = '';
+  document.getElementById('seed-btn').disabled = true;
+
+  // ══════════════════════════════════════════════════
+  // DEMANDE 1 : Plomberie — fuite évier (4 étapes)
+  // ══════════════════════════════════════════════════
+  logSection('📌 Demande 1 — Plomberie (fuite sous l\'évier)');
+  try {
+    const d1 = await db.collection('demandes').add({
+      type:'service_request', serviceType:'Plomberie',
+      description:'Fuite sous l\'évier de la cuisine depuis 2 jours. Joint à remplacer probablement.',
+      localisation:'Quartier Bandamaji, Moroni',
+      nom: email.split('@')[0],
+      email, contact_wa:'+269 321 45 67',
+      prestataire:'Said Omar',
+      ref:'MWH-DEM-DEMO01',
+      statut:'termine',
+      source:'seed_demo',
+      createdAt: ts(3)
+    });
+    log(`✓ Demande créée (ID: ${d1.id.slice(0,8)}…)`, 'ok');
+
+    await addSuivis(d1.id, [
+      {
+        statut:'en_attente',
+        message:'Bonjour ! J\'ai bien reçu votre demande. Je confirme ma venue demain matin entre 8h et 10h. Veuillez préparer l\'accès sous l\'évier. À bientôt.',
+        photoUrls:[],
+        prestataire:'Said Omar',
+        createdAt: ts(3, 14)
+      },
+      {
+        statut:'en_cours',
+        message:'Je suis sur place. J\'ai identifié le problème : flexible d\'alimentation fissuré + joint d\'étanchéité usé. J\'ai le matériel pour tout réparer maintenant. Les photos montrent l\'état avant intervention.',
+        photoUrls:[PHOTOS.plomberie[0], PHOTOS.plomberie[1]],
+        prestataire:'Said Omar',
+        createdAt: ts(2, 8)
+      },
+      {
+        statut:'presque_terme',
+        message:'Flexible remplacé, nouveau joint posé. Je teste l\'étanchéité pendant 15 minutes. Aucune fuite visible pour l\'instant. Photo du résultat intermédiaire.',
+        photoUrls:[PHOTOS.plomberie[2]],
+        prestataire:'Said Omar',
+        createdAt: ts(2, 9)
+      },
+      {
+        statut:'termine',
+        message:'✅ Mission terminée avec succès ! Fuite réparée, tout est propre et étanche. Test d\'eau effectué pendant 20 min, aucune goutte. Voici la photo finale. N\'hésitez pas à me laisser un avis.',
+        photoUrls:[PHOTOS.plomberie[3]],
+        prestataire:'Said Omar',
+        createdAt: ts(2, 10)
+      }
+    ]);
+    log('✓ Demande 1 complète (4 étapes + 4 photos)', 'ok');
+  } catch(e) { log('Erreur demande 1 : ' + e.message, 'err'); }
+
+  // ══════════════════════════════════════════════════
+  // DEMANDE 2 : Service personnalisé — Photographe
+  // ══════════════════════════════════════════════════
+  logSection('📌 Demande 2 — Service personnalisé (Photographe mariage)');
+  try {
+    const d2 = await db.collection('demandes').add({
+      type:'service_request', serviceType:'custom',
+      customServiceTitle:'Photographe mariage',
+      description:'Besoin d\'un photographe professionnel pour un mariage le 15 juin à Moroni. Environ 6h de prestation (cérémonie + repas). Livraison des photos sous 2 semaines.',
+      localisation:'Salle des fêtes Corniche, Moroni',
+      budget:'50 000 KMF',
+      urgence:'cette_semaine',
+      nom: email.split('@')[0],
+      email, contact_wa:'+269 321 45 67',
+      prestataire:'Aïcha Photographe',
+      ref:'MWH-CUST-DEMO02',
+      statut:'en_cours',
+      source:'seed_demo',
+      createdAt: ts(1)
+    });
+    log(`✓ Demande créée (ID: ${d2.id.slice(0,8)}…)`, 'ok');
+
+    await addSuivis(d2.id, [
+      {
+        statut:'en_cours',
+        message:'Bonjour ! J\'ai bien reçu votre demande. Je suis disponible le 15 juin. Je vous prépare un devis complet avec mes formules (formule Basic 40 000 KMF / formule Premium 55 000 KMF). Voici un aperçu de mon travail.',
+        photoUrls:[PHOTOS.photo[0]],
+        prestataire:'Aïcha Photographe',
+        createdAt: ts(1, 15)
+      },
+      {
+        statut:'en_cours',
+        message:'Suite à notre échange WhatsApp, je confirme ma présence le 15 juin pour la formule Premium. Contrat envoyé par email. Voici quelques photos de références pour le style que vous avez choisi.',
+        photoUrls:[PHOTOS.photo[1]],
+        prestataire:'Aïcha Photographe',
+        createdAt: ts(0, 10)
+      }
+    ]);
+    log('✓ Demande 2 complète (2 étapes + 2 photos)', 'ok');
+  } catch(e) { log('Erreur demande 2 : ' + e.message, 'err'); }
+
+  // ══════════════════════════════════════════════════
+  // DEMANDE 3 : Électricité — panne tableau (terminé)
+  // ══════════════════════════════════════════════════
+  logSection('📌 Demande 3 — Électricité (panne tableau)');
+  try {
+    const d3 = await db.collection('demandes').add({
+      type:'service_request', serviceType:'Électricité',
+      description:'Panne générale au niveau du tableau électrique. 3 disjoncteurs ont sauté et ne se réarment pas.',
+      localisation:'Itsandra, Ngazidja',
+      nom: email.split('@')[0],
+      email, contact_wa:'+269 321 45 67',
+      prestataire:'Hassan Électricien',
+      ref:'MWH-DEM-DEMO03',
+      statut:'termine',
+      source:'seed_demo',
+      createdAt: ts(5)
+    });
+    log(`✓ Demande créée (ID: ${d3.id.slice(0,8)}…)`, 'ok');
+
+    await addSuivis(d3.id, [
+      {
+        statut:'en_attente',
+        message:'Reçu votre demande. Je suis disponible demain après-midi. Pensez à noter si vous avez des appareils qui consomment beaucoup (clim, chauffe-eau) pour que je prépare le bon matériel.',
+        photoUrls:[],
+        prestataire:'Hassan Électricien',
+        createdAt: ts(5, 16)
+      },
+      {
+        statut:'en_cours',
+        message:'Sur place. Problème identifié : surcharge sur le circuit cuisine + disjoncteur différentiel défectueux. Je remplace le différentiel 40A et redistribue les circuits. Photos avant travaux.',
+        photoUrls:[PHOTOS.elec[0]],
+        prestataire:'Hassan Électricien',
+        createdAt: ts(4, 14)
+      },
+      {
+        statut:'termine',
+        message:'✅ Tableau remis en état ! Nouveau différentiel posé, circuits redistribués. Tout fonctionne normalement. J\'ai aussi vérifié la mise à la terre. Photo du tableau final. Bonne continuation !',
+        photoUrls:[PHOTOS.elec[1], PHOTOS.elec[2]],
+        prestataire:'Hassan Électricien',
+        createdAt: ts(4, 16)
+      }
+    ]);
+    log('✓ Demande 3 complète (3 étapes + 3 photos)', 'ok');
+  } catch(e) { log('Erreur demande 3 : ' + e.message, 'err'); }
+
+  // ═══════════════════════
+  log('');
+  log('🎉 Toutes les données ont été créées !', 'ok');
+  log('');
+  log(`→ Connecte-toi avec : <strong>${email}</strong>`);
+  log('→ Va dans "Mes demandes"');
+  log('→ Clique "📊 Suivi de mission" sur chaque carte');
+  document.getElementById('app-link').style.display = 'block';
+  document.getElementById('seed-btn').disabled = false;
 }
 </script>
 </body>
