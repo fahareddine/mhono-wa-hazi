@@ -2331,7 +2331,7 @@ function renderSuiviTimeline(items) {
         <div class="suivi-card">
           <div class="suivi-card-header">
             <span class="suivi-status-badge ${st}">${SUIVI_STATUS_LABELS[st]||st}</span>
-            <span class="suivi-date">${fmtD(item.createdAt)}${getJday(item.createdAt)}</span>
+            <span class="suivi-date">${getJday(item.createdAt)} ${fmtD(item.createdAt)}</span>
           </div>
           ${item.prestataire ? `<div class="suivi-prest-name">👷 ${item.prestataire}</div>` : ''}
           <div class="suivi-msg">${item.message || ''}</div>
