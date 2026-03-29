@@ -902,6 +902,24 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div class="confirm-title">Demande envoyée !</div>
       <div class="confirm-sub">Info Experts a reçu votre demande et va contacter le prestataire pour confirmer le rendez-vous et organiser le paiement.</div>
       <div class="confirm-ref"><span>📋</span>Référence : <strong id="c-ref">#MWH-2026-0001</strong></div>
+
+      <!-- Bloc compte auto-créé -->
+      <div id="c-compte-block" style="display:none;background:var(--gl);border-radius:var(--r2);padding:16px;width:100%;margin-bottom:16px;border:1.5px solid #86efac">
+        <div style="font-size:12px;font-weight:700;color:var(--gd);margin-bottom:8px">🎉 Votre compte a été créé automatiquement</div>
+        <div id="c-numcompte" style="font-size:22px;font-weight:800;color:var(--gd);text-align:center;letter-spacing:1.5px;margin:8px 0;font-family:monospace">—</div>
+        <div style="font-size:11px;color:var(--g600);text-align:center;margin-bottom:10px">Notez ce numéro — il vous permet d'accéder à vos demandes</div>
+        <div style="font-size:11px;color:var(--g500);background:#fff;border-radius:8px;padding:10px;line-height:1.9">
+          📱 Envoyez ce numéro à Info Experts sur WhatsApp pour activer votre compte.<br>
+          🔑 Un accès vous sera créé pour suivre toutes vos demandes.
+        </div>
+      </div>
+
+      <!-- Compte existant rattaché -->
+      <div id="c-compte-existing" style="display:none;background:var(--bl);border-radius:var(--r2);padding:14px;width:100%;margin-bottom:16px;border:1px solid #BFDBFE">
+        <div style="font-size:12px;font-weight:700;color:#1D4ED8;margin-bottom:4px">ℹ️ Demande rattachée à votre compte existant</div>
+        <div id="c-compte-existing-num" style="font-size:13px;color:#1E40AF;font-weight:600;font-family:monospace"></div>
+      </div>
+
       <div class="confirm-box">
         <div class="confirm-row"><span class="confirm-row-label">Prestataire</span><span class="confirm-row-val" id="c-name"></span></div>
         <div class="confirm-row"><span class="confirm-row-label">Service</span><span class="confirm-row-val" id="c-service"></span></div>
@@ -977,8 +995,11 @@ textarea.req-input{resize:vertical;min-height:90px}
       <div style="font-size:11px;color:var(--g400);margin-top:6px">📧 Un email de confirmation vous sera envoyé automatiquement.</div>
     </div>
     <div style="padding:16px">
-      <button class="btn-primary" id="req-btn" onclick="submitRequest()">Envoyer ma demande à Info Experts</button>
-      <div style="font-size:11px;color:var(--g500);text-align:center;margin-top:10px">Votre demande sera envoyée par WhatsApp à Info Experts</div>
+      <button class="btn-primary" id="req-btn" onclick="submitRequest()">Envoyer ma demande</button>
+      <div style="background:var(--gl);border-radius:10px;padding:10px 12px;margin-top:12px;border:1px solid #bbf7d0">
+        <div style="font-size:11px;color:var(--gd);font-weight:700;margin-bottom:3px">✅ Pas besoin de créer un compte</div>
+        <div style="font-size:11px;color:var(--g600);line-height:1.7">Votre demande sera enregistrée immédiatement et un compte vous sera créé automatiquement. Vous recevrez un numéro de compte pour suivre vos demandes.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1830,6 +1851,64 @@ async function loadProvidersFromFirebase() {
   initHome(); renderExplore(P);
 }
 
+// ── COMPTE INVITÉ — CRÉATION AUTOMATIQUE ─────────────────────────────────────
+
+async function generateNumCompte() {
+  const year = new Date().getFullYear();
+  if (!db) return 'MWH-' + year + '-' + Date.now().toString(36).toUpperCase().slice(-6);
+  try {
+    const counterRef = db.collection('meta').doc('counters');
+    let num;
+    await db.runTransaction(async tx => {
+      const doc = await tx.get(counterRef);
+      const current = doc.exists ? (doc.data().userCount || 0) : 0;
+      num = current + 1;
+      tx.set(counterRef, { userCount: num }, { merge: true });
+    });
+    return 'MWH-' + year + '-' + String(num).padStart(6, '0');
+  } catch(e) {
+    return 'MWH-' + year + '-' + Date.now().toString(36).toUpperCase().slice(-6);
+  }
+}
+
+async function getOrCreateGuestUser(nom, wa, email) {
+  if (!db) return null;
+  try {
+    // 1. Chercher par email
+    if (email) {
+      const byEmail = await db.collection('users').where('email', '==', email).limit(1).get();
+      if (!byEmail.empty) {
+        const d = byEmail.docs[0];
+        return { id: d.id, ...d.data(), isExisting: true };
+      }
+    }
+    // 2. Chercher par téléphone
+    const byWa = await db.collection('users').where('telephone', '==', wa).limit(1).get();
+    if (!byWa.empty) {
+      const d = byWa.docs[0];
+      return { id: d.id, ...d.data(), isExisting: true };
+    }
+    // 3. Créer un nouveau compte
+    const numCompte = await generateNumCompte();
+    const userData = {
+      numCompte,
+      nom,
+      email: email || null,
+      telephone: wa,
+      role: 'client',
+      statut: 'guest',
+      mustChangePassword: true,
+      source: 'guest_demande',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    const ref = await db.collection('users').add(userData);
+    return { id: ref.id, ...userData, isExisting: false };
+  } catch(e) {
+    console.error('getOrCreateGuestUser:', e);
+    return null;
+  }
+}
+
 // ── DEMANDER UN SERVICE ──────────────────────────────
 async function submitRequest() {
   const type  = document.getElementById('req-type').value;
@@ -1845,12 +1924,36 @@ async function submitRequest() {
   const ref = 'MWH-DEM-' + Date.now().toString(36).toUpperCase();
   const msg = 'Bonjour Info Experts 👋\n\n*Nouvelle demande client — Mhono wa Hazi*\n\n👤 Client : '+nom+'\n🔧 Service : '+type+'\n📝 Besoin : '+desc+'\n📍 Lieu : '+loc+'\n📅 Date : '+(date||'Non précisée')+'\n📱 WhatsApp : '+wa+(email?'\n📧 Email : '+email:'')+'\n📋 Réf : '+ref+'\n\nMerci de traiter cette demande.';
   window.open('https://wa.me/33667491345?text='+encodeURIComponent(msg),'_blank');
+  // Masquer les blocs compte au cas où c'est un 2e envoi
+  document.getElementById('c-compte-block').style.display = 'none';
+  document.getElementById('c-compte-existing').style.display = 'none';
+
+  let guestUser = null;
   try {
-    const payload = { type:'service_request', serviceType:type, description:desc, localisation:loc, date, nom, email:email||null, contact_wa:wa, ref };
-    if (db) await db.collection('demandes').add({ ...payload, statut:'nouveau', source:'client_direct', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+    // Créer ou retrouver le compte invité
+    guestUser = await getOrCreateGuestUser(nom, wa, email);
+
+    const payload = {
+      type: 'service_request', serviceType: type, description: desc,
+      localisation: loc, date, nom, email: email||null, contact_wa: wa, ref,
+      ...(guestUser ? { userId: guestUser.id, numCompte: guestUser.numCompte } : {}),
+    };
+    if (db) await db.collection('demandes').add({ ...payload, statut:'nouveau', source:'client_direct', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     await fetch('/api/demande', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
   } catch(e) {}
+
   document.getElementById('c-ref').textContent = ref;
+
+  // Afficher le bloc compte
+  if (guestUser) {
+    if (guestUser.isExisting) {
+      document.getElementById('c-compte-existing').style.display = 'block';
+      document.getElementById('c-compte-existing-num').textContent = guestUser.numCompte || '';
+    } else {
+      document.getElementById('c-compte-block').style.display = 'block';
+      document.getElementById('c-numcompte').textContent = guestUser.numCompte || '';
+    }
+  }
   document.getElementById('req-type').value = '';
   document.getElementById('req-desc').value = '';
   document.getElementById('req-loc').value = '';

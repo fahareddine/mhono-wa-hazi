@@ -919,10 +919,11 @@ async function loadUsers() {
     const clients = allUsers.filter(u => u.role === 'client').length;
     const presta  = allUsers.filter(u => u.role === 'prestataire').length;
     const inactif = allUsers.filter(u => u.statut === 'inactif').length;
+    const guests  = allUsers.filter(u => u.statut === 'guest').length;
     document.getElementById('ustat-total').textContent   = total;
     document.getElementById('ustat-clients').textContent = clients;
     document.getElementById('ustat-presta').textContent  = presta;
-    document.getElementById('ustat-inactif').textContent = inactif;
+    document.getElementById('ustat-inactif').textContent = inactif + (guests ? ' (dont ' + guests + ' invités)' : '');
     renderUsersTable(allUsers);
   } catch(e) {
     showToast('Erreur chargement utilisateurs : ' + e.message, 'error');
@@ -948,7 +949,9 @@ function renderUsersTable(list) {
       : '<span class="badge" style="background:var(--bl);color:var(--blue)">Client</span>';
     const statutBadge = u.statut === 'actif'
       ? '<span class="badge badge-ok">Actif</span>'
-      : '<span class="badge badge-no">Inactif</span>';
+      : u.statut === 'guest'
+        ? '<span class="badge badge-tm">Invité</span>'
+        : '<span class="badge badge-no">Inactif</span>';
     const pwdBadge    = u.mustChangePassword
       ? '<span class="badge badge-tm">À changer</span>'
       : '<span class="badge badge-ok">OK</span>';
@@ -958,7 +961,7 @@ function renderUsersTable(list) {
       <td>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:34px;height:34px;border-radius:50%;background:var(--gl);color:var(--gd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${initials}</div>
-          <strong>${u.nom||'—'}</strong>
+          <div><strong>${u.nom||'—'}</strong>${u.numCompte?`<div style="font-size:10px;font-family:monospace;color:var(--g400);margin-top:1px">${u.numCompte}</div>`:''}</div>
         </div>
       </td>
       <td style="font-size:12px;color:var(--g600)">${u.email||'—'}</td>
@@ -971,7 +974,10 @@ function renderUsersTable(list) {
         <div class="actions" style="flex-wrap:wrap;gap:4px">
           <button class="btn btn-outline btn-sm" onclick="showUserModal('${u.id}')">Modifier</button>
           <button class="btn btn-outline btn-sm" onclick="resetUserPwd('${u.id}','${safeNom}')">Reset MdP</button>
-          <button class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.id}','${u.statut}')">${u.statut==='actif'?'Désactiver':'Réactiver'}</button>
+          ${u.statut==='guest'
+            ? `<button class="btn btn-sm" style="background:var(--green);color:#fff;border-color:var(--green)" onclick="activateGuestUser('${u.id}','${safeNom}')">Activer</button>`
+            : `<button class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.id}','${u.statut}')">${u.statut==='actif'?'Désactiver':'Réactiver'}</button>`
+          }
           <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}','${safeNom}')">Supprimer</button>
         </div>
       </td>
@@ -986,7 +992,9 @@ function filterUsers() {
     (u.email||'').toLowerCase().includes(q) ||
     (u.telephone||'').toLowerCase().includes(q) ||
     (u.role||'').toLowerCase().includes(q) ||
-    (u.specialite||'').toLowerCase().includes(q)
+    (u.specialite||'').toLowerCase().includes(q) ||
+    (u.numCompte||'').toLowerCase().includes(q) ||
+    (u.statut||'').toLowerCase().includes(q)
   ));
 }
 
@@ -1083,6 +1091,23 @@ async function resetUserPwd(uid, nom) {
     alert(`🔑 Nouveau mot de passe temporaire pour ${nom} :\n\n    ${data.tempPassword}\n\nCommuniquez ce mot de passe à l'utilisateur.`);
     loadUsers();
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function activateGuestUser(uid, nom) {
+  if (!confirm(`Activer le compte de ${nom} ? Un mot de passe temporaire sera assigné.`)) return;
+  try {
+    const r = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminApiKey() },
+      body: JSON.stringify({ action: 'updateUser', userId: uid, updates: { statut: 'actif', mustChangePassword: true } }),
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.error);
+    showToast('✅ Compte activé — pensez à définir un mot de passe via Reset MdP');
+    loadUsers();
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'error');
+  }
 }
 
 async function toggleUserStatus(uid, currentStatut) {
