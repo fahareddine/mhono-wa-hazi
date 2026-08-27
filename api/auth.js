@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       if (user.statut === 'inactif') {
         return res.status(403).json({
           success: false,
-          error: 'Compte désactivé. Contactez Info Experts au +269 331 27 22.',
+          error: 'Compte désactivé. Contactez Info Experts au +269 477 78 65.',
         });
       }
 

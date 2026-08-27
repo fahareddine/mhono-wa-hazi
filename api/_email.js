@@ -51,7 +51,7 @@ function wrap(inner) {
     <div style="padding:10px 20px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center">
       Info Experts · Moroni, Comores ·
       <a href="https://info-experts.fr" style="color:#0D6B4A">info-experts.fr</a> ·
-      <a href="tel:+269331272" style="color:#0D6B4A">+269 331 27 22</a>
+      <a href="tel:+2694777865" style="color:#0D6B4A">+269 477 78 65</a>
     </div>
   </div>
 </body></html>`;
@@ -141,7 +141,7 @@ export function sendWelcomeEmail({ nom, email, tempPassword, role }) {
       </a>
 
       <div style="padding:12px 16px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#166534">
-        Des questions ? Contactez-nous sur WhatsApp au <strong>+269 331 27 22</strong> ou par email à <strong>contact@info-experts.fr</strong>.
+        Des questions ? Contactez-nous sur WhatsApp au <strong>+269 477 78 65</strong> ou par email à <strong>contact@info-experts.fr</strong>.
       </div>
     </div>`);
 
